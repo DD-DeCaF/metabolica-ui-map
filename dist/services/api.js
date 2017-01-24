@@ -1,6 +1,6 @@
 "use strict";
-var angular = require('angular');
-var _ = require('lodash');
+var angular = require("angular");
+var _ = require("lodash");
 var api = angular.module('pathwayvis.services.api', []);
 // API url
 exports.API_ROOT_URL = 'https://api.dd-decaf.eu/';

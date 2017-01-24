@@ -53,6 +53,8 @@ SystemJS.config({
 		"os": "npm:jspm-nodelibs-os@0.2.0",
 		"path": "npm:jspm-nodelibs-path@0.2.1",
 		"process": "npm:jspm-nodelibs-process@0.2.0",
+		"resolwe": "github:genialis/resolwe-js@0.1.0",
+		"rx": "npm:rx@4.1.0",
 		"stream": "npm:jspm-nodelibs-stream@0.2.0",
 		"string_decoder": "npm:jspm-nodelibs-string_decoder@0.2.0",
 		"url": "npm:jspm-nodelibs-url@0.2.0",
@@ -316,6 +318,18 @@ SystemJS.config({
 		"npm:jspm-nodelibs-buffer@0.2.1": {
 			"map": {
 				"buffer": "npm:buffer@4.9.1"
+			}
+		},
+		"github:genialis/resolwe-js@0.1.0": {
+			"map": {
+				"lodash": "npm:lodash@3.10.1",
+				"jquery": "npm:jquery@2.1.4",
+				"rx": "npm:rx@4.1.0",
+				"ng-file-upload": "npm:ng-file-upload@12.2.13",
+				"angular-mocks": "npm:angular-mocks@1.5.5",
+				"jquery.cookie": "npm:jquery.cookie@1.4.1",
+				"immutable": "npm:immutable@3.8.1",
+				"angular": "npm:angular@1.5.6"
 			}
 		}
 	}

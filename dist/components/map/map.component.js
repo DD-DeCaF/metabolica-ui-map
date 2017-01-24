@@ -1,12 +1,11 @@
 "use strict";
-/// <reference path="../../../typings/escher.d.ts"/>
-var escher = require('escher');
-var d3 = require('d3');
-var _ = require('lodash');
-// noinspection TypeScriptCheckImport
-var decaf_common_1 = require('decaf-common');
-require('../../services/actions/actions.service');
-require('./views/map.component.css!');
+var angular = require("angular");
+var escher = require("escher");
+var d3 = require("d3");
+var _ = require("lodash");
+var decaf_common_1 = require("decaf-common");
+require("../../services/actions/actions.service");
+require("./views/map.component.css!");
 var component = angular.module('pathwayvis.components.map', [
     'pathwayvis.services.actions'
 ]);

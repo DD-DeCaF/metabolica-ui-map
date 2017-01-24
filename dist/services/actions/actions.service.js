@@ -10,12 +10,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var angular = require('angular');
-var _ = require('lodash');
-var base_1 = require('./base');
+var angular = require("angular");
+var _ = require("lodash");
+var base_1 = require("./base");
 /**
  * Creates @registerAction decorator that is used for registering new actions
  */
@@ -68,9 +65,10 @@ actions.service('actions', ActionsService);
 var Knockout = (function (_super) {
     __extends(Knockout, _super);
     function Knockout() {
-        _super.apply(this, arguments);
-        this.label = 'Knockout';
-        this.type = 'reaction:knockout:do';
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.label = 'Knockout';
+        _this.type = 'reaction:knockout:do';
+        return _this;
     }
     // @ngInject
     Knockout.prototype.callback = function (ws, $timeout) {
@@ -91,21 +89,21 @@ var Knockout = (function (_super) {
         var isRemoved = !_.includes(context.shared.map.removedReactions, context.element.bigg_id);
         return context.type === 'map:reaction' && isRemoved;
     };
-    Knockout = __decorate([
-        registerAction, 
-        __metadata('design:paramtypes', [])
-    ], Knockout);
     return Knockout;
 }(base_1.ReactionAction));
+Knockout = __decorate([
+    registerAction
+], Knockout);
 /**
  * Undo knockout reaction
  */
 var UndoKnockout = (function (_super) {
     __extends(UndoKnockout, _super);
     function UndoKnockout() {
-        _super.apply(this, arguments);
-        this.label = 'Undo knockout';
-        this.type = 'reaction:knockout:undo';
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.label = 'Undo knockout';
+        _this.type = 'reaction:knockout:undo';
+        return _this;
     }
     UndoKnockout.prototype.canDisplay = function (context) {
         if (context.shared.map.removedReactions) {
@@ -114,11 +112,10 @@ var UndoKnockout = (function (_super) {
         }
         return false;
     };
-    UndoKnockout = __decorate([
-        registerAction, 
-        __metadata('design:paramtypes', [])
-    ], UndoKnockout);
     return UndoKnockout;
 }(Knockout));
+UndoKnockout = __decorate([
+    registerAction
+], UndoKnockout);
 
 //# sourceMappingURL=actions.service.js.map

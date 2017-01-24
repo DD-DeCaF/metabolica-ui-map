@@ -1,13 +1,13 @@
 "use strict";
 // Never remove this import of `angular` from here.
 // NOTE: the import form angular also makes the `angular` namespace available globally
-var angular = require('angular');
-require('angular-material');
-require('angular-ui-router');
+var angular = require("angular");
+require("angular-material");
+require("angular-ui-router");
 // Turn of WS TS inspection for the 'decaf-common' import.
 // noinspection TypeScriptCheckImport
-var decaf_common_1 = require('decaf-common');
-var src_1 = require('src');
+var decaf_common_1 = require("decaf-common");
+var src_1 = require("src");
 var app = angular.module('app', [
     // Angular
     'ngAnimate',

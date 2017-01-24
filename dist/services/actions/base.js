@@ -19,7 +19,7 @@ exports.Action = Action;
 var ReactionAction = (function (_super) {
     __extends(ReactionAction, _super);
     function ReactionAction() {
-        _super.apply(this, arguments);
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     ReactionAction.prototype.canDisplay = function (context) {
         return context.type === 'map:reaction';

@@ -1,7 +1,8 @@
 "use strict";
-var _ = require('lodash');
-var decaf_common_1 = require('decaf-common');
-require('./views/knockout.section.css!');
+var angular = require("angular");
+var _ = require("lodash");
+var decaf_common_1 = require("decaf-common");
+require("./views/knockout.section.css!");
 var section = angular.module('pathwayvis.components.sections.knockout', []);
 /**
  * Knockout component

@@ -37,8 +37,6 @@ main.config(function (platformProvider) {
                 }
             },
             onEnter(config: Config) {
-                // Turn of WS inspection for TS
-                // noinspection TypeScriptUnresolvedFunction
                 config.set('color', '#34495e');
             },
             onExit(config: Config) {

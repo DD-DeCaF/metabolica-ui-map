@@ -1,9 +1,9 @@
+import * as angular from 'angular';
 import * as _ from 'lodash';
 
+import {dirname} from 'decaf-common';
 import {APIService} from '../../services/api';
 import * as types from '../../types';
-// noinspection TypeScriptCheckImport
-import {dirname} from 'decaf-common';
 
 import './views/sidebar.component.css!';
 

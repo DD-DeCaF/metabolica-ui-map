@@ -1,9 +1,8 @@
-/// <reference path="../../../typings/escher.d.ts"/>
+import * as angular from 'angular';
 import * as escher from 'escher';
 import * as d3 from 'd3';
 import * as _ from 'lodash';
 
-// noinspection TypeScriptCheckImport
 import {dirname} from 'decaf-common';
 import {APIService} from '../../services/api';
 import {WSService} from '../../services/ws';

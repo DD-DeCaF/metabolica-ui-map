@@ -1,8 +1,8 @@
 "use strict";
-var _ = require('lodash');
-// noinspection TypeScriptCheckImport
-var decaf_common_1 = require('decaf-common');
-require('./views/sidebar.component.css!');
+var angular = require("angular");
+var _ = require("lodash");
+var decaf_common_1 = require("decaf-common");
+require("./views/sidebar.component.css!");
 var component = angular.module('pathwayvis.components.sidebar', []);
 /**
  * sidebar component

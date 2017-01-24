@@ -13,11 +13,19 @@
 				"dist/jspm_packages/github/biosustain/decaf-frontend-common@master/src",
 				"jspm_packages/github/biosustain/decaf-frontend-common@master/src"
 			],
-			"src/*": ["src/*"]
-		}
-	},
-	"files": [
-		"typings/index.d.ts",
-		"typings/escher.d.ts"
-	]
+			"src/*": [
+				"src/*"
+			],
+			"rx": ["jspm_packages/npm/rx@4.1.0/ts/rx.all.d.ts"],
+            "resolwe/*": ["jspm_packages/github/genialis/resolwe-js@0.1.0/*"]
+        },
+        "typeRoots": [
+            "./typings",
+            "./node_modules/@types"
+        ]
+    },
+    "include": [
+        "**/*.ts"
+    ],
+    "compileOnSave": false
 }

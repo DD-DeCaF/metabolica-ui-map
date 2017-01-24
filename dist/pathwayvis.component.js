@@ -1,12 +1,12 @@
 "use strict";
 /// <reference path="../typings/index.d.ts"/>
-var angular = require('angular');
-var decaf_common_1 = require('decaf-common');
-require('angular-toastr');
-require('./services/api');
-require('./services/ws');
-require('./components/base');
-require('./views/pathwayvis.component.css!');
+var angular = require("angular");
+var decaf_common_1 = require("decaf-common");
+require("angular-toastr");
+require("./services/api");
+require("./services/ws");
+require("./components/base");
+require("./views/pathwayvis.component.css!");
 exports.COMPONENT_NAME = 'pathwayvis';
 var main = angular.module(exports.COMPONENT_NAME, [
     'pathwayvis.services.api',
@@ -33,8 +33,6 @@ main.config(function (platformProvider) {
             }
         },
         onEnter: function (config) {
-            // Turn of WS inspection for TS
-            // noinspection TypeScriptUnresolvedFunction
             config.set('color', '#34495e');
         },
         onExit: function (config) {
