@@ -1,1 +1,0 @@
-{"version":3,"sources":["bootstrap.config.ts"],"names":[],"mappings":";AAAa,gBAAQ,GAAG,gCAAgC,CAAC;AAC5C,kBAAU,GAAG,MAAM,CAAC","file":"bootstrap.config.js","sourcesContent":["export const API_HOST = 'https://cfb-p-web-3.win.dtu.dk';\nexport const API_PREFIX = '/api';\n"]}

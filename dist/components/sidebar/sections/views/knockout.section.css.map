@@ -1,1 +1,0 @@
-{"version":3,"sources":["knockout.section.css"],"names":[],"mappings":"AAAA;EACE,wBAAwB;EACxB,0BAA0B;EAC1B,eAAe,EAAE;EACjB;IACE,wBAAwB,EAAE","file":"knockout.section.css","sourcesContent":[".md-chip {\n  padding-right: rem(2.2);\n  background-color: #EEEEEE;\n  color: #000000; }\n  .md-chip .md-chip-content {\n    padding-right: rem(0.4); }\n"]}

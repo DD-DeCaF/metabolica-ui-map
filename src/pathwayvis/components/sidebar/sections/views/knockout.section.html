@@ -1,0 +1,25 @@
+<div flex class="sidebar-item" ng-if="ctrl.removedReactions.length > 0">
+    <span class="md-headline">Knockout simulation</span>
+    <div class="sidebar-content" flex>
+        <div layout="column" class="sidebar-cell">
+            <h3 class="md-no-sticky">Results</h3>
+            <span flex>Growth rate: {{ctrl.growthRate}}</span>
+        </div>
+        <div layout="column" ng-if="ctrl.removedReactions" class="sidebar-cell">
+            <h3 class="md-no-sticky">Removed reactions</h3>
+
+			<md-list>
+				<md-list-item ng-repeat="reaction in ctrl.removedReactions">
+					<span>{{reaction}}</span>
+					<md-button class="md-icon-button md-secondary"
+							   ng-click="ctrl.onReactionRemoveClick(reaction)"
+					>
+						<md-icon md-font-icon="close">
+							close
+						</md-icon>
+					</md-button>
+				</md-list-item>
+			</md-list>
+        </div>
+    </div>
+</div>

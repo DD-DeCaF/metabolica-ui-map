@@ -1,1 +1,0 @@
-{"version":3,"sources":["sidebar.component.css"],"names":[],"mappings":"AAAA;EACE,oBAAoB,EAAE;;AAExB;EACE,gBAAgB,EAAE","file":"sidebar.component.css","sourcesContent":["pv-sidebar .sidebar-item {\n  margin-bottom: 15px; }\n\npv-sidebar .sidebar-cell {\n  margin: 4px 0px; }\n"]}

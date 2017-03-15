@@ -1,23 +1,5 @@
 {
-	"compilerOptions": {
-		"emitDecoratorMetadata": true,
-		"experimentalDecorators": true,
-		"module": "commonjs",
-		"moduleResolution": "node",
-		"noImplicitAny": false,
-		"sourceMap": true,
-		"target": "es5",
-		"baseUrl": ".",
-		"paths": {
-			"decaf-common": [
-				"dist/jspm_packages/github/biosustain/decaf-frontend-common@master/src",
-				"jspm_packages/github/biosustain/decaf-frontend-common@master/src"
-			],
-			"src/*": ["src/*"]
-		}
-	},
-	"files": [
-		"typings/index.d.ts",
-		"typings/escher.d.ts"
-	]
+  "compilerOptions": {
+	  "experimentalDecorators": true
+  }
 }
