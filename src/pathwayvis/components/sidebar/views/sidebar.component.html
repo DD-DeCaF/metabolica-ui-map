@@ -11,11 +11,13 @@
 						<!--<h1 class="md-toolbar-tools">Map info</h1>-->
 					<!--</md-toolbar>-->
 
-					<section ng-if="ctrl.info['genotype-changes'].length > 0">
+					<section ng-show="ctrl.info['genotype-changes'].length > 0">
 						<md-subheader class="md-primary">Genotype changes</md-subheader>
 						<md-list layout-padding>
 							<md-list-item ng-repeat="change in ctrl.info['genotype-changes']">
-								<span class="md-caption"> {{ change }} </span>
+								<span class="md-caption" id="genotype"> {{ change | limitTo : 30 }}...
+									<md-tooltip md-direction="right">{{ change }}</md-tooltip>
+								</span>
 							</md-list-item>
 						</md-list>
 					</section>
