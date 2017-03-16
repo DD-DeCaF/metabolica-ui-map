@@ -1,8 +1,24 @@
-<div layout="row" layout-padding class="visualisation-module" flex>
-	<div flex="75">
-	    <pv-map shared="ctrl.shared"></pv-map>
-    </div>
-    <md-content flex="25">
-        <pv-sidebar shared="ctrl.shared" flex></pv-sidebar>
-    </md-content>
+<div layout="column" flex>
+	<div layout="row" layout-padding>
+		<div layout="row" layout-align="center center" flex>
+			<span class="md-headline">Pathway map</span>
+		</div>
+		<section layout="row" layout-align="end center" flex>
+			<md-button class="md-fab md-primary md-mini" ng-click="ctrl.toggleInfo()">
+				<md-icon md-font-icon="info">info</md-icon>
+			</md-button>
+			<pv-map-selector></pv-map-selector>
+			<pv-maploader></pv-maploader>
+		</section>
+	</div>
+	<div layout="row" layout-padding class="visualisation-module" flex="100">
+		<div flex>
+			<pv-map shared="ctrl.shared"></pv-map>
+		</div>
+		<md-content flex="25" ng-if="ctrl.showInfo">
+			<pv-sidebar shared="ctrl.shared" flex></pv-sidebar>
+		</md-content>
+	</div>
 </div>
+
+

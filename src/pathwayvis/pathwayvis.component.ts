@@ -5,8 +5,9 @@ import './views/pathwayvis.component.scss';
 
 export class PathwayVisComponentController {
     public shared: types.Shared;
+    public showInfo: any;
 
-    constructor() {
+    constructor($scope: angular.IScope) {
         // Init shared scope
         this.shared = <any>{
             loading: 0,
@@ -14,6 +15,16 @@ export class PathwayVisComponentController {
             model: {},
             sections: {}
         };
+
+        this.showInfo = false;
+
+        $scope.$on('pushChangesToNodes', function (ev, message: types.Message) {
+            $scope.$broadcast(message.name, message.data);
+        })
+    }
+
+    public toggleInfo(): void {
+        this.showInfo = !this.showInfo;
     }
 }
 

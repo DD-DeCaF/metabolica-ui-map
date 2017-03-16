@@ -2,10 +2,34 @@
 @import 'escher_builder.scss';
 
 pv-map {
-    .map-container {
-        border: 1px solid grey;
+	.container{
+		border: 1px solid grey;
 		height: 85vh;
+		position: relative;
+	}
+    .map-container{
+        width: 100%;
+		height: inherit;
+		position: absolute;
     }
+
+	.spinner{
+		width: 100%;
+		height: inherit;
+		position: absolute;
+		background-color: #4F5151;
+		z-index: 10;
+		opacity: .5;
+	}
+
+	md-progress-circular{
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		margin: auto;
+		position: absolute;
+	}
 
     .map-context-menu {
         background-color: #FFFFFF;

@@ -44,6 +44,20 @@ export interface Shared {
     removedReactions?: string[];
 }
 
+export interface SelectedItems {
+    experiment?: number;
+    sample?: number;
+    phase?: number;
+    method?: string;
+    map?: string;
+    model?: string;
+}
+
+export interface Message {
+    name: string;
+    data: any;
+}
+
 interface APIitem {
     id: number;
     name: string;

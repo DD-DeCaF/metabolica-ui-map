@@ -23,21 +23,45 @@ class MapComponentCtrl {
     public actions: ActionsService;
     public contextActions: types.Action[];
     public contextElement: Object;
+    public selected: types.SelectedItems = {};
 
     private _mapElement: d3.Selection<any>;
     private _builder: any;
     private _api: APIService;
     private _ws: WSService;
     private $scope: angular.IScope;
+    private _toastr: angular.toastr.IToastrService;
+    private _model: any;
+    private info: Object;
+    private _q: any;
 
     /* @ngInject */
-    constructor ($scope: angular.IScope, api: APIService, actions: ActionsService, ws: WSService) {
+    constructor ($scope: angular.IScope,
+                 api: APIService,
+                 actions: ActionsService,
+                 ws: WSService,
+                 toastr: angular.toastr.IToastrService,
+                 $q: angular.IQService
+    ) {
+
         this._api = api;
         this._ws = ws;
         this._mapElement = d3.select('.map-container');
+        this._toastr = toastr;
+        this._q = $q;
 
         this.actions = actions;
         this.$scope = $scope;
+
+        $scope.$on('selectedMapChanged', function (ev, map) {
+            ev.currentScope['ctrl']._setMap(map);
+        });
+        $scope.$on('modelChanged', function (event, model) {
+            event.currentScope['ctrl']._setModel(model);
+        });
+        $scope.$on('loadMap', function (ev, selected: types.SelectedItems) {
+            ev.currentScope['ctrl']._loadMap(selected);
+        });
 
         // Map watcher
         $scope.$watch('ctrl.shared.map.map[0].map_id', () => {
@@ -88,10 +112,107 @@ class MapComponentCtrl {
             }
         });
 
-        $scope.$on('draw_knockout', function handler(){
-            if (this._builder){
-                this._builder.draw_knockout_reaction();
+        $scope.$on('draw_knockout', function handler(ev){
+            let builder = ev.currentScope['ctrl']._builder;
+            if (builder){
+                builder.draw_knockout_reaction();
             }
+        })
+    }
+
+    private _setModel(model): void {
+        this._model = model;
+    }
+
+    private _setMap(map: string): void {
+        this.selected.map = map;
+        if (!_.isEmpty(this.selected.map)) {
+            this.shared.loading++;
+            this._api.request_model('map', {
+                'model': this._model,
+                'map': this.selected.map,
+            }).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
+                this.shared.map.map = response.data;
+                this.$scope.$emit('draw_knockout');
+                this.shared.loading--;
+            }, (error) => {
+                this._toastr.error('Oops! Sorry, there was a problem loading selected map.', '', {
+                    closeButton: true,
+                    timeOut: 10500
+                });
+
+                this.shared.loading--;
+            });
+            if (this.selected.method == 'fva') {
+                this.shared.removedReactions = [];
+                this.shared.loading++;
+                this._api.get('samples/:sampleId/model', {
+                    'sampleId': this.selected.sample,
+                    'phase-id': this.selected.phase,
+                    'method': this.selected.method,
+                    'map': this.selected.map,
+                    'with-fluxes': 1
+                }).then((response: angular.IHttpPromiseCallbackArg<any>) => {
+                    this.shared.model = response.data.model;
+                    this.shared.model.uid = response.data['model-id'];
+                    this.shared.map.reactionData = response.data.fluxes;
+                    this.shared.loading--;
+                }, (error) => {
+                    this._toastr.error('Oops! Sorry, there was a problem loading selected map.', '', {
+                        closeButton: true,
+                        timeOut: 10500
+                    });
+
+                    this.shared.loading--;
+                });
+            }
+        }
+    };
+
+    private _loadMap(selectedItem: types.SelectedItems){
+        this.shared.loading++;
+        const mapPromise = this._api.request_model('map', {
+            'model': selectedItem.model,
+            'map': this.selected.map,
+        });
+
+        const modelPromise = this._api.get('samples/:sampleId/model', {
+            'sampleId': selectedItem.sample,
+            'phase-id': selectedItem.phase,
+            'method': selectedItem.method,
+            'map': selectedItem.map,
+            'with-fluxes': 1
+        });
+
+        const infoPromise = this._api.get('samples/:sampleId/info', {
+            'sampleId': selectedItem.sample,
+            'phase-id': selectedItem.phase
+        });
+
+        this._q.all([mapPromise, modelPromise, infoPromise]).then((responses: any) => {
+            // Add loaded data to shared scope
+            this.shared.map.map = responses[0].data;
+            this.shared.model = responses[1].data.model;
+            this.shared.model.uid = responses[1].data['model-id'];
+            this.shared.map.reactionData = responses[1].data.fluxes;
+            this.shared.method = this.selected.method;
+            this.info = responses[2].data;
+
+            let message = {
+                name: 'infoFromMap',
+                data: this.info
+            };
+
+            this.$scope.$emit('pushChangesToNodes', message);
+
+            this.shared.loading--;
+        }, (error) => {
+            this._toastr.error('Oops! Sorry, there was a problem with fetching the data.', '', {
+                closeButton: true,
+                timeOut: 10500
+            });
+
+            this.shared.loading--;
         })
     }
 

@@ -1,84 +1,43 @@
-<div layout="column" layout-fill layout-padding flex>
-    <div flex class="sidebar">
-        <div flex class="sidebar-item">
-            <span class="md-headline">Map options</span>
-            <div class="sidebar-content" flex>
-                <form name="loadData" ng-submit="ctrl.onLoadDataSubmit($event)" novalidate layout="column">
-                    <md-input-container>
-                        <label>Method</label>
-                        <md-select name="method" ng-model="ctrl.selected.method" required>
-                            <md-option ng-repeat="method in ctrl.methods" value="{{method.id}}">{{method.name}}</md-option>
-                        </md-select>
-                    </md-input-container>
+<div layout="column">
+		<md-content>
+			<md-tabs md-dynamic-height md-border-bottom>
+				<md-tab label="Knockout" ng-if="ctrl.shared.removedReactions.length > 0">
+					<pv-knockout shared="ctrl.shared" flex></pv-knockout>
+				</md-tab>
 
-                    <md-input-container>
-                        <label>Experiment</label>
-                        <md-select name="experiment" ng-model="ctrl.selected.experiment" ng-disabled="!ctrl.experiments || ctrl.experiments.length === 0" required>
-                            <md-option ng-repeat="experiment in ctrl.experiments" value="{{experiment.id}}">{{experiment.name}}</md-option>
-                        </md-select>
-                    </md-input-container>
+				<md-tab label="Map info">
+					<md-content ng-if="ctrl.info">
+						<md-toolbar class="md-theme-light">
+							<h1 class="md-toolbar-tools">Map info</h1>
+						</md-toolbar>
 
-                    <md-input-container>
-                        <label>Sample</label>
-                        <md-select name="samples" ng-model="ctrl.selected.sample" ng-disabled="!ctrl.samples || ctrl.samples.length === 0" required>
-                            <md-option ng-repeat="sample in ctrl.samples" value="{{sample.id}}">{{sample.name}}</md-option>
-                        </md-select>
-                    </md-input-container>
+						<section ng-if="ctrl.info['genotype-changes'].length > 0">
+							<md-subheader class="md-primary">Genotype changes</md-subheader>
+							<md-list>
+								<md-list-item ng-repeat="change in ctrl.info['genotype-changes']">
+									{{change}}
+								</md-list-item>
+							</md-list>
+						</section>
 
-                    <md-input-container>
-                        <label>Phase</label>
-                        <md-select name="phase" ng-model="ctrl.selected.phase" ng-disabled="!ctrl.phases || ctrl.phases.length === 0" required>
-                            <md-option ng-repeat="phase in ctrl.phases" value="{{phase.id}}">{{phase.name}}</md-option>
-                        </md-select>
-                    </md-input-container>
+						<section>
+							<md-subheader class="md-primary">Measurements</md-subheader>
+							<div layout="row" ng-repeat="change in ctrl.info['measurements']" class="sidebar-cell">
+								<span flex="60">{{ change["name"] }}</span>
+								<span>{{ change["measurement"] }} {{ change["unit"] }}/gh<sup>-1</sup></span>
+								</div>
+						</section>
 
-					<md-input-container>
-                        <label>Map</label>
-                        <md-select name="map" ng-model="ctrl.selected.map" ng-disabled="!ctrl.maps || ctrl.maps.length === 0" required>
-                            <md-option ng-repeat="map in ctrl.maps" value="{{map}}">{{map}}</md-option>
-                        </md-select>
-                    </md-input-container>
-
-                    <md-input-container>
-                        <md-button type="submit" class="md-raised md-accent" ng-disabled="!ctrl.selected.phase">Calculate fluxes</md-button>
-                    </md-input-container>
-                </form>
-            </div>
-        </div>
-
-        <pv-knockout shared="ctrl.shared" flex></pv-knockout>
-
-        <div flex class="sidebar-item" ng-if="ctrl.info">
-            <span class="md-headline">Map Info</span>
-            <div class="sidebar-content" flex>
-                <div ng-if="ctrl.info">
-                    <div ng-if="ctrl.info['genotype-changes'].length > 0" flex layout="column">
-                        <h3 class="md-no-sticky">Genotype changes</h3>
-                        <div layout="row" ng-repeat="change in ctrl.info['genotype-changes']" class="sidebar-cell">
-                            <span flex>{{ change }}</span>
-                        </div>
-                        <md-divider></md-divider>
-                    </div>
-
-                    <div ng-if="ctrl.info['measurements'].length > 0" flex layout="column">
-                        <h3 class="md-no-sticky">Measurements</h3>
-                            <div layout="row" ng-repeat="change in ctrl.info['measurements']" class="sidebar-cell">
-                                <span flex="60">{{ change["name"] }}</span>
-                                <span>{{ change["measurement"] }} {{ change["unit"] }}/gh<sup>-1</sup></span>
-                            </div>
-                        <md-divider></md-divider>
-                    </div>
-
-                    <div ng-if="ctrl.info['medium'].length > 0" flex layout="column">
-                        <h3 class="md-no-sticky">Medium</h3>
-                        <div layout="row" ng-repeat="change in ctrl.info['medium']" class="sidebar-cell">
-                            <span flex="60">{{ change["name"] }}</span>
-                            <span>{{ change["concentration"] }}</span>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
+						<section>
+							<md-subheader class="md-primary">Medium</md-subheader>
+							<div layout="row" ng-repeat="change in ctrl.info['medium']" class="sidebar-cell">
+							<span flex="60">{{ change["name"] }}</span>
+							<span>{{ change["concentration"] }}</span>
+							</div>
+						</section>
+					</md-content>
+				</md-tab>
+			</md-tabs>
+		</md-content>
+    <!--</div>-->
 </div>
