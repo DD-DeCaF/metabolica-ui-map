@@ -3,12 +3,12 @@ exports.__esModule = true;
 var _ = require("lodash");
 var template = require("./maploader.component.html");
 var MapLoaderComponentCtrl = (function () {
-    function MapLoaderComponentCtrl($scope, api, toastr, $mdSidenav) {
+    function MapLoaderComponentCtrl($scope, api, toastr, $mdDialog) {
         var _this = this;
         this.selected = {};
         this._api = api;
         this._toastr = toastr;
-        this._sidenav = $mdSidenav;
+        this.$mdDialog = $mdDialog;
         this.methods = [
             { 'id': 'fba', 'name': 'FBA' },
             { 'id': 'pfba', 'name': 'pFBA' },
@@ -57,7 +57,7 @@ var MapLoaderComponentCtrl = (function () {
                     name: 'modelChanged',
                     data: _this.selected.model
                 };
-                $scope.$emit('pushChangesToNodes', message);
+                $scope.$root.$broadcast('modelChanged', _this.selected.model);
                 _this._api.get('samples/:sampleId/phases', {
                     sampleId: _this.selected.sample
                 }).then(function (response) {
@@ -73,27 +73,20 @@ var MapLoaderComponentCtrl = (function () {
         $scope.$watch('ctrl.selected.phase', function () {
             if (!_.isEmpty(_this.selected.phase)) {
                 // Close side_nav
-                _this.toggleRight();
-                var message = {
-                    name: 'loadMap',
-                    data: _this.selected
-                };
-                $scope.$emit('pushChangesToNodes', message);
+                _this.hide();
+                $scope.$root.$broadcast('loadMap', _this.selected);
             }
         });
     }
-    MapLoaderComponentCtrl.prototype.toggleRight = function () {
-        this._sidenav('right').toggle();
+    MapLoaderComponentCtrl.prototype.hide = function () {
+        this.$mdDialog.hide();
     };
-    ;
     return MapLoaderComponentCtrl;
 }());
 exports.MapLoaderComponent = {
     controller: MapLoaderComponentCtrl,
     controllerAs: 'ctrl',
     template: template.toString(),
-    bindings: {
-        shared: '=',
-        project: '<project'
-    }
+    // parent: angular.element(document.body),
+    clickOutsideToClose: true
 };

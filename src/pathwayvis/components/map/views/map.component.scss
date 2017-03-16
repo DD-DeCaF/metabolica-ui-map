@@ -15,7 +15,7 @@ pv-map {
 
 	.spinner{
 		width: 100%;
-		height: inherit;
+		height: 100%;
 		position: absolute;
 		background-color: #4F5151;
 		z-index: 10;
@@ -36,6 +36,7 @@ pv-map {
         z-index: 199;
         visibility: hidden;
         width: 200px;
+		position: absolute;
     }
 
     .ko-sign {

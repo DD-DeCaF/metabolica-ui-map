@@ -20,11 +20,7 @@ class MapSelectorComponentCtrl {
         });
 
         $scope.$watch('ctrl._selectedMap', () => {
-            var message = {
-                name: 'selectedMapChanged',
-                data: this._selectedMap
-            };
-            $scope.$emit('pushChangesToNodes', message)
+            $scope.$root.$broadcast('selectedMapChanged', this._selectedMap)
         })
 
         $scope.$on('modelChanged', function (event, model) {

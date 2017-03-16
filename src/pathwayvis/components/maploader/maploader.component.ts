@@ -2,6 +2,7 @@ import {APIService} from "../../services/api";
 import * as _ from 'lodash';
 import * as types from '../../types';
 import  * as template from "./maploader.component.html";
+import * as angular from "angular";
 /**
  * Created by dandann on 15/03/2017.
  */
@@ -27,16 +28,16 @@ class MapLoaderComponentCtrl {
     public phases: types.Phase[];
     private _api: any;
     private samplesSpecies: any;
-    private _toastr: angular.toastr.IToastrService
-    private _sidenav: ng.material.ISidenavService;
+    private _toastr: angular.toastr.IToastrService;
+    private $mdDialog: ng.material.IDialogService;
 
     constructor ($scope: angular.IScope,
                  api: APIService,
                  toastr: angular.toastr.IToastrService,
-                 $mdSidenav: ng.material.ISidenavService){
+                 $mdDialog: ng.material.IDialogService){
         this._api = api;
         this._toastr = toastr;
-        this._sidenav = $mdSidenav;
+        this.$mdDialog = $mdDialog;
 
         this.methods = [
             {'id': 'fba', 'name': 'FBA'},
@@ -94,7 +95,7 @@ class MapLoaderComponentCtrl {
                     name: 'modelChanged',
                     data: this.selected.model
                 }
-                $scope.$emit('pushChangesToNodes', message);
+                $scope.$root.$broadcast('modelChanged', this.selected.model);
                 this._api.get('samples/:sampleId/phases', {
                     sampleId: this.selected.sample
                 }).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
@@ -112,31 +113,24 @@ class MapLoaderComponentCtrl {
             if (!_.isEmpty(this.selected.phase)){
 
                 // Close side_nav
-                this.toggleRight();
+                this.hide();
 
-                let message = {
-                    name: 'loadMap',
-                    data: this.selected
-                }
-
-                $scope.$emit('pushChangesToNodes', message);
+                $scope.$root.$broadcast('loadMap', this.selected);
 
 
             }
         });
     }
 
-    public toggleRight(): void {
-        this._sidenav('right').toggle();
-    };
+    public hide(): void{
+        this.$mdDialog.hide()
+    }
 }
 
-export const MapLoaderComponent: angular.IComponentOptions = {
+export const MapLoaderComponent: angular.material.IDialogOptions = {
     controller: MapLoaderComponentCtrl,
     controllerAs: 'ctrl',
     template: template.toString(),
-    bindings: {
-        shared: '=',
-        project: '<project'
-    }
+    // parent: angular.element(document.body),
+    clickOutsideToClose: true,
 };

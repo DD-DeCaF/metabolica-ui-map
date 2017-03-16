@@ -12,11 +12,7 @@ var MapSelectorComponentCtrl = (function () {
             _this.allMaps = response.data;
         });
         $scope.$watch('ctrl._selectedMap', function () {
-            var message = {
-                name: 'selectedMapChanged',
-                data: _this._selectedMap
-            };
-            $scope.$emit('pushChangesToNodes', message);
+            $scope.$root.$broadcast('selectedMapChanged', _this._selectedMap);
         });
         $scope.$on('modelChanged', function (event, model) {
             event.currentScope['ctrl'].setMapsFromModel(model);

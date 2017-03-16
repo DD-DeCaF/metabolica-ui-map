@@ -1,22 +1,22 @@
-<md-button class="md-fab md-primary md-mini" ng-click="ctrl.toggleRight()">
-	<md-icon md-font-icon="build">build</md-icon>
-</md-button>
+<!--<md-button class="md-fab md-primary md-mini" ng-click="ctrl.showDialog()">-->
+	<!--<md-icon md-font-icon="build">build</md-icon>-->
+<!--</md-button>-->
 
-<md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id="right" md-is-open="true" md-disable-backdrop="true">
+<md-dialog aria-label="Map options" ng-clock>
 	<md-toolbar class="md-theme-dark" layout="row">
 		<h1 class="md-toolbar-tools" layout="column" layout-align="center start">Map options</h1>
-		<md-button class="md-icon-button md-secondary"
-				   layout="column"
-				   layout-align="center end"
-				   style="height: inherit"
-				   ng-click="ctrl.toggleRight()"
-		>
-			<md-icon md-font-icon="close">
-				close
-			</md-icon>
-		</md-button>
+		<!--<md-button class="md-icon-button md-secondary"-->
+				   <!--layout="column"-->
+				   <!--layout-align="center end"-->
+				   <!--style="height: inherit"-->
+				   <!--ng-click="ctrl.showDialog()"-->
+		<!--&gt;-->
+			<!--<md-icon md-font-icon="close">-->
+				<!--close-->
+			<!--</md-icon>-->
+		<!--</md-button>-->
 	</md-toolbar>
-	<md-content>
+	<md-dialog-content>
 		<form name="loadData" ng-submit="ctrl.onLoadDataSubmit($event)" novalidate layout="column">
 			<md-input-container>
 				<label>Method</label>
@@ -46,5 +46,5 @@
 				</md-select>
 			</md-input-container>
 		</form>
-	</md-content>
-</md-sidenav>
+	</md-dialog-content>
+</md-dialog>

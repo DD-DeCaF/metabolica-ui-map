@@ -198,12 +198,7 @@ class MapComponentCtrl {
             this.shared.method = this.selected.method;
             this.info = responses[2].data;
 
-            let message = {
-                name: 'infoFromMap',
-                data: this.info
-            };
-
-            this.$scope.$emit('pushChangesToNodes', message);
+            this.$scope.$root.$broadcast('infoFromMap', this.info);
 
             this.shared.loading--;
         }, (error) => {
@@ -242,7 +237,9 @@ class MapComponentCtrl {
     private _initMap(): void {
         // Default map settings
         let settings = {
-            menu: 'all',
+            menu: 'zoom',
+            scroll_behavior: 'zoom',
+            fill_screen: true,
             ignore_bootstrap: true,
             never_ask_before_quit: true,
             reaction_styles: ['color', 'size', 'text', 'abs'],
