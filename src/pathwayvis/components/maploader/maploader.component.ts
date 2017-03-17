@@ -128,10 +128,8 @@ class MapLoaderComponentCtrl {
     }
 }
 
-export const MapLoaderComponent: angular.material.IDialogOptions = {
+export const MapLoaderComponent: angular.IComponentOptions = {
     controller: MapLoaderComponentCtrl,
     controllerAs: 'ctrl',
-    template: template.toString(),
-    // parent: angular.element(document.body),
-    clickOutsideToClose: true,
+    template: template.toString()
 };

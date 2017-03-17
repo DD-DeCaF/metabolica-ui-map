@@ -23,9 +23,12 @@ export class PathwayVisComponentController {
             sections: {}
         };
 
-        this.dialog = MapLoaderComponent;
-        this.dialog.targetEvent = angular.element(document.getElementsByClassName('container')[0]).event;
-        this.dialog.parent = angular.element(document.getElementsByClassName('container')[0]);
+        this.dialog = {
+            contentElement: '#map-options-dialog',
+            parent: angular.element(document.getElementsByClassName('container')[0]),
+            clickOutsideToClose: true,
+            escapeToClose: true
+        };
 
         this.$mdDialog = $mdDialog;
 

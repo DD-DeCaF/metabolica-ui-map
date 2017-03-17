@@ -87,7 +87,5 @@ var MapLoaderComponentCtrl = (function () {
 exports.MapLoaderComponent = {
     controller: MapLoaderComponentCtrl,
     controllerAs: 'ctrl',
-    template: template.toString(),
-    // parent: angular.element(document.body),
-    clickOutsideToClose: true
+    template: template.toString()
 };
