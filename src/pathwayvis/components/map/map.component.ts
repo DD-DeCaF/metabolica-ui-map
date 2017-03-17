@@ -294,7 +294,7 @@ class MapComponentCtrl {
         let reactionData = this.shared.map.reactionData;
 
         // Handle FVA method response
-        if (this.shared.method === 'fva') {
+        if (this.shared.method === 'fva' || this.shared.method === 'pfba-fva') {
 
             // const fvaData = reactionData;
             const fvaData = _.pickBy(reactionData, (data) => {
