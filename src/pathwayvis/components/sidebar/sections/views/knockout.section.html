@@ -1,25 +1,29 @@
-<div flex class="sidebar-item" ng-if="ctrl.removedReactions.length > 0">
-    <span class="md-headline">Knockout simulation</span>
-    <div class="sidebar-content" flex>
-        <div layout="column" class="sidebar-cell">
-            <h3 class="md-no-sticky">Results</h3>
-            <span flex>Growth rate: {{ctrl.growthRate}}</span>
-        </div>
-        <div layout="column" ng-if="ctrl.removedReactions" class="sidebar-cell">
-            <h3 class="md-no-sticky">Removed reactions</h3>
+<md-content>
+	<!--<md-toolbar class="md-theme-light">-->
+		<!--<h1 class="md-toolbar-tools">Knockout simulation</h1>-->
+	<!--</md-toolbar>-->
 
-			<md-list>
-				<md-list-item ng-repeat="reaction in ctrl.removedReactions">
-					<span>{{reaction}}</span>
-					<md-button class="md-icon-button md-secondary"
-							   ng-click="ctrl.onReactionRemoveClick(reaction)"
-					>
-						<md-icon md-font-icon="close">
-							close
-						</md-icon>
-					</md-button>
-				</md-list-item>
-			</md-list>
-        </div>
-    </div>
-</div>
+	<section ng-if="ctrl.growthRate">
+		<md-subheader class="md-primary">Results</md-subheader>
+		<md-content layout-padding>
+			<span class="md-caption">Growth rate: {{ctrl.growthRate}}</span>
+		</md-content>
+	</section>
+
+	<section ng-if="ctrl.removedReactions.length > 0">
+		<md-subheader class="md-primary">Removed reactions:</md-subheader>
+		<md-list>
+			<md-list-item ng-repeat="reaction in ctrl.removedReactions">
+				<span class="md-caption">{{reaction}}</span>
+				<md-button class="md-icon-button md-secondary"
+						   ng-click="ctrl.onReactionRemoveClick(reaction)"
+				>
+					<md-icon md-font-icon="close">
+						close
+					</md-icon>
+				</md-button>
+			</md-list-item>
+		</md-list>
+	</section>
+</md-content>
+

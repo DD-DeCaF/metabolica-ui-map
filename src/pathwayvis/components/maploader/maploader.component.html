@@ -1,0 +1,50 @@
+<!--<md-button class="md-fab md-primary md-mini" ng-click="ctrl.showDialog()">-->
+	<!--<md-icon md-font-icon="build">build</md-icon>-->
+<!--</md-button>-->
+
+<md-dialog aria-label="Map options" ng-clock>
+	<md-toolbar class="md-theme-dark" layout="row">
+		<h1 class="md-toolbar-tools" layout="column" layout-align="center start">Map options</h1>
+		<!--<md-button class="md-icon-button md-secondary"-->
+				   <!--layout="column"-->
+				   <!--layout-align="center end"-->
+				   <!--style="height: inherit"-->
+				   <!--ng-click="ctrl.showDialog()"-->
+		<!--&gt;-->
+			<!--<md-icon md-font-icon="close">-->
+				<!--close-->
+			<!--</md-icon>-->
+		<!--</md-button>-->
+	</md-toolbar>
+	<md-dialog-content>
+		<form name="loadData" ng-submit="ctrl.onLoadDataSubmit($event)" novalidate layout="column">
+			<md-input-container>
+				<label>Method</label>
+				<md-select name="method" ng-model="ctrl.selected.method">
+					<md-option ng-repeat="method in ctrl.methods" value="{{method.id}}">{{method.name}}</md-option>
+				</md-select>
+			</md-input-container>
+
+			<md-input-container>
+				<label>Experiment</label>
+				<md-select name="experiment" ng-model="ctrl.selected.experiment" ng-disabled="!ctrl.experiments || ctrl.experiments.length === 0">
+					<md-option ng-repeat="experiment in ctrl.experiments" value="{{experiment.id}}">{{experiment.name}}</md-option>
+				</md-select>
+			</md-input-container>
+
+			<md-input-container>
+				<label>Sample</label>
+				<md-select name="samples" ng-model="ctrl.selected.sample" ng-disabled="!ctrl.samples || ctrl.samples.length === 0">
+					<md-option ng-repeat="sample in ctrl.samples" value="{{sample.id}}">{{sample.name}}</md-option>
+				</md-select>
+			</md-input-container>
+
+			<md-input-container>
+				<label>Phase</label>
+				<md-select name="phase" ng-model="ctrl.selected.phase" ng-disabled="!ctrl.phases || ctrl.phases.length === 0">
+					<md-option ng-repeat="phase in ctrl.phases" value="{{phase.id}}">{{phase.name}}</md-option>
+				</md-select>
+			</md-input-container>
+		</form>
+	</md-dialog-content>
+</md-dialog>
