@@ -43,6 +43,7 @@ class MapLoaderComponentCtrl {
             {'id': 'fba', 'name': 'FBA'},
             {'id': 'pfba', 'name': 'pFBA'},
             {'id': 'fva', 'name': 'FVA'},
+            {'id': 'pfba-fva', 'name': 'pFBA-FVA'},
             {'id': 'moma', 'name': 'MOMA'},
             {'id': 'lmoma', 'name': 'lMOMA'},
             {'id': 'room', 'name': 'ROOM'}

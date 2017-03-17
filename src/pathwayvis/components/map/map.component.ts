@@ -143,7 +143,7 @@ class MapComponentCtrl {
 
                 this.shared.loading--;
             });
-            if (this.selected.method == 'fva') {
+            if (this.selected.method == 'fva' || this.shared.method === 'pfba-fva') {
                 this.shared.removedReactions = [];
                 this.shared.loading++;
                 this._api.get('samples/:sampleId/model', {
