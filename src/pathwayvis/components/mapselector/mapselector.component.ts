@@ -11,6 +11,7 @@ class MapSelectorComponentCtrl {
     public maps: any;
     private _api: APIService;
     private _selectedMap: any;
+    private default_map = "Central metabolism";
 
     constructor (api: APIService, $scope: angular.IScope){
         this._api = api;
@@ -21,7 +22,7 @@ class MapSelectorComponentCtrl {
 
         $scope.$watch('ctrl._selectedMap', () => {
             $scope.$root.$broadcast('selectedMapChanged', this._selectedMap)
-        })
+        });
 
         $scope.$on('modelChanged', function (event, model) {
             event.currentScope['ctrl'].setMapsFromModel(model);
@@ -39,7 +40,11 @@ class MapSelectorComponentCtrl {
 
     public setMapsFromModel(model): void{
         this.maps = this.allMaps[model];
-        this._selectedMap = this.maps[0];
+        if (this.maps.indexOf(this.default_map) !== -1){
+            this._selectedMap = this.default_map;
+        } else {
+            this._selectedMap = this.maps[0];
+        }
     }
 
 }
