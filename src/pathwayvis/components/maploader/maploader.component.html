@@ -1,11 +1,11 @@
 <div style="visibility: hidden;">
 	<div class="md-dialog-container" id="map-options-dialog">
 		<md-dialog aria-label="Map options" ng-clock>
-			<md-toolbar class="md-theme-dark" layout="row">
+			<md-toolbar class="md-accent" layout="row">
 				<h1 class="md-toolbar-tools" layout="column" layout-align="center start">Map options</h1>
 			</md-toolbar>
 			<md-dialog-content>
-				<form name="loadData" ng-submit="ctrl.onLoadDataSubmit($event)" novalidate layout="column">
+				<form name="loadData" novalidate layout="column" layout-padding>
 					<md-input-container>
 						<label>Method</label>
 						<md-select name="method" ng-model="ctrl.selected.method">

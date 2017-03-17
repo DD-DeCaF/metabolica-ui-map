@@ -1,7 +1,7 @@
 import * as types from './types';
 import * as template from './views/pathwayvis.component.html';
 import './views/pathwayvis.component.scss';
-import {MapLoaderComponent} from "./components/maploader/maploader.component";
+import * as _ from 'lodash';
 import * as angular from "angular";
 
 
@@ -23,13 +23,6 @@ export class PathwayVisComponentController {
             sections: {}
         };
 
-        this.dialog = {
-            contentElement: '#map-options-dialog',
-            parent: angular.element(document.getElementsByClassName('container')[0]),
-            clickOutsideToClose: true,
-            escapeToClose: true
-        };
-
         this.$mdDialog = $mdDialog;
 
         this.showInfo = false;
@@ -42,7 +35,14 @@ export class PathwayVisComponentController {
     }
 
     public showDialog(): void {
-        this.$mdDialog.show(this.dialog);
+        let dialog = {
+            contentElement: '#map-options-dialog',
+            parent: angular.element(document.getElementsByClassName('container')[0]),
+            clickOutsideToClose: !_.isEmpty(this.shared.map),
+            escapeToClose: !_.isEmpty(this.shared.map)
+        };
+
+        this.$mdDialog.show(dialog);
     };
 }
 

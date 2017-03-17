@@ -3,8 +3,10 @@
 		<md-icon md-font-icon="layers">layers</md-icon>
 	</md-button>
 	<md-menu-content>
-		<md-button ng-repeat="map in ctrl.maps" ng-click="ctrl.setMap(map)" style="text-align:left">
-			{{map}}
-		</md-button>
+		<md-menu-item ng-repeat="map in ctrl.maps">
+			<md-button ng-click="ctrl.setMap(map)" style="text-align:left">
+				{{map}}
+			</md-button>
+		</md-menu-item>
 	</md-menu-content>
 </md-menu>
