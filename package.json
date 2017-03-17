@@ -1,5 +1,5 @@
 {
-  "name": "module-interactive-map",
+  "name": "metabolica-map",
   "version": "1.0.0",
   "main": "src/index.js",
   "dependencies": {
