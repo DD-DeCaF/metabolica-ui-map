@@ -143,7 +143,7 @@ class MapComponentCtrl {
 
                 this.shared.loading--;
             });
-            if (this.selected.method == 'fva' || this.shared.method === 'pfba-fva') {
+            if (this.selected.method == 'fva' || this.selected.method == 'pfba-fva') {
                 this.shared.removedReactions = [];
                 this.shared.loading++;
                 this._api.get('samples/:sampleId/model', {
@@ -180,7 +180,7 @@ class MapComponentCtrl {
             'sampleId': selectedItem.sample,
             'phase-id': selectedItem.phase,
             'method': selectedItem.method,
-            'map': selectedItem.map,
+            'map': this.selected.map,
             'with-fluxes': 1
         });
 
@@ -195,7 +195,7 @@ class MapComponentCtrl {
             this.shared.model = responses[1].data.model;
             this.shared.model.uid = responses[1].data['model-id'];
             this.shared.map.reactionData = responses[1].data.fluxes;
-            this.shared.method = this.selected.method;
+            this.shared.method = selectedItem.method;
             this.info = responses[2].data;
 
             this.$scope.$root.$broadcast('infoFromMap', this.info);
