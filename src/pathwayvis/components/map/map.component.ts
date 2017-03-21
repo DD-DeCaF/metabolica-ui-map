@@ -352,8 +352,8 @@ class MapComponentCtrl {
      */
     private _renderContextMenu(contextMenu, selection): void {
         contextMenu.style('position', 'absolute')
-            .style('left', (<MouseEvent> d3.event).x + 'px')
-            .style('top', (<MouseEvent> d3.event).y + 'px')
+            .style('left', (<MouseEvent> d3.event).pageX + 'px')
+            .style('top', (<MouseEvent> d3.event).pageY + 'px')
             .style('visibility', 'visible');
         this.$scope.$apply();
     }
