@@ -13,7 +13,8 @@ import DONUT_LARGE from '../../img/icons/donut_large.svg';
 import {DecafAPIProvider} from './providers/decafapi.provider';
 import {ModelAPIProvider} from './providers/modelapi.provider';
 import {LegendComponent} from './components/legend/legend.component';
-
+import {SettingsComponent} from './components/settings/settings.component';
+import {InfoComponent} from './components/info/info.component';
 
 export const PathwayVisModule = angular.module('pathwayvis', [
 		toastr
@@ -30,6 +31,8 @@ export const PathwayVisModule = angular.module('pathwayvis', [
 	.component('pvMapSelector', MapSelectorComponent)
 	.component('pvMaploader', MapLoaderComponent)
 	.component('pvLegend', LegendComponent)
+	.component('pvSettings', SettingsComponent)
+	.component('pvInfo', InfoComponent)
 	.config(function ($mdIconProvider, $stateProvider, appNavigationProvider) {
 		$mdIconProvider.icon('donut_large', DONUT_LARGE, 24);
 
