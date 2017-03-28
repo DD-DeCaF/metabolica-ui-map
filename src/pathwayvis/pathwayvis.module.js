@@ -4,7 +4,7 @@ import {APIService} from './services/api';
 import {WSService} from './services/ws';
 import {PathwayVisComponent} from './pathwayvis.component'
 import {mapComponent} from './components/map/map.component';
-import {KnockoutComponent} from './components/sidebar/sections/knockout.section';
+import {KnockoutComponent} from './components/knockout/knockout.component';
 import {SidebarComponent} from './components/sidebar/sidebar.component';
 import {MapSelectorComponent} from './components/mapselector/mapselector.component';
 import {MapLoaderComponent} from './components/maploader/maploader.component';

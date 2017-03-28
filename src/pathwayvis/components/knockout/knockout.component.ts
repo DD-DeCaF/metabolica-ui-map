@@ -1,13 +1,11 @@
 import * as _ from 'lodash';
 import 'angular-toastr';
 
-import {WSService} from '../../../services/ws';
-import {ActionsService} from '../../../services/actions/actions.service';
+import {WSService} from '../../services/ws';
+import {ActionsService} from '../../services/actions/actions.service';
 
-import * as types from '../../../types';
-
-import './views/knockout.section.scss';
-import * as template from './views/knockout.section.html';
+import * as types from '../../types';
+import * as template from './knockout.component.html';
 
 
 /**
