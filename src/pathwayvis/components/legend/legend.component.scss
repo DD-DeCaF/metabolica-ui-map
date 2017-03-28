@@ -1,0 +1,33 @@
+pv-legend{
+	.legend{
+		margin-left: 2em;
+		margin-top: 3em;
+		position: absolute;
+		z-index: 10;
+		background: white;
+	}
+
+	.grad{
+		background: linear-gradient(-90deg, #A841D0, #868BB2, #6DBFB0, #54B151);
+		height: 2em;
+		width: 100%;
+	}
+
+	.right-span{
+		right: 0;
+		margin-left: auto;
+	}
+
+	.color{
+		float: left;
+		width: 20px;
+		height: 20px;
+		margin-right: 5px;
+		border: 1px solid rgba(0, 0, 0, .2);
+	}
+
+	.empty{
+		background: #CBCBCB;
+	}
+}
+
