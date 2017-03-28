@@ -1,10 +1,11 @@
 pv-legend{
 	.legend{
 		margin-left: 2em;
-		margin-top: 3em;
+		margin-bottom: 3em;
 		position: absolute;
 		z-index: 10;
 		background: white;
+		bottom: 0;
 	}
 
 	.grad{
@@ -28,6 +29,15 @@ pv-legend{
 
 	.empty{
 		background: #CBCBCB;
+	}
+
+	.error{
+		background: red;
+	}
+
+	.legend-text{
+		margin-bottom: auto;
+		margin-top: auto
 	}
 }
 
