@@ -1,0 +1,49 @@
+<section class="floating-menu" layout="column" layout-align="end center" flex>
+	<md-button class="md-fab md-primary md-mini" ng-click="ctrl.toggleRight()">
+        <md-icon md-font-icon="apps">apps</md-icon>
+    </md-button>
+</section>
+<md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id="right">
+	<md-tabs class="md-accent" md-stretch-tabs="always" md-border-bottom flex layout-fill>
+		<md-content>
+			<md-tab id="tab1">
+				<md-tab-label>
+					<md-icon md-font-icon="build">build</md-icon>
+				</md-tab-label>
+				<md-tab-body>
+					<md-content>
+						<pv-maploader></pv-maploader>
+					</md-content>
+				</md-tab-body>
+			</md-tab>
+
+			<md-tab id="info_tab" ng-disabled="!ctrl.shared.map.map.length > 0">
+				<md-tab-label>
+					<md-icon md-font-icon="info">info</md-icon>
+				</md-tab-label>
+				<md-tab-body>
+					<pv-info shared="ctrl.shared"></pv-info>
+				</md-tab-body>
+			</md-tab>
+
+			<md-tab id="map_selector" ng-disabled="!ctrl.shared.map.map.length > 0">
+				<md-tab-label>
+					<md-icon md-font-icon="layers">layers</md-icon>
+				</md-tab-label>
+				<md-tab-body>
+					<pv-map-selector></pv-map-selector>
+				</md-tab-body>
+			</md-tab>
+
+			<md-tab id="knock_out_tab">
+				<md-tab-label>
+					<md-icon md-font-icon="delete">delete</md-icon>
+				</md-tab-label>
+				<md-body>
+					hello
+					<pv-knockout shared="ctrl.shared"></pv-knockout>
+				</md-body>
+			</md-tab>
+		</md-content>
+	</md-tabs>
+</md-sidenav>
