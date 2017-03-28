@@ -23,7 +23,6 @@ class KnockoutComponentCtrl {
 
     /* @ngInject */
     constructor ($scope: angular.IScope, toastr: angular.toastr.IToastrService, actions: ActionsService, ws: WSService) {
-        this._ws = ws;
         this._actions = actions;
         this.$scope = $scope;
 
