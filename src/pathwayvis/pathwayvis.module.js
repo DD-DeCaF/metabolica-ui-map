@@ -4,15 +4,16 @@ import {APIService} from './services/api';
 import {WSService} from './services/ws';
 import {PathwayVisComponent} from './pathwayvis.component'
 import {mapComponent} from './components/map/map.component';
-import {KnockoutComponent} from './components/sidebar/sections/knockout.section';
-import {SidebarComponent} from './components/sidebar/sidebar.component';
+import {KnockoutComponent} from './components/knockout/knockout.component';
 import {MapSelectorComponent} from './components/mapselector/mapselector.component';
 import {MapLoaderComponent} from './components/maploader/maploader.component';
 import {ActionsService} from './services/actions/actions.service';
 import DONUT_LARGE from '../../img/icons/donut_large.svg';
 import {DecafAPIProvider} from './providers/decafapi.provider';
 import {ModelAPIProvider} from './providers/modelapi.provider';
-
+import {LegendComponent} from './components/legend/legend.component';
+import {SettingsComponent} from './components/settings/settings.component';
+import {InfoComponent} from './components/info/info.component';
 
 export const PathwayVisModule = angular.module('pathwayvis', [
 		toastr
@@ -25,9 +26,11 @@ export const PathwayVisModule = angular.module('pathwayvis', [
 	.component('pathwayvis', PathwayVisComponent)
 	.component('pvMap', mapComponent)
 	.component('pvKnockout', KnockoutComponent)
-	.component('pvSidebar', SidebarComponent)
 	.component('pvMapSelector', MapSelectorComponent)
 	.component('pvMaploader', MapLoaderComponent)
+	.component('pvLegend', LegendComponent)
+	.component('pvSettings', SettingsComponent)
+	.component('pvInfo', InfoComponent)
 	.config(function ($mdIconProvider, $stateProvider, appNavigationProvider) {
 		$mdIconProvider.icon('donut_large', DONUT_LARGE, 24);
 
