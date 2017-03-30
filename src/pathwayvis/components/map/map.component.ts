@@ -237,7 +237,7 @@ class MapComponentCtrl {
     private _initMap(): void {
         // Default map settings
         let settings = {
-            menu: 'none',
+            menu: 'zoom',
             scroll_behavior: 'zoom',
             fill_screen: true,
             ignore_bootstrap: true,

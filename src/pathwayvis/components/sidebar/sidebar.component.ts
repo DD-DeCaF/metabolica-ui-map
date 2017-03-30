@@ -1,15 +1,12 @@
-/**
- * Created by dandann on 28/03/2017.
- */
 import 'angular-toastr';
 
-import './info.component.scss';
-import * as template from './info.component.html';
+import './views/sidebar.component.scss';
+import * as template from './views/sidebar.component.html';
 
 /**
  * sidebar component
  */
-class InfoComponentCtrl {
+class SidebarComponentCtrl {
     private _scope: angular.IScope;
     public info;
 
@@ -27,8 +24,8 @@ class InfoComponentCtrl {
     }
 }
 
-export const InfoComponent: angular.IComponentOptions = {
-    controller: InfoComponentCtrl,
+export const SidebarComponent: angular.IComponentOptions = {
+    controller: SidebarComponentCtrl,
     controllerAs: 'ctrl',
     template: template.toString(),
     bindings: {
@@ -36,3 +33,4 @@ export const InfoComponent: angular.IComponentOptions = {
         project: '<project'
     }
 };
+

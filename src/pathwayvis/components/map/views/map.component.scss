@@ -3,12 +3,11 @@
 
 pv-map {
 	.container{
-		margin: 0;
+		//border: 1px solid grey;
 		height: 85vh;
 		position: relative;
 	}
     .map-container{
-		margin: 0;
         width: 100%;
 		height: inherit;
 		position: absolute;
