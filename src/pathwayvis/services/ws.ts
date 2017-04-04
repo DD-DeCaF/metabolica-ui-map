@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import 'angular-toastr';
+import {ToastService} from "./toastservice";
 
 interface RequestDetails {
     path: string;
@@ -28,7 +28,7 @@ export class WSService {
     private _url: string;
     private _callbacks: Callback[] = [];
     private _q: angular.IQService;
-    private _toastr: angular.toastr.IToastrService;
+    private toastService: ToastService;
 
     public onopen: (ev: Event) => void = function (event: Event) {};
     public onclose: (ev: CloseEvent) => void = function (event: CloseEvent) {};
@@ -36,9 +36,9 @@ export class WSService {
     public onmessage: (ev: MessageEvent) => void = function (event: MessageEvent) {};
     public onerror: (ev: ErrorEvent) => void = function (event: ErrorEvent) {};
 
-    constructor($q: angular.IQService, toastr: angular.toastr.IToastrService) {
+    constructor($q: angular.IQService, ToastService: ToastService) {
         this._q = $q;
-        this._toastr = toastr;
+        this.toastService = ToastService;
     }
 
     public connect(reconnectAttempt: boolean, path: string) {
@@ -93,12 +93,7 @@ export class WSService {
         };
 
         this._ws.onerror = (event: ErrorEvent) => {
-
-            this._toastr.error('Oops! WebSocket error. Try again', '', {
-                closeButton: true,
-                timeOut: 2500
-            });
-
+            this.toastService.showErrorToast('Oops! WebSocket error. Try again');
             this._callbacks = [];
             this.onerror(event);
         };

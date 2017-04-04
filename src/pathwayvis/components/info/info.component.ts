@@ -1,8 +1,6 @@
 /**
  * Created by dandann on 28/03/2017.
  */
-import 'angular-toastr';
-
 import './info.component.scss';
 import * as template from './info.component.html';
 

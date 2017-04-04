@@ -12,6 +12,7 @@ import * as types from '../../types';
 
 import './views/map.component.scss';
 import * as template from './views/map.component.html';
+import {ToastService} from "../../services/toastservice";
 
 
 /**
@@ -30,7 +31,7 @@ class MapComponentCtrl {
     private _api: APIService;
     private _ws: WSService;
     private $scope: angular.IScope;
-    private _toastr: angular.toastr.IToastrService;
+    private toastService: ToastService;
     private _model: any;
     private info: Object;
     private _q: any;
@@ -40,14 +41,14 @@ class MapComponentCtrl {
                  api: APIService,
                  actions: ActionsService,
                  ws: WSService,
-                 toastr: angular.toastr.IToastrService,
+                 ToastService: ToastService,
                  $q: angular.IQService
     ) {
 
         this._api = api;
         this._ws = ws;
         this._mapElement = d3.select('.map-container');
-        this._toastr = toastr;
+        this.toastService = ToastService;
         this._q = $q;
 
         this.actions = actions;
@@ -136,11 +137,7 @@ class MapComponentCtrl {
                 this.$scope.$emit('draw_knockout');
                 this.shared.loading--;
             }, (error) => {
-                this._toastr.error('Oops! Sorry, there was a problem loading selected map.', '', {
-                    closeButton: true,
-                    timeOut: 10500
-                });
-
+                this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected map.');
                 this.shared.loading--;
             });
             if (this.selected.method == 'fva' || this.selected.method == 'pfba-fva') {
@@ -158,11 +155,7 @@ class MapComponentCtrl {
                     this.shared.map.reactionData = response.data.fluxes;
                     this.shared.loading--;
                 }, (error) => {
-                    this._toastr.error('Oops! Sorry, there was a problem loading selected map.', '', {
-                        closeButton: true,
-                        timeOut: 10500
-                    });
-
+                    this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected map.');
                     this.shared.loading--;
                 });
             }
@@ -202,11 +195,7 @@ class MapComponentCtrl {
 
             this.shared.loading--;
         }, (error) => {
-            this._toastr.error('Oops! Sorry, there was a problem with fetching the data.', '', {
-                closeButton: true,
-                timeOut: 10500
-            });
-
+            this.toastService.showErrorToast('Oops! Sorry, there was a problem with fetching the data.');
             this.shared.loading--;
         })
     }
