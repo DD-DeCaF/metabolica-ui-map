@@ -1,11 +1,11 @@
 import * as _ from 'lodash';
-import 'angular-toastr';
 
 import {WSService} from '../../services/ws';
 import {ActionsService} from '../../services/actions/actions.service';
 
 import * as types from '../../types';
 import * as template from './knockout.component.html';
+import {ToastService} from "../../services/toastservice";
 
 
 /**
@@ -16,11 +16,12 @@ class KnockoutComponentCtrl {
     public growthRate: number;
     public removedReactions: string[];
     private _ws: WSService;
+    private toastService: ToastService;
     private _actions: ActionsService;
     private $scope: angular.IScope;
 
     /* @ngInject */
-    constructor ($scope: angular.IScope, toastr: angular.toastr.IToastrService, actions: ActionsService, ws: WSService) {
+    constructor ($scope: angular.IScope, ToastService: ToastService, actions: ActionsService, ws: WSService) {
         this._actions = actions;
         this.$scope = $scope;
 
@@ -30,11 +31,7 @@ class KnockoutComponentCtrl {
                 this.growthRate = this.shared.map.growthRate;
                 this.removedReactions = this.shared.removedReactions;
                 if (_.round(this.growthRate, 5) === 0) {
-                    toastr.warning('Growth rate is 0!', '', {
-                        closeButton: true,
-                        timeOut: 0,
-                        extendedTimeOut: 0
-                    });
+                    ToastService.showWarnToast('Growth rate is 0!');
                 }
             }
         }, true);

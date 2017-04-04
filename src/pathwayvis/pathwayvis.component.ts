@@ -11,10 +11,16 @@ export class PathwayVisComponentController {
     public showInfo: any;
     private $mdDialog: ng.material.IDialogService;
     private dialog: any;
+    private $sharing: any;
+    private $scope: angular.IScope;
 
 
     constructor($scope: angular.IScope,
-                $mdDialog: ng.material.IDialogService) {
+                $mdDialog: ng.material.IDialogService,
+                $sharing
+    ) {
+        this.$sharing = $sharing;
+        this.$scope = $scope;
         // Init shared scope
         this.shared = <any>{
             loading: 0,
@@ -28,6 +34,12 @@ export class PathwayVisComponentController {
         this.showInfo = false;
 
         this.showDialog();
+
+    }
+
+    public $onInit(){
+        let item = this.$sharing.item('experiment');
+        this.$scope.$root.$broadcast('sharedExperiment', item)
     }
 
     public toggleInfo(): void {

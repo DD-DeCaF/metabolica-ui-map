@@ -1,7 +1,7 @@
 import angular from 'angular';
-import toastr from 'angular-toastr';
 import {APIService} from './services/api';
 import {WSService} from './services/ws';
+import {ToastService} from './services/toastservice'
 import {PathwayVisComponent} from './pathwayvis.component'
 import {mapComponent} from './components/map/map.component';
 import {KnockoutComponent} from './components/knockout/knockout.component';
@@ -16,13 +16,13 @@ import {SettingsComponent} from './components/settings/settings.component';
 import {InfoComponent} from './components/info/info.component';
 
 export const PathwayVisModule = angular.module('pathwayvis', [
-		toastr
 	])
 	.provider('decafAPI', DecafAPIProvider)
 	.provider('modelAPI', ModelAPIProvider)
 	.service('api', APIService)
 	.service('ws', WSService)
 	.service('actions', ActionsService)
+	.service('ToastService', ToastService)
 	.component('pathwayvis', PathwayVisComponent)
 	.component('pvMap', mapComponent)
 	.component('pvKnockout', KnockoutComponent)
@@ -48,4 +48,16 @@ export const PathwayVisModule = angular.module('pathwayvis', [
                     title: 'Interactive Map' // FIXME look up from app nagivation provider
                 }
             })
-    });
+    })
+	.config(function ($sharingProvider) {
+		$sharingProvider.register('app.pathwayvis', {
+			accept: [
+				{type: 'experiment', multiple: false}
+			],
+			name: 'Interactive map'
+		});
+	})
+	.config(function ($mdThemingProvider) {
+		$mdThemingProvider.theme('warn-toast');
+		$mdThemingProvider.theme('error-toast');
+	});
