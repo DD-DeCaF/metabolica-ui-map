@@ -3,7 +3,6 @@ exports.__esModule = true;
 /**
  * Created by dandann on 28/03/2017.
  */
-require("angular-toastr");
 require("./info.component.scss");
 var template = require("./info.component.html");
 /**
