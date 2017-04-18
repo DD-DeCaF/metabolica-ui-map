@@ -4,15 +4,24 @@
 import * as template from './settings.component.html'
 import './settings.component.scss';
 import angular = require("angular");
+import {MapOptionService} from "../../services/mapoption.service";
+import * as types from '../../types';
 
 class SettingsComponentController{
 
     private $mdSidenav: angular.material.ISidenavService;
+    public mapOptions: MapOptionService;
 
-    constructor($mdSidenav: angular.material.ISidenavService){
+    constructor($mdSidenav: angular.material.ISidenavService,
+                MapOptions: MapOptionService
+    ){
+        this.mapOptions = MapOptions;
         this.$mdSidenav = $mdSidenav;
     }
 
+    public getSelectedItems(): types.SelectedItems {
+        return this.mapOptions.selectedItems;
+    }
 
     public toggleRight(): void{
         this.$mdSidenav('right').toggle()

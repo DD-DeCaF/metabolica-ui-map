@@ -2,6 +2,7 @@ import angular from 'angular';
 import {APIService} from './services/api';
 import {WSService} from './services/ws';
 import {ToastService} from './services/toastservice'
+import {MapOptionService} from './services/mapoption.service';
 import {PathwayVisComponent} from './pathwayvis.component'
 import {mapComponent} from './components/map/map.component';
 import {KnockoutComponent} from './components/knockout/knockout.component';
@@ -23,6 +24,7 @@ export const PathwayVisModule = angular.module('pathwayvis', [
 	.service('ws', WSService)
 	.service('actions', ActionsService)
 	.service('ToastService', ToastService)
+	.service('MapOptions', MapOptionService)
 	.component('pathwayvis', PathwayVisComponent)
 	.component('pvMap', mapComponent)
 	.component('pvKnockout', KnockoutComponent)
