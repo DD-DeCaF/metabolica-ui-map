@@ -1,15 +1,17 @@
-<form name="loadData" novalidate layout="column" layout-padding>
+<md-content name="loadData" novalidate layout="column" layout-padding>
 	<md-input-container>
 		<label>Method</label>
 		<md-select name="method" ng-model="ctrl.selected.method">
-			<md-option ng-repeat="method in ctrl.methods" value="{{method.id}}">{{method.name}}</md-option>
+			<md-option ng-repeat="method in ctrl.mapOptions.methods" value="{{method.id}}">{{method.name}}</md-option>
 		</md-select>
 	</md-input-container>
 
 	<md-input-container>
 		<label>Experiment</label>
-		<md-select name="experiment" ng-model="ctrl.selected.experiment" ng-disabled="!ctrl.experiments || ctrl.experiments.length === 0">
-			<md-option ng-repeat="experiment in ctrl.experiments" value="{{experiment.id}}">{{experiment.name}}</md-option>
+		<md-select name="experiment" ng-model="ctrl.selected.experiment"
+				   ng-disabled="!ctrl.mapOptions.experiments || ctrl.mapOptions.experiments.length === 0"
+		>
+			<md-option ng-repeat="experiment in ctrl.mapOptions.experiments" value="{{experiment.id}}">{{experiment.name}}</md-option>
 		</md-select>
 	</md-input-container>
 
@@ -26,4 +28,4 @@
 			<md-option ng-repeat="phase in ctrl.phases" value="{{phase.id}}">{{phase.name}}</md-option>
 		</md-select>
 	</md-input-container>
-</form>
+</md-content>

@@ -6,9 +6,13 @@ exports.__esModule = true;
 var template = require("./settings.component.html");
 require("./settings.component.scss");
 var SettingsComponentController = (function () {
-    function SettingsComponentController($mdSidenav) {
+    function SettingsComponentController($mdSidenav, MapOptions) {
+        this.mapOptions = MapOptions;
         this.$mdSidenav = $mdSidenav;
     }
+    SettingsComponentController.prototype.getSelectedItems = function () {
+        return this.mapOptions.selectedItems;
+    };
     SettingsComponentController.prototype.toggleRight = function () {
         this.$mdSidenav('right').toggle();
     };

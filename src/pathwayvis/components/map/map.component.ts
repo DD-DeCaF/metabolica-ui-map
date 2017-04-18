@@ -13,6 +13,7 @@ import * as types from '../../types';
 import './views/map.component.scss';
 import * as template from './views/map.component.html';
 import {ToastService} from "../../services/toastservice";
+import {MapOptionService} from "../../services/mapoption.service";
 
 
 /**
@@ -26,6 +27,7 @@ class MapComponentCtrl {
     public contextElement: Object;
     public selected: types.SelectedItems = {};
 
+    private _mapOptions: MapOptionService;
     private _mapElement: d3.Selection<any>;
     private _builder: any;
     private _api: APIService;
@@ -42,7 +44,8 @@ class MapComponentCtrl {
                  actions: ActionsService,
                  ws: WSService,
                  ToastService: ToastService,
-                 $q: angular.IQService
+                 $q: angular.IQService,
+                 MapOptions: MapOptionService
     ) {
 
         this._api = api;
@@ -50,13 +53,14 @@ class MapComponentCtrl {
         this._mapElement = d3.select('.map-container');
         this.toastService = ToastService;
         this._q = $q;
+        this._mapOptions = MapOptions;
 
         this.actions = actions;
         this.$scope = $scope;
 
-        $scope.$on('selectedMapChanged', function (ev, map) {
-            ev.currentScope['ctrl']._setMap(map);
-        });
+        // $scope.$on('selectedMapChanged', function (ev, map) {
+        //     ev.currentScope['ctrl']._setMap(map);
+        // });
         $scope.$on('modelChanged', function (event, model) {
             event.currentScope['ctrl']._setModel(model);
         });
@@ -66,7 +70,7 @@ class MapComponentCtrl {
 
         // Map watcher
         $scope.$watch('ctrl.shared.map.map[0].map_id', () => {
-            if (!_.isEmpty(this.shared.map.map)) {
+            if (this.shared.map.map) {
                 this._initMap();
                 if (this.shared.map.reactionData) {
                     this._loadData();
@@ -97,6 +101,13 @@ class MapComponentCtrl {
             }
         }, true);
 
+        $scope.$watch('ctrl._mapOptions.getSelectedItems()', function(newVal: types.SelectedItems){
+           console.log('data changed: ', newVal);
+           if(newVal.map && newVal.model && newVal.phase && newVal.method && newVal.experiment){
+               console.log('let us update stuff!');
+           }
+        }, true);
+
         $scope.$on('$destroy', function handler() {
             ws.close();
         });
@@ -121,13 +132,17 @@ class MapComponentCtrl {
         })
     }
 
+    // private $onInit():void{
+    //     this._loadMap(this._mapOptions.selectedItems.map)
+    // }
+
     private _setModel(model): void {
         this._model = model;
     }
 
     private _setMap(map: string): void {
         this.selected.map = map;
-        if (!_.isEmpty(this.selected.map)) {
+        if (this.selected.map) {
             this.shared.loading++;
             this._api.request_model('map', {
                 'model': this._model,
@@ -206,10 +221,15 @@ class MapComponentCtrl {
     public processActionClick(action, data) {
         this.shared.loading++;
 
-        const shared = _.cloneDeep(this.shared);
+        const shared  = JSON.parse(JSON.stringify(this.shared));
 
         if (action.type === 'reaction:knockout:do') shared.removedReactions.push(data.bigg_id);
-        if (action.type === 'reaction:knockout:undo') _.remove(shared.removedReactions, (id) => id === data.bigg_id);
+        if (action.type === 'reaction:knockout:undo'){
+            let index = shared.removedReactions.indexOf(data.bigg_id);
+            if(index > -1){
+                shared.removedReactions.splice(index, 1);
+            }
+        }
 
         this.actions.callAction(action, {shared: shared}).then((response) => {
             this.shared.map.growthRate = parseFloat(response['growth-rate']);
@@ -247,7 +267,7 @@ class MapComponentCtrl {
             reaction_knockout: this.shared.removedReactions ? this.shared.removedReactions : []
         };
         this._builder = escher.Builder(this.shared.map.map, null, null, this._mapElement, settings);
-        if (!_.isEmpty(this.shared.model)) this._loadModel(false);
+        if (this.shared.model) this._loadModel(false);
         this._loadContextMenu();
     }
 
@@ -263,8 +283,8 @@ class MapComponentCtrl {
         // Check removed and added reactions and genes from model
         const changes = this.shared.model.notes.changes;
 
-        if (!_.isEmpty(changes) && _.isEmpty(this.shared.removedReactions)) {
-            this.shared.removedReactions = _.map(changes.removed.reactions, (reaction: types.Reaction) => {
+        if (changes && !this.shared.removedReactions) {
+            this.shared.removedReactions = changes.removed.reactions.map(function (reaction: types.Reaction) {
                 return reaction.id;
             });
         }
