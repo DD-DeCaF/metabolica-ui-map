@@ -13,10 +13,10 @@ class MapSelectorComponentCtrl {
     public maps: any;
     private _selectedMap: any;
     private mapOptions: MapOptionService;
-    private mapSerivce: MapService
+    private mapService: MapService
 
     constructor (MapService: MapService, $scope: angular.IScope, MapOptions: MapOptionService){
-        this.mapSerivce = MapService;
+        this.mapService = MapService;
         this.mapOptions = MapOptions;
 
         this._selectedMap = MapOptions.getSelectedMap();
@@ -27,11 +27,16 @@ class MapSelectorComponentCtrl {
         }, true);
     }
 
+    public setMap(map: string): void{
+        this.mapOptions.setSelectedMap(map);
+    }
+
 
     public setMapsFromModel(model): void{
         if(model){
-            this.maps = this.mapSerivce.getMapsFromModel(model);
-            if (!this.mapSerivce.usableMap(this._selectedMap, this.maps))
+            let map_id = this.mapOptions.getSelectedMap();
+            this.maps = this.mapService.getMapsFromModel(model);
+            if (!this.mapService.usableMap(map_id, model))
             {
                 this._selectedMap = this.maps[0];
             }
