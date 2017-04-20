@@ -63,12 +63,13 @@ class MapComponentCtrl {
             let settings = this._mapOptions.getMapSettings();
             if(settings.model_id && settings.map_id){
                 this._setMap(this._mapOptions.getSelectedMap())
+
+                let builder = this._builder;
+                if (builder){
+                    builder.draw_knockout_reactions();
+                }
             }
         }, true);
-
-        // $scope.$on('loadMap', function (ev, selected: types.SelectedItems) {
-        //     ev.currentScope['ctrl']._loadMap(selected);
-        // });
 
         // Map watcher
         $scope.$watch('ctrl.shared.map.map[0].map_id', () => {
@@ -77,7 +78,6 @@ class MapComponentCtrl {
                 if (this.shared.map.reactionData) {
                     this._loadData();
                 }
-
                 if (this._builder){
                     this._builder.draw_knockout_reactions();
                 }
@@ -125,13 +125,6 @@ class MapComponentCtrl {
                 this._builder.undo_knockout_reaction(reaction);
             }
         });
-
-        $scope.$on('draw_knockout', function handler(ev){
-            let builder = ev.currentScope['ctrl']._builder;
-            if (builder){
-                builder.draw_knockout_reaction();
-            }
-        })
     }
 
     private _setMap(map: string): void {
@@ -144,7 +137,6 @@ class MapComponentCtrl {
                 'map': settings.map_id,
             }).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
                 this.shared.map.map = response.data;
-                this.$scope.$emit('draw_knockout');
                 this.shared.loading--;
             }, (error) => {
                 this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected map.');
@@ -281,7 +273,7 @@ class MapComponentCtrl {
         // Check removed and added reactions and genes from model
         const changes = this.shared.model.notes.changes;
 
-        if (changes && !this.shared.removedReactions) {
+        if (changes && this.shared.removedReactions.length == 0) {
             this.shared.removedReactions = changes.removed.reactions.map(function (reaction: types.Reaction) {
                 return reaction.id;
             });
