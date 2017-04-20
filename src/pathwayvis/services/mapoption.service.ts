@@ -12,9 +12,19 @@ interface Method {
     name: string;
 }
 
+interface MapSettings {
+    map_id: string;
+    model_id: string;
+}
+
 export class MapOptionService {
-    private apiService;
+    private apiService: APIService;
     private samplesSpecies: any = {};
+
+    public mapsettings: MapSettings = {
+        'map_id' : 'Central metabolism',
+        'model_id' : null
+    };
 
     public selectedMap: string = 'Central metabolism';
 
@@ -71,10 +81,6 @@ export class MapOptionService {
         this.selectedItems.phase = phase;
     }
 
-    public getSelectedMap() : string {
-        return this.selectedItems.map;
-    }
-
     public getSelectedItems() : types.SelectedItems {
         return this.selectedItems;
     }
@@ -83,8 +89,16 @@ export class MapOptionService {
         return 'pfba';
     }
 
+    public getMapSettings(): MapSettings {
+        return this.mapsettings;
+    }
+
     public getModel(): string {
-        return this.selectedItems.model;
+        return this.mapsettings.model_id;
+    }
+
+    public getSelectedMap() : string {
+        return this.mapsettings.map_id;
     }
 
     public getSamples(experiment: number) : angular.IPromise<Object> {
@@ -105,7 +119,7 @@ export class MapOptionService {
 
     public getPhases(sample: number) : angular.IPromise<Object> {
         if (sample) {
-            this.selectedItems.model = this.organismModel[this.samplesSpecies[sample]];
+            this.mapsettings.model_id = this.organismModel[this.samplesSpecies[sample]];
             return this.apiService.get('samples/:sampleId/phases', {
                 sampleId: sample
             });
