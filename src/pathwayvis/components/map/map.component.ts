@@ -14,6 +14,7 @@ import './views/map.component.scss';
 import * as template from './views/map.component.html';
 import {ToastService} from "../../services/toastservice";
 import {MapOptionService} from "../../services/mapoption.service";
+import {isUndefined} from "util";
 
 
 /**
@@ -58,21 +59,16 @@ class MapComponentCtrl {
         this.actions = actions;
         this.$scope = $scope;
 
-        // $scope.$on('selectedMapChanged', function (ev, map) {
-        //     ev.currentScope['ctrl']._setMap(map);
+        $scope.$watch('ctrl._mapOptions.getMapSettings()', () => {
+            let settings = this._mapOptions.getMapSettings();
+            if(settings.model_id && settings.map_id){
+                this._setMap(this._mapOptions.getSelectedMap())
+            }
+        }, true);
+
+        // $scope.$on('loadMap', function (ev, selected: types.SelectedItems) {
+        //     ev.currentScope['ctrl']._loadMap(selected);
         // });
-
-        $scope.$watch('ctrl._mapOptions.getSelectedMap()', () => {
-            this._setMap(this._mapOptions.getSelectedMap())
-        }, true);
-
-        $scope.$watch('ctrl._mapOptions.getModel()', () => {
-            this._setModel(this._mapOptions.getModel());
-        }, true);
-
-        $scope.$on('loadMap', function (ev, selected: types.SelectedItems) {
-            ev.currentScope['ctrl']._loadMap(selected);
-        });
 
         // Map watcher
         $scope.$watch('ctrl.shared.map.map[0].map_id', () => {
@@ -107,11 +103,10 @@ class MapComponentCtrl {
             }
         }, true);
 
-        $scope.$watch('ctrl._mapOptions.getSelectedItems()', function(newVal: types.SelectedItems, oldVal: types.SelectedItems){
-           console.log('data changed: ', newVal);
-           console.log('old data: ', oldVal);
-           if(newVal.map && newVal.model && newVal.phase && newVal.method && newVal.experiment){
-               console.log('let us update stuff!');
+        $scope.$watch('ctrl._mapOptions.getSelectedItems()', () => {
+           let selected = this._mapOptions.getSelectedItems();
+           if(selected.method && selected.phase && selected.method && selected.experiment){
+               this._loadMap(selected);
            }
         }, true);
 
@@ -139,31 +134,14 @@ class MapComponentCtrl {
         })
     }
 
-    private _command(item: types.SelectedItems, old: types.SelectedItems) : number{
-
-        if (item.model == old.model &&
-            item.phase == old.phase &&
-            item.sample == old.sample &&
-            item.experiment == old.experiment &&
-            item.map != old.map
-        ){
-            //
-        }
-
-        return 0;
-    }
-
-    private _setModel(model): void {
-        this._model = model;
-    }
-
     private _setMap(map: string): void {
         this.selected.map = map;
         if (this.selected.map) {
             this.shared.loading++;
+            let settings = this._mapOptions.getMapSettings();
             this._api.request_model('map', {
-                'model': this._model,
-                'map': this.selected.map,
+                'model': settings.model_id,
+                'map': settings.map_id,
             }).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
                 this.shared.map.map = response.data;
                 this.$scope.$emit('draw_knockout');
@@ -194,18 +172,19 @@ class MapComponentCtrl {
         }
     };
 
-    private _loadMap(selectedItem: types.SelectedItems){
+    private _loadMap(selectedItem: types.SelectedItems): void{
         this.shared.loading++;
+        let settings = this._mapOptions.getMapSettings();
         const mapPromise = this._api.request_model('map', {
-            'model': selectedItem.model,
-            'map': this.selected.map,
+            'model': settings.model_id,
+            'map': settings.map_id,
         });
 
         const modelPromise = this._api.get('samples/:sampleId/model', {
             'sampleId': selectedItem.sample,
             'phase-id': selectedItem.phase,
             'method': selectedItem.method,
-            'map': this.selected.map,
+            'map': settings.map_id,
             'with-fluxes': 1
         });
 
@@ -284,7 +263,9 @@ class MapComponentCtrl {
             reaction_knockout: this.shared.removedReactions ? this.shared.removedReactions : []
         };
         this._builder = escher.Builder(this.shared.map.map, null, null, this._mapElement, settings);
-        if (this.shared.model) this._loadModel(false);
+        if (!isUndefined(this.shared.model.id)){
+            this._loadModel(false);
+        }
         this._loadContextMenu();
     }
 
