@@ -1,6 +1,7 @@
 import {APIService} from "../../services/api";
 import * as template from "./mapselector.component.html";
 import * as types from '../../types';
+import {MapOptionService} from "../../services/mapoption.service";
 /**
  * Created by dandann on 15/03/2017.
  */
@@ -12,21 +13,32 @@ class MapSelectorComponentCtrl {
     private _api: APIService;
     private _selectedMap: any;
     private default_map = "Central metabolism";
+    private mapOptions: MapOptionService;
 
-    constructor (api: APIService, $scope: angular.IScope){
+    constructor (api: APIService, $scope: angular.IScope, MapOptions: MapOptionService){
         this._api = api;
+        this.mapOptions = MapOptions;
+
+        this._selectedMap = MapOptions.getSelectedMap();
 
         this._api.request_model('maps', {}).then((response: angular.IHttpPromiseCallbackArg<any>) => {
             this.allMaps = response.data;
         });
 
-        $scope.$watch('ctrl._selectedMap', () => {
-            $scope.$root.$broadcast('selectedMapChanged', this._selectedMap)
-        });
+        $scope.$watch('ctrl.mapOptions.getModel()', () => {
+            if(!this._selectedMap){
+                this._selectedMap = this.default_map;
+            }
+            this.setMapsFromModel(this.mapOptions.getModel());
+        }, true);
 
-        $scope.$on('modelChanged', function (event, model) {
-            event.currentScope['ctrl'].setMapsFromModel(model);
-        })
+        // $scope.$watch('ctrl._selectedMap', () => {
+        //     $scope.$root.$broadcast('selectedMapChanged', this._selectedMap)
+        // });
+
+        // $scope.$on('modelChanged', function (event, model) {
+        //     event.currentScope['ctrl'].setMapsFromModel(model);
+        // })
     }
 
     public setMap(map): void {
@@ -39,11 +51,13 @@ class MapSelectorComponentCtrl {
     };
 
     public setMapsFromModel(model): void{
-        this.maps = this.allMaps[model];
-        if (this.maps.indexOf(this.default_map) !== -1){
-            this._selectedMap = this.default_map;
-        } else {
-            this._selectedMap = this.maps[0];
+        if(model){
+            this.maps = this.allMaps[model];
+            if (this.maps.indexOf(this.default_map) !== -1){
+                this._selectedMap = this.default_map;
+            } else {
+                this._selectedMap = this.maps[0];
+            }
         }
     }
 

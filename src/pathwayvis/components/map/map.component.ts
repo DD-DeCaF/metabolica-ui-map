@@ -61,9 +61,15 @@ class MapComponentCtrl {
         // $scope.$on('selectedMapChanged', function (ev, map) {
         //     ev.currentScope['ctrl']._setMap(map);
         // });
-        $scope.$on('modelChanged', function (event, model) {
-            event.currentScope['ctrl']._setModel(model);
-        });
+
+        $scope.$watch('ctrl._mapOptions.getSelectedMap()', () => {
+            this._setMap(this._mapOptions.getSelectedMap())
+        }, true);
+
+        $scope.$watch('ctrl._mapOptions.getModel()', () => {
+            this._setModel(this._mapOptions.getModel());
+        }, true);
+
         $scope.$on('loadMap', function (ev, selected: types.SelectedItems) {
             ev.currentScope['ctrl']._loadMap(selected);
         });
@@ -101,8 +107,9 @@ class MapComponentCtrl {
             }
         }, true);
 
-        $scope.$watch('ctrl._mapOptions.getSelectedItems()', function(newVal: types.SelectedItems){
+        $scope.$watch('ctrl._mapOptions.getSelectedItems()', function(newVal: types.SelectedItems, oldVal: types.SelectedItems){
            console.log('data changed: ', newVal);
+           console.log('old data: ', oldVal);
            if(newVal.map && newVal.model && newVal.phase && newVal.method && newVal.experiment){
                console.log('let us update stuff!');
            }
@@ -132,9 +139,19 @@ class MapComponentCtrl {
         })
     }
 
-    // private $onInit():void{
-    //     this._loadMap(this._mapOptions.selectedItems.map)
-    // }
+    private _command(item: types.SelectedItems, old: types.SelectedItems) : number{
+
+        if (item.model == old.model &&
+            item.phase == old.phase &&
+            item.sample == old.sample &&
+            item.experiment == old.experiment &&
+            item.map != old.map
+        ){
+            //
+        }
+
+        return 0;
+    }
 
     private _setModel(model): void {
         this._model = model;

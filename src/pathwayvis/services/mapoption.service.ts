@@ -52,12 +52,39 @@ export class MapOptionService {
         });
     }
 
+    public setMethod(method: string) : void {
+        this.selectedItems.method = method;
+    }
+
+    public setExperiment(experiment: number) : void {
+        this.selectedItems.sample = null;
+        this.selectedItems.phase = null;
+        this.selectedItems.experiment = experiment;
+    }
+
+    public setSample(sample: number) : void {
+        this.selectedItems.phase = null;
+        this.selectedItems.sample = sample;
+    }
+
+    public setPhase(phase: number) : void {
+        this.selectedItems.phase = phase;
+    }
+
     public getSelectedMap() : string {
         return this.selectedItems.map;
     }
 
     public getSelectedItems() : types.SelectedItems {
         return this.selectedItems;
+    }
+
+    public getDeafultMethod(): string {
+        return 'pfba';
+    }
+
+    public getModel(): string {
+        return this.selectedItems.model;
     }
 
     public getSamples(experiment: number) : angular.IPromise<Object> {
