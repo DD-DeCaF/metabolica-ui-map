@@ -32,11 +32,6 @@ export class PathwayVisComponentController {
         let item = this.$sharing.item('experiment');
         this.$scope.$root.$broadcast('sharedExperiment', item)
     }
-
-    public toggleInfo(): void {
-        this.showInfo = !this.showInfo;
-    }
-
 }
 
 export const PathwayVisComponent: angular.IComponentOptions = {
