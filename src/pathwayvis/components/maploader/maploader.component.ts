@@ -15,21 +15,25 @@ class MapLoaderComponentCtrl {
     public samples: types.Sample[];
     private _api: any;
     private toastService: ToastService;
-    private $mdDialog: ng.material.IDialogService;
+    private $mdSidenav: angular.material.ISidenavService
     public mapOptions: MapOptionService;
 
     constructor ($scope: angular.IScope,
                  api: APIService,
                  ToastService: ToastService,
-                 $mdDialog: ng.material.IDialogService,
+                 $mdSidenav: angular.material.ISidenavService,
                  MapOptions: MapOptionService)
     {
         this._api = api;
         this.toastService = ToastService;
-        this.$mdDialog = $mdDialog;
         this.mapOptions = MapOptions;
 
         this.selected.method = this.mapOptions.getDeafultMethod();
+        if(this.mapOptions.getExperiment()){
+            this.selected.experiment = this.mapOptions.getExperiment();
+            $mdSidenav('right').open();
+        }
+
 
         $scope.$watch('ctrl.selected.method', () => {
             this.mapOptions.setMethod(this.selected.method);
@@ -65,9 +69,6 @@ class MapLoaderComponentCtrl {
         })
     }
 
-    public hide(): void{
-        this.$mdDialog.hide()
-    }
 }
 
 export const MapLoaderComponent: angular.IComponentOptions = {

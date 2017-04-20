@@ -2,6 +2,7 @@ import * as types from './types';
 import * as template from './views/pathwayvis.component.html';
 import './views/pathwayvis.component.scss';
 import * as angular from "angular";
+import {MapOptionService} from "./services/mapoption.service";
 
 
 
@@ -10,10 +11,11 @@ export class PathwayVisComponentController {
     public showInfo: any;
     private $sharing: any;
     private $scope: angular.IScope;
-
+    private mapOptions: MapOptionService;
 
     constructor($scope: angular.IScope,
-                $sharing
+                $sharing,
+                MapOptions: MapOptionService,
     ) {
         this.$sharing = $sharing;
         this.$scope = $scope;
@@ -25,12 +27,17 @@ export class PathwayVisComponentController {
             sections: {}
         };
 
+        this.mapOptions = MapOptions;
+
         this.showInfo = false;
     }
 
     public $onInit(){
         let item = this.$sharing.item('experiment');
-        this.$scope.$root.$broadcast('sharedExperiment', item)
+        if(item){
+            this.mapOptions.setExperiment(item._id);
+        }
+
     }
 }
 

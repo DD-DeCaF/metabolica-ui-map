@@ -129,4 +129,8 @@ export class MapOptionService {
             });
         }
     }
+
+    public getExperiment(): number {
+        return this.selectedItems.experiment;
+    }
 }
