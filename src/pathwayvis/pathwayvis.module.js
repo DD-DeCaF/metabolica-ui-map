@@ -17,6 +17,7 @@ import {SettingsComponent} from './components/settings/settings.component';
 import {InfoComponent} from './components/info/info.component';
 
 export const PathwayVisModule = angular.module('pathwayvis', [
+	require('angular-material-data-table')
 	])
 	.provider('decafAPI', DecafAPIProvider)
 	.provider('modelAPI', ModelAPIProvider)

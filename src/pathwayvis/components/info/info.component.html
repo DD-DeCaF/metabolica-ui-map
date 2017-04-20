@@ -12,21 +12,29 @@
 
 	<section>
 		<md-subheader class="md-accent">Measurements</md-subheader>
-		<md-content layout-padding>
-			<div layout="row" ng-repeat="change in ctrl.info['measurements']" class="sidebar-cell">
-				<span flex="60" class="md-caption">{{ change["name"] }}</span>
-				<span class="md-caption">{{ change["measurement"] }} {{ change["unit"] }}/gh<sup>-1</sup></span>
-			</div>
-		</md-content>
+		<md-table-container>
+			<table md-table>
+				<tbody md-body>
+					<tr md-row ng-repeat="change in ctrl.info['measurements']">
+						<td md-cell>{{ change["name"] }}</td>
+						<td md-cell>{{ change["measurement"] }} {{change["unit"]}}/gh<sup>-1</sup></td>
+					</tr>
+				</tbody>
+			</table>
+		</md-table-container>
 	</section>
 
 	<section>
 		<md-subheader class="md-accent">Medium</md-subheader>
-		<md-content layout-padding>
-			<div layout="row" ng-repeat="change in ctrl.info['medium']" class="sidebar-cell">
-				<span flex="60" class="md-caption">{{ change["name"] }}</span>
-				<span class="md-caption">{{ change["concentration"] }}</span>
-			</div>
-		</md-content>
+		<md-table-container>
+			<table md-table>
+				<tbody md-body>
+				<tr md-row ng-repeat="change in ctrl.info['medium']">
+					<td md-cell>{{ change["name"] }}</td>
+					<td md-cell>{{ change["concentration"] }}</td>
+				</tr>
+				</tbody>
+			</table>
+		</md-table-container>
 	</section>
 </md-content>
