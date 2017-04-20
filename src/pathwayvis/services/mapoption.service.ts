@@ -101,6 +101,10 @@ export class MapOptionService {
         return this.mapsettings.map_id;
     }
 
+    public setSelectedMap(map_id: string): void{
+        this.mapsettings.map_id = map_id;
+    }
+
     public getSamples(experiment: number) : angular.IPromise<Object> {
         if(experiment){
             let promise = this.apiService.get('experiments/:experimentId/samples', {
