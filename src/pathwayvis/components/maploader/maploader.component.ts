@@ -9,14 +9,16 @@ import {MapOptionService} from "../../services/mapoption.service";
  */
 
 class MapLoaderComponentCtrl {
+    public hideSelection: boolean = false;
     public phases: types.Phase[];
     public selected: types.SelectedItems = {};
     public id: number;
     public samples: types.Sample[];
     private _api: any;
     private toastService: ToastService;
-    private $mdSidenav: angular.material.ISidenavService
+    // private $mdSidenav: angular.material.ISidenavService
     public mapOptions: MapOptionService;
+    public
 
     constructor ($scope: angular.IScope,
                  api: APIService,
@@ -33,7 +35,6 @@ class MapLoaderComponentCtrl {
             this.selected.experiment = this.mapOptions.getExperiment();
             $mdSidenav('right').open();
         }
-
 
         $scope.$watch('ctrl.selected.method', () => {
             this.mapOptions.setMethod(this.selected.method);
@@ -67,6 +68,17 @@ class MapLoaderComponentCtrl {
         $scope.$watch('ctrl.selected.phase', () => {
             this.mapOptions.setPhase(this.selected.phase);
         })
+
+    };
+    public toggle(show: boolean) : void{
+        this.hideSelection = !this.hideSelection;
+    }
+
+    public getButtonName(): string{
+        if (this.hideSelection){
+            return "expand_more";
+        }
+        return "expand_less"
     }
 
 }
