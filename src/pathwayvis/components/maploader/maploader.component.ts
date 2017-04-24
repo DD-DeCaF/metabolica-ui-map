@@ -12,22 +12,17 @@ class MapLoaderComponentCtrl {
     public hideSelection: boolean = false;
     public phases: types.Phase[];
     public selected: types.SelectedItems = {};
+
     public id: number;
     public samples: types.Sample[];
-    private _api: any;
-    private toastService: ToastService;
-    // private $mdSidenav: angular.material.ISidenavService
     public mapOptions: MapOptionService;
     public
 
     constructor ($scope: angular.IScope,
-                 api: APIService,
                  ToastService: ToastService,
                  $mdSidenav: angular.material.ISidenavService,
                  MapOptions: MapOptionService)
     {
-        this._api = api;
-        this.toastService = ToastService;
         this.mapOptions = MapOptions;
 
         this.selected.method = this.mapOptions.getDeafultMethod();
@@ -60,7 +55,7 @@ class MapLoaderComponentCtrl {
                     this.phases = response.data;
                     this.selected.phase = null;
                 }, (error) => {
-                    this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected sample.');
+                    ToastService.showErrorToast('Oops! Sorry, there was a problem loading selected sample.');
                 });
             }
         });
