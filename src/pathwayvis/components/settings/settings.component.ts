@@ -18,9 +18,22 @@ class SettingsComponentController{
         this.mapOptions = MapOptions;
         this.$mdSidenav = $mdSidenav;
     }
+    //
+    // public getSelectedItems(): types.SelectedItems {
+    //     return this.mapOptions.selectedItems;
+    // }
 
-    public getSelectedItems(): types.SelectedItems {
-        return this.mapOptions.selectedItems;
+    public disableInfo(): boolean{
+        return !this.mapOptions.getCurrentMapInfo()['medium'];
+
+    }
+
+    public disableMapSelector(): boolean{
+        return !this.mapOptions.getModel();
+    }
+
+    public disableKnockedOutTab(): boolean{
+        return !this.mapOptions.getCurrentRemovedReactions();
     }
 
     public toggleRight(): void{
