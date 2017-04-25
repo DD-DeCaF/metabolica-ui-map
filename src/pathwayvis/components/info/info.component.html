@@ -1,8 +1,8 @@
 <md-content>
-	<section ng-show="ctrl.info['genotype-changes'].length > 0">
+	<section ng-show="ctrl.showGenotypeChanges()">
 		<md-subheader class="md-accent">Genotype changes</md-subheader>
 		<md-list layout-padding>
-			<md-list-item ng-repeat="change in ctrl.info['genotype-changes']">
+			<md-list-item ng-repeat="change in ctrl.getGenotypeChanges()">
 								<span class="md-caption" id="genotype"> {{ change | limitTo : 30 }}...
 									<md-tooltip md-direction="right">{{ change }}</md-tooltip>
 								</span>
@@ -15,7 +15,7 @@
 		<md-table-container>
 			<table md-table>
 				<tbody md-body>
-					<tr md-row ng-repeat="change in ctrl.info['measurements']">
+					<tr md-row ng-repeat="change in ctrl.getMeasurements()">
 						<td md-cell>{{ change["name"] }}</td>
 						<td md-cell>{{ change["measurement"] }} {{change["unit"]}}/gh<sup>-1</sup></td>
 					</tr>
@@ -29,7 +29,7 @@
 		<md-table-container>
 			<table md-table>
 				<tbody md-body>
-				<tr md-row ng-repeat="change in ctrl.info['medium']">
+				<tr md-row ng-repeat="change in ctrl.getMedium()">
 					<td md-cell>{{ change["name"] }}</td>
 					<td md-cell>{{ change["concentration"] }}</td>
 				</tr>
