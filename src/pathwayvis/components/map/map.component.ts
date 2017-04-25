@@ -138,25 +138,6 @@ class MapComponentCtrl {
                 this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected map.');
                 this.shared.loading--;
             });
-            // if (this.selected.method == 'fva' || this.selected.method == 'pfba-fva') {
-            //     this.shared.removedReactions = [];
-            //     this.shared.loading++;
-            //     this._api.get('samples/:sampleId/model', {
-            //         'sampleId': this.selected.sample,
-            //         'phase-id': this.selected.phase,
-            //         'method': this.selected.method,
-            //         'map': this.selected.map,
-            //         'with-fluxes': 1
-            //     }).then((response: angular.IHttpPromiseCallbackArg<any>) => {
-            //         this.shared.model = response.data.model;
-            //         this.shared.model.uid = response.data['model-id'];
-            //         this.shared.map.reactionData = response.data.fluxes;
-            //         this.shared.loading--;
-            //     }, (error) => {
-            //         this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected map.');
-            //         this.shared.loading--;
-            //     });
-            // }
         }
     };
 
@@ -183,15 +164,9 @@ class MapComponentCtrl {
 
         this._q.all([mapPromise, modelPromise, infoPromise]).then((responses: any) => {
             // Add loaded data to shared scope
-            // this.shared.map.map = responses[0].data;
             this._mapOptions.setMap(responses[0].data);
-            // this.shared.model = responses[1].data.model;
             this._mapOptions.setModel(responses[1].data.model, responses[1].data['model-id']);
-            // this.shared.model.uid = responses[1].data['model-id'];
-            // this.shared.map.reactionData = responses[1].data.fluxes;
             this._mapOptions.setReactionData(responses[1].data.fluxes);
-            // this.shared.method = selectedItem.method;
-            // this.info = responses[2].data;
             this._mapOptions.setMapInfo(responses[2].data);
 
             // this.$scope.$root.$broadcast('infoFromMap', this.info);
@@ -217,12 +192,10 @@ class MapComponentCtrl {
                 shared.removedReactions.splice(index, 1);
             }
         }
-        // TODO - Remember to switch to MapData
         this.actions.callAction(action, {shared: shared}).then((response) => {
-            let growthRate = parseFloat(response['growth-rate']);
-            this.shared.map.growthRate = growthRate;
-            this.shared.map.reactionData = response.fluxes;
-            this.shared.removedReactions = response['removed-reactions'];
+            this._mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
+            this._mapOptions.setReactionData(response.fluxes);
+            this._mapOptions.setRemovedReactions(response['removed-reactions']);
             this.$scope.$apply();
         });
         this.shared.loading--;
@@ -255,10 +228,9 @@ class MapComponentCtrl {
             reaction_knockout: this._mapOptions.getCurrentRemovedReactions() ? this._mapOptions.getCurrentRemovedReactions() : []
         };
         this._builder = escher.Builder(this._mapOptions.getCurrentMap(), null, null, this._mapElement, settings);
-        if (!isUndefined(this._mapOptions.getCurrentModelId())){
+        if (this._mapOptions.getCurrentModelId() != null){
             this._loadModel(false);
         }
-        this._loadContextMenu();
     }
 
     /**
@@ -320,6 +292,8 @@ class MapComponentCtrl {
         });
 
         this._builder.set_reaction_data(reactionData);
+
+        this._loadContextMenu();
     }
 
     /**
