@@ -32,7 +32,7 @@ class MapLoaderComponentCtrl {
         }
 
         $scope.$watch('ctrl.selected.method', () => {
-            this.mapOptions.setMethod(this.selected.method);
+            this.mapOptions.setMethodId(this.selected.method);
         });
 
         $scope.$watch('ctrl.selected.experiment', () => {
