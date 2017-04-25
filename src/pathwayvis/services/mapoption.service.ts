@@ -21,6 +21,13 @@ export class MapOptionService {
     private apiService: APIService;
     private samplesSpecies: any = {};
 
+    public mapData: types.MapData = <any>{
+        map: {},
+        model: {},
+        sections: {},
+        info: {}
+    };
+
     public mapsettings: MapSettings = {
         'map_id' : 'Central metabolism',
         'model_id' : null
@@ -62,7 +69,75 @@ export class MapOptionService {
         });
     }
 
-    public setMethod(method: string) : void {
+    public getMapData(): types.MapData{
+        return this.mapData;
+    }
+
+    public getCurrentMapId(): string{
+        if(this.mapData.map.map) {
+            return this.mapData.map.map[0].map_id;
+        }
+        return null;
+    }
+
+    public getCurrentMap(): object{
+        return this.mapData.map.map;
+    }
+
+    public setMap(map: object): void{
+        this.mapData.map.map = map;
+    }
+
+    public getCurrentReactionData(): object{
+        if(this.mapData.map.reactionData){
+            return this.mapData.map.reactionData;
+        }
+        return null;
+    }
+
+    public setReactionData(data: object){
+        this.mapData.map.reactionData = data;
+    }
+
+    public getCurrentModel(): types.Model{
+        return this.mapData.model
+    }
+
+    public setModel(model: types.Model, model_id: string): void{
+        this.mapData.model = model;
+        if (model_id){
+            this.mapData.model.uid = model_id;
+        }
+    }
+
+    public getCurrentModelId(): string{
+        if(this.mapData.model.uid){
+            return this.mapData.model.uid;
+        }
+        return null;
+    }
+
+    public getCurrentMapInfo(): object{
+        if(this.mapData.info){
+            return this.mapData.info;
+        }
+        return null;
+    }
+
+    public setMapInfo(info: object){
+        this.mapData.info = info;
+    }
+
+    public getCurrentRemovedReactions(): string[]{
+        return this.mapData.removedReactions;
+    }
+
+    public setRemovedReactions(reactions: string[]){
+        this.mapData.removedReactions = reactions;
+    }
+
+
+    public setMethodId(method: string) : void {
         this.selectedItems.method = method;
     }
 

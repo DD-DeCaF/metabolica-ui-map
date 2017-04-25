@@ -44,6 +44,15 @@ export interface Shared {
     removedReactions?: string[];
 }
 
+export interface MapData {
+    map?: Map;
+    model?: Model;
+    sections?: any;
+    method?: string;
+    removedReactions?: string[];
+    info?: object;
+}
+
 export interface SelectedItems {
     experiment?: number;
     sample?: number;

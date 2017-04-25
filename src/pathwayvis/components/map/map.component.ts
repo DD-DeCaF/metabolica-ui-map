@@ -21,12 +21,10 @@ import {isUndefined} from "util";
  * Pathway map component
  */
 class MapComponentCtrl {
-    public title: string;
     public shared: types.Shared;
     public actions: ActionsService;
     public contextActions: types.Action[];
     public contextElement: Object;
-    public selected: types.SelectedItems = {};
 
     private _mapOptions: MapOptionService;
     private _mapElement: d3.Selection<any>;
@@ -35,7 +33,6 @@ class MapComponentCtrl {
     private _ws: WSService;
     private $scope: angular.IScope;
     private toastService: ToastService;
-    private _model: any;
     private info: Object;
     private _q: any;
 
@@ -72,10 +69,10 @@ class MapComponentCtrl {
         }, true);
 
         // Map watcher
-        $scope.$watch('ctrl.shared.map.map[0].map_id', () => {
-            if (this.shared.map.map) {
+        $scope.$watch('ctrl._mapOptions.getCurrentMapId()', () => {
+            if (this._mapOptions.getCurrentMapId()) {
                 this._initMap();
-                if (this.shared.map.reactionData) {
+                if (this._mapOptions.getCurrentReactionData()) {
                     this._loadData();
                 }
                 if (this._builder){
@@ -85,21 +82,21 @@ class MapComponentCtrl {
         }, true);
 
         // Reaction data watcher
-        $scope.$watch('ctrl.shared.map.reactionData', () => {
-            if (this.shared.map.reactionData) {
+        $scope.$watch('ctrl._mapOptions.getCurrentReactionData()', () => {
+            if (this._mapOptions.getCurrentReactionData()) {
                 this._loadData();
             }
         }, true);
 
-        $scope.$watch('ctrl.shared.model.uid', () => {
-            if (this.shared.model.uid) {
+        $scope.$watch('ctrl._mapOptions.getCurrentModelId()', () => {
+            if (this._mapOptions.getCurrentModelId()) {
                 this._loadModel(true);
             }
         });
 
-        $scope.$watch('ctrl.shared.removedReactions', () => {
+        $scope.$watch('ctrl._mapOptions.getCurrentRemovedReactions()', () => {
             if (this._builder) {
-                this._builder.set_knockout_reactions(this.shared.removedReactions);
+                this._builder.set_knockout_reactions(this._mapOptions.getCurrentRemovedReactions());
             }
         }, true);
 
@@ -128,39 +125,38 @@ class MapComponentCtrl {
     }
 
     private _setMap(map: string): void {
-        this.selected.map = map;
-        if (this.selected.map) {
+        if (map) {
             this.shared.loading++;
             let settings = this._mapOptions.getMapSettings();
             this._api.request_model('map', {
                 'model': settings.model_id,
                 'map': settings.map_id,
             }).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
-                this.shared.map.map = response.data;
+                this._mapOptions.setMap(response.data);
                 this.shared.loading--;
             }, (error) => {
                 this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected map.');
                 this.shared.loading--;
             });
-            if (this.selected.method == 'fva' || this.selected.method == 'pfba-fva') {
-                this.shared.removedReactions = [];
-                this.shared.loading++;
-                this._api.get('samples/:sampleId/model', {
-                    'sampleId': this.selected.sample,
-                    'phase-id': this.selected.phase,
-                    'method': this.selected.method,
-                    'map': this.selected.map,
-                    'with-fluxes': 1
-                }).then((response: angular.IHttpPromiseCallbackArg<any>) => {
-                    this.shared.model = response.data.model;
-                    this.shared.model.uid = response.data['model-id'];
-                    this.shared.map.reactionData = response.data.fluxes;
-                    this.shared.loading--;
-                }, (error) => {
-                    this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected map.');
-                    this.shared.loading--;
-                });
-            }
+            // if (this.selected.method == 'fva' || this.selected.method == 'pfba-fva') {
+            //     this.shared.removedReactions = [];
+            //     this.shared.loading++;
+            //     this._api.get('samples/:sampleId/model', {
+            //         'sampleId': this.selected.sample,
+            //         'phase-id': this.selected.phase,
+            //         'method': this.selected.method,
+            //         'map': this.selected.map,
+            //         'with-fluxes': 1
+            //     }).then((response: angular.IHttpPromiseCallbackArg<any>) => {
+            //         this.shared.model = response.data.model;
+            //         this.shared.model.uid = response.data['model-id'];
+            //         this.shared.map.reactionData = response.data.fluxes;
+            //         this.shared.loading--;
+            //     }, (error) => {
+            //         this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected map.');
+            //         this.shared.loading--;
+            //     });
+            // }
         }
     };
 
@@ -187,15 +183,18 @@ class MapComponentCtrl {
 
         this._q.all([mapPromise, modelPromise, infoPromise]).then((responses: any) => {
             // Add loaded data to shared scope
-            this.shared.map.map = responses[0].data;
-            this.shared.model = responses[1].data.model;
-            this.shared.model.uid = responses[1].data['model-id'];
-            this.shared.map.reactionData = responses[1].data.fluxes;
-            this.shared.method = selectedItem.method;
-            this.info = responses[2].data;
+            // this.shared.map.map = responses[0].data;
+            this._mapOptions.setMap(responses[0].data);
+            // this.shared.model = responses[1].data.model;
+            this._mapOptions.setModel(responses[1].data.model, responses[1].data['model-id']);
+            // this.shared.model.uid = responses[1].data['model-id'];
+            // this.shared.map.reactionData = responses[1].data.fluxes;
+            this._mapOptions.setReactionData(responses[1].data.fluxes);
+            // this.shared.method = selectedItem.method;
+            // this.info = responses[2].data;
+            this._mapOptions.setMapInfo(responses[2].data);
 
-            this.$scope.$root.$broadcast('infoFromMap', this.info);
-
+            // this.$scope.$root.$broadcast('infoFromMap', this.info);
             this.shared.loading--;
         }, (error) => {
             this.toastService.showErrorToast('Oops! Sorry, there was a problem with fetching the data.');
@@ -209,7 +208,7 @@ class MapComponentCtrl {
     public processActionClick(action, data) {
         this.shared.loading++;
 
-        const shared  = JSON.parse(JSON.stringify(this.shared));
+        const shared  = JSON.parse(JSON.stringify(this._mapOptions.getMapData()));
 
         if (action.type === 'reaction:knockout:do') shared.removedReactions.push(data.bigg_id);
         if (action.type === 'reaction:knockout:undo'){
@@ -218,7 +217,7 @@ class MapComponentCtrl {
                 shared.removedReactions.splice(index, 1);
             }
         }
-
+        // TODO - Remember to switch to MapData
         this.actions.callAction(action, {shared: shared}).then((response) => {
             this.shared.map.growthRate = parseFloat(response['growth-rate']);
             this.shared.map.reactionData = response.fluxes;
@@ -252,10 +251,10 @@ class MapComponentCtrl {
             ],
             reaction_no_data_color: '#CBCBCB',
             reaction_no_data_size: 10,
-            reaction_knockout: this.shared.removedReactions ? this.shared.removedReactions : []
+            reaction_knockout: this._mapOptions.getCurrentRemovedReactions() ? this._mapOptions.getCurrentRemovedReactions() : []
         };
-        this._builder = escher.Builder(this.shared.map.map, null, null, this._mapElement, settings);
-        if (!isUndefined(this.shared.model.id)){
+        this._builder = escher.Builder(this._mapOptions.getCurrentMap(), null, null, this._mapElement, settings);
+        if (!isUndefined(this._mapOptions.getCurrentModelId())){
             this._loadModel(false);
         }
         this._loadContextMenu();
@@ -266,22 +265,25 @@ class MapComponentCtrl {
      */
     private _loadModel(restore_knockouts: Boolean): void {
         // Load model data
-        this._builder.load_model(this.shared.model);
+        this._builder.load_model(this._mapOptions.getCurrentModel());
 
         // Empty previously removed reactions
-        if (restore_knockouts) this.shared.removedReactions = [];
+        if (restore_knockouts) this._mapOptions.setRemovedReactions([]);
         // Check removed and added reactions and genes from model
-        const changes = this.shared.model.notes.changes;
+        let model = this._mapOptions.getCurrentModel();
+        const changes = model.notes.changes;
 
-        if (changes && this.shared.removedReactions.length == 0) {
-            this.shared.removedReactions = changes.removed.reactions.map(function (reaction: types.Reaction) {
+        if (changes && this._mapOptions.getCurrentRemovedReactions().length == 0) {
+            // this.shared.removedReactions
+            let reactions = changes.removed.reactions.map(function (reaction: types.Reaction) {
                 return reaction.id;
             });
+            this._mapOptions.setRemovedReactions(reactions);
         }
 
         // Open WS connection for model if it is not opened
         if (!this._ws.readyState) {
-            this._ws.connect(true, this.shared.model.uid);
+            this._ws.connect(true, model.uid);
         }
     }
 
@@ -290,10 +292,11 @@ class MapComponentCtrl {
      * TODO: handle metabolite and gene data
      */
     private _loadData(): void {
-        let reactionData = this.shared.map.reactionData;
+        let reactionData = this._mapOptions.getCurrentReactionData();
 
         // Handle FVA method response
-        if (this.shared.method === 'fva' || this.shared.method === 'pfba-fva') {
+        let selected = this._mapOptions.getSelectedItems();
+        if (selected.method === 'fva' || selected.method === 'pfba-fva') {
 
             // const fvaData = reactionData;
             const fvaData = _.pickBy(reactionData, (data) => {
@@ -331,7 +334,7 @@ class MapComponentCtrl {
                 this.contextElement = d;
                 this.contextActions = this.actions.getList({
                     type: 'map:reaction',
-                    shared: this.shared,
+                    shared: this._mapOptions.getMapData(),
                     element: this.contextElement
                 });
 
