@@ -219,7 +219,8 @@ class MapComponentCtrl {
         }
         // TODO - Remember to switch to MapData
         this.actions.callAction(action, {shared: shared}).then((response) => {
-            this.shared.map.growthRate = parseFloat(response['growth-rate']);
+            let growthRate = parseFloat(response['growth-rate']);
+            this.shared.map.growthRate = growthRate;
             this.shared.map.reactionData = response.fluxes;
             this.shared.removedReactions = response['removed-reactions'];
             this.$scope.$apply();

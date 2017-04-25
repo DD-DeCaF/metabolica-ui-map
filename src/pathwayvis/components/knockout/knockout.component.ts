@@ -6,12 +6,14 @@ import {ActionsService} from '../../services/actions/actions.service';
 import * as types from '../../types';
 import * as template from './knockout.component.html';
 import {ToastService} from "../../services/toastservice";
+import {MapOptionService} from "../../services/mapoption.service";
 
 
 /**
  * Knockout component
  */
 class KnockoutComponentCtrl {
+    private mapOptions: MapOptionService;
     public shared: types.Shared;
     public growthRate: number;
     public removedReactions: string[];
@@ -21,30 +23,24 @@ class KnockoutComponentCtrl {
     private $scope: angular.IScope;
 
     /* @ngInject */
-    constructor ($scope: angular.IScope, ToastService: ToastService, actions: ActionsService, ws: WSService) {
+    constructor ($scope: angular.IScope, MapOptions: MapOptionService, actions: ActionsService) {
         this._actions = actions;
+        this.mapOptions = MapOptions;
         this.$scope = $scope;
+    }
 
-        // Reaction data watcher
-        $scope.$watch('ctrl.shared.map.growthRate', () => {
-            if (!_.isUndefined(this.shared.map.growthRate)) {
-                this.growthRate = this.shared.map.growthRate;
-                this.removedReactions = this.shared.removedReactions;
-                if (_.round(this.growthRate, 5) === 0) {
-                    ToastService.showWarnToast('Growth rate is 0!');
-                }
-            }
-        }, true);
+    public getRemovedReactions(): string[]{
+        return this.mapOptions.getCurrentRemovedReactions();
+    }
 
-        $scope.$watch('ctrl.shared.removedReactions', () => {
-            this.removedReactions = this.shared.removedReactions;
-        })
+    public getCurrentGrowthRate(): number{
+        return this.mapOptions.getCurrentGrowthRate();
     }
 
     public onReactionRemoveClick(selectedReaction: string): void {
 
         const undoKnockoutAction = this._actions.getAction('reaction:knockout:undo');
-        const shared = _.cloneDeep(this.shared);
+        const shared = _.cloneDeep(this.mapOptions.getMapData());
 
         _.remove(shared.removedReactions, (id) => id === selectedReaction);
 
@@ -56,9 +52,12 @@ class KnockoutComponentCtrl {
         };
 
         this._actions.callAction(undoKnockoutAction, sharedKO).then((response) => {
-            this.shared.map.growthRate = parseFloat(response['growth-rate']);
-            this.shared.map.reactionData = response.fluxes;
-            this.shared.removedReactions = response['removed-reactions'];
+            // this.shared.map.growthRate = parseFloat(response['growth-rate']);
+            this.mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']))
+            // this.shared.map.reactionData = response.fluxes;
+            this.mapOptions.setReactionData(response.fluxes);
+            // this.shared.removedReactions = response['removed-reactions'];
+            this.mapOptions.setRemovedReactions( response['removed-reactions']);
             this.$scope.$apply();
         });
     }

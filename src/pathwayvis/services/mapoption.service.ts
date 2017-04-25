@@ -3,6 +3,7 @@
  */
 
 import * as types from '../types'
+import * as _ from 'lodash';
 import {APIService} from "./api";
 import {ToastService} from "./toastservice";
 import angular = require("angular");
@@ -134,6 +135,17 @@ export class MapOptionService {
 
     public setRemovedReactions(reactions: string[]){
         this.mapData.removedReactions = reactions;
+    }
+
+    public getCurrentGrowthRate(): number{
+        return this.mapData.map.growthRate;
+    }
+
+    public setCurrentGrowthRate(growthRate: number){
+        this.mapData.map.growthRate = growthRate;
+        if (_.round(growthRate, 5) === 0) {
+            this.toastService.showWarnToast('Growth rate is 0!');
+        }
     }
 
 
