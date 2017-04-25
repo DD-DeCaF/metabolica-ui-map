@@ -3,25 +3,37 @@
  */
 import './info.component.scss';
 import * as template from './info.component.html';
+import {MapOptionService} from "../../services/mapoption.service";
 
 /**
  * sidebar component
  */
 class InfoComponentCtrl {
-    private _scope: angular.IScope;
-    public info;
+    private _mapOptions: MapOptionService;
 
     /* @ngInject */
-    constructor ($scope: angular.IScope) {
-        this._scope = $scope;
-
-        $scope.$on('infoFromMap', function handler(ev, info){
-            ev.currentScope['ctrl'].setInfo(info);
-        })
+    constructor (MapOptions: MapOptionService) {
+        this._mapOptions = MapOptions;
     }
 
-    private setInfo(info): void {
-        this.info = info;
+    public getGenotypeChanges(): string[]{
+        return this._mapOptions.getCurrentMapInfo()['genotype-changes'];
+    }
+
+    public showGenotypeChanges(): boolean{
+        let genotypeChanges = this.getGenotypeChanges();
+        if(genotypeChanges){
+            return genotypeChanges.length > 0;
+        }
+        return false;
+    }
+
+    public getMeasurements(): object[]{
+        return this._mapOptions.getCurrentMapInfo()['measurements'];
+    }
+
+    public getMedium(): object[]{
+        return this._mapOptions.getCurrentMapInfo()['medium'];
     }
 }
 
