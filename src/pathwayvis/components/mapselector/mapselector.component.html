@@ -1,16 +1,3 @@
-<!--<md-menu ng-show="ctrl.maps">
-	<md-button class="md-fab md-primary md-mini" ng-click="ctrl.openMenu($mdMenu, $event)">
-		<md-icon md-font-icon="layers">layers</md-icon>
-	</md-button>
-	<md-menu-content>
-		<md-menu-item ng-repeat="map in ctrl.maps">
-			<md-button ng-click="ctrl.setMap(map)" style="text-align:left">
-				{{map}}
-			</md-button>
-		</md-menu-item>
-	</md-menu-content>
-</md-menu>-->
-
 <md-list>
 	<md-list-item ng-repeat="map in ctrl.maps" style="width: 100%">
 		<md-button ng-click="ctrl.setMap(map)" style="text-align:left; width: 100%">
