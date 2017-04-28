@@ -10,11 +10,24 @@ var SettingsComponentController = (function () {
         this.mapOptions = MapOptions;
         this.$mdSidenav = $mdSidenav;
     }
-    SettingsComponentController.prototype.getSelectedItems = function () {
-        return this.mapOptions.selectedItems;
+    //
+    // public getSelectedItems(): types.SelectedItems {
+    //     return this.mapOptions.selectedItems;
+    // }
+    SettingsComponentController.prototype.disableInfo = function () {
+        return !this.mapOptions.getCurrentMapInfo()['medium'];
+    };
+    SettingsComponentController.prototype.disableMapSelector = function () {
+        return !this.mapOptions.getModel();
+    };
+    SettingsComponentController.prototype.disableKnockedOutTab = function () {
+        return !this.mapOptions.getCurrentRemovedReactions();
     };
     SettingsComponentController.prototype.toggleRight = function () {
         this.$mdSidenav('right').toggle();
+    };
+    SettingsComponentController.prototype.getMapObjectsIds = function () {
+        return this.mapOptions.getMapObjectsIds();
     };
     return SettingsComponentController;
 }());

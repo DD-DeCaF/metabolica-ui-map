@@ -11,8 +11,8 @@
 					<md-icon md-font-icon="build">build</md-icon>
 				</md-tab-label>
 				<md-tab-body>
-					<md-content>
-						<pv-maploader id="1"></pv-maploader>
+					<md-content ng-repeat="id in ctrl.getMapObjectsIds()">
+						<pv-maploader id="id"></pv-maploader>
 					</md-content>
 				</md-tab-body>
 			</md-tab>
