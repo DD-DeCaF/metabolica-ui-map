@@ -40,7 +40,7 @@ class KnockoutComponentCtrl {
     public onReactionRemoveClick(selectedReaction: string): void {
 
         const undoKnockoutAction = this._actions.getAction('reaction:knockout:undo');
-        const shared = _.cloneDeep(this.mapOptions.getMapData());
+        const shared = _.cloneDeep(this.mapOptions.getCurrentMapData());
 
         _.remove(shared.removedReactions, (id) => id === selectedReaction);
 

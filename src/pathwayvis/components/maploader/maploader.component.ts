@@ -15,8 +15,9 @@ class MapLoaderComponentCtrl {
 
     public id: number;
     public samples: types.Sample[];
-    public mapOptions: MapOptionService;
-    public
+    private mapOptions: MapOptionService;
+    private toastService
+
 
     constructor ($scope: angular.IScope,
                  ToastService: ToastService,
@@ -24,47 +25,61 @@ class MapLoaderComponentCtrl {
                  MapOptions: MapOptionService)
     {
         this.mapOptions = MapOptions;
+        this.toastService = ToastService;
 
         this.selected.method = this.mapOptions.getDeafultMethod();
+
         if(this.mapOptions.getExperiment()){
             this.selected.experiment = this.mapOptions.getExperiment();
-            $mdSidenav('right').open();
         }
-
-        $scope.$watch('ctrl.selected.method', () => {
-            this.mapOptions.setMethodId(this.selected.method);
-        });
-
-        $scope.$watch('ctrl.selected.experiment', () => {
-            if(this.selected.experiment){
-                this.mapOptions.getSamples(this.selected.experiment)
-                    .then((response: angular.IHttpPromiseCallbackArg<types.Sample[]>) => {
-                        // need to set null properties first!
-                        this.mapOptions.setExperiment(this.selected.experiment);
-                        this.samples = response.data;
-                        this.selected.sample = null;
-                        this.selected.phase = null;
-                    });
-            }
-        });
-
-        $scope.$watch('ctrl.selected.sample', () => {
-            if(this.selected.sample){
-                this.mapOptions.getPhases(this.selected.sample).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
-                    this.mapOptions.setSample(this.selected.sample);
-                    this.phases = response.data;
-                    this.selected.phase = null;
-                }, (error) => {
-                    ToastService.showErrorToast('Oops! Sorry, there was a problem loading selected sample.');
-                });
-            }
-        });
-
-        $scope.$watch('ctrl.selected.phase', () => {
-            this.mapOptions.setPhase(this.selected.phase);
-        })
-
+        $mdSidenav('right').open();
     };
+
+    public changMethod(): void{
+        this.mapOptions.setMethodId(this.selected.method);
+    }
+
+    public changeExperiment(): void{
+        if(this.selected.experiment){
+            this.mapOptions.getSamples(this.selected.experiment)
+                .then((response: angular.IHttpPromiseCallbackArg<types.Sample[]>) => {
+                    // need to set null properties first!
+                    this.mapOptions.setExperiment(this.selected.experiment);
+                    this.samples = response.data;
+                    this.selected.sample = null;
+                    this.selected.phase = null;
+                });
+        }
+    }
+
+    public changeSample(): void{
+        if(this.selected.sample){
+            this.mapOptions.getPhases(this.selected.sample).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
+                this.mapOptions.setSample(this.selected.sample);
+                this.phases = response.data;
+                this.selected.phase = null;
+            }, (error) => {
+                this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected sample.');
+            });
+        }
+    }
+
+    public changePhase(){
+        this.mapOptions.setPhase(this.selected.phase);
+    }
+
+    public getMethods(): object{
+        return this.mapOptions.getMethods();
+    }
+
+    public isActiveObject(): boolean{
+        return this.mapOptions.isActiveObject(this.id);
+    }
+
+    public setActiveObject(): void{
+        return this.mapOptions.setActiveObject(this.id);
+    }
+
     public toggle(show: boolean) : void{
         this.hideSelection = !this.hideSelection;
     }

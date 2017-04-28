@@ -39,6 +39,10 @@ class SettingsComponentController{
     public toggleRight(): void{
         this.$mdSidenav('right').toggle()
     }
+
+    public getMapObjectsIds(): number[]{
+        return this.mapOptions.getMapObjectsIds();
+    }
 }
 
 export const SettingsComponent : angular.IComponentOptions = {
