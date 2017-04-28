@@ -49,7 +49,7 @@ export class ActionsService {
      * @param {[type]} action Callback function from action
      * @param {Object} args Object with arguments that is applied to `this` in action class
      */
-    public callAction(action: Action, args: Object)  {
+    public callAction(action: Action, args: Object): any  {
         return this.$injector.invoke(action.callback, args);
     }
 }
