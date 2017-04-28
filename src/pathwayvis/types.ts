@@ -53,6 +53,12 @@ export interface MapData {
     info?: object;
 }
 
+export interface MapObject{
+    id: number;
+    mapData: MapData;
+    selected: SelectedItems;
+}
+
 export interface SelectedItems {
     experiment?: number;
     sample?: number;
