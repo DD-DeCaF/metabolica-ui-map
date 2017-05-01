@@ -35,7 +35,7 @@ class MapLoaderComponentCtrl {
         $mdSidenav('right').open();
     };
 
-    public changMethod(): void{
+    public changeMethod(): void{
         this.mapOptions.setMethodId(this.selected.method);
     }
 
