@@ -42,6 +42,18 @@ class SettingsComponentController{
     public addMapObject(): void{
         this.mapOptions.addMapObject();
     }
+
+    public nextMapObject(): void{
+        this.mapOptions.nextMapObject();
+    }
+
+    public previousMapObject(): void{
+        this.mapOptions.previousMapObject();
+    }
+
+    public disablePlayBtn(): boolean{
+        return this.mapOptions.getNumberOfMapObjects() <= 1;
+    }
 }
 
 export const SettingsComponent : angular.IComponentOptions = {

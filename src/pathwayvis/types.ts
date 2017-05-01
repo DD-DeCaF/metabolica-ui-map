@@ -51,6 +51,7 @@ export interface MapData {
     method?: string;
     removedReactions?: string[];
     info?: object;
+    selected?: SelectedItems;
 }
 
 export interface MapObject{
