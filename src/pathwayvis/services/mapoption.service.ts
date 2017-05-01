@@ -249,6 +249,22 @@ export class MapOptionService {
         this.selectedMapObject = id;
     }
 
+    public nextMapObject(): void {
+        let tmpId = this.selectedMapObject + 1;
+        if (tmpId > this.mapObjects.length - 1){
+            tmpId = 0;
+        }
+        this.selectedMapObject= tmpId;
+    }
+
+    public previousMapObject(): void {
+        let tmpId = this.selectedMapObject - 1;
+        if (tmpId < 0){
+            tmpId = this.mapObjects.length - 1;
+        }
+        this.selectedMapObject= tmpId;
+    }
+
     public compareSelectedItems(selected1: types.SelectedItems, selected2: types.SelectedItems): boolean{
         return selected1.method == selected2.method &&
                 selected1.experiment == selected2.experiment &&
@@ -271,5 +287,7 @@ export class MapOptionService {
         return this.methods;
     }
 
-
+    public getNumberOfMapObjects(): number {
+        return this.mapObjects.length;
+    }
 }

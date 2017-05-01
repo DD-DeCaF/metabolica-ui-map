@@ -11,10 +11,31 @@
 					<md-icon md-font-icon="build">build</md-icon>
 				</md-tab-label>
 				<md-tab-body>
-					<md-button class="md-fab md-primary md-mini"
-							   ng-click="ctrl.addMapObject()">
-						<md-icon md-font-icon="add">add</md-icon>
-					</md-button>
+					<div class="playbar md-accent" layout="row" layout-align="space-around center">
+						<md-button class="md-icon-button"
+								   ng-click="ctrl.addMapObject()"
+						>
+							<md-icon md-font-icon="add">add</md-icon>
+						</md-button>
+						<md-button class="md-icon-button"
+								   ng-click="ctrl.previousMapObject()"
+								   ng-disabled="ctrl.disablePlayBtn()"
+						>
+							<md-icon md-font-icon="skip_previous">navigate_before</md-icon>
+						</md-button>
+						<md-button class="md-icon-button"
+								   ng-click="ctrl.previousMapObject()"
+								   ng-disabled="ctrl.disablePlayBtn()"
+						>
+							<md-icon md-font-icon="play_arrow">play_arrow</md-icon>
+						</md-button>
+						<md-button class="md-icon-button"
+								   ng-click="ctrl.nextMapObject()"
+								   ng-disabled="ctrl.disablePlayBtn()"
+						>
+							<md-icon md-font-icon="skip_next">navigate_next</md-icon>
+						</md-button>
+					</div>
 					<md-content ng-repeat="id in ctrl.getMapObjectsIds()">
 						<pv-maploader id="id"></pv-maploader>
 					</md-content>
