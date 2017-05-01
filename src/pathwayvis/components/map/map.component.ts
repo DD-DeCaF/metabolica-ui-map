@@ -82,17 +82,17 @@ class MapComponentCtrl {
         }, true);
 
         // Reaction data watcher
-        $scope.$watch('ctrl._mapOptions.getCurrentReactionData()', () => {
-            if (this._mapOptions.getCurrentReactionData()) {
-                this._loadData();
-            }
-        }, true);
-
-        $scope.$watch('ctrl._mapOptions.getCurrentModelId()', () => {
-            if (this._mapOptions.getCurrentModelId()) {
-                this._loadModel(true);
-            }
-        });
+        // $scope.$watch('ctrl._mapOptions.getCurrentReactionData()', () => {
+        //     if (this._mapOptions.getCurrentReactionData()) {
+        //         this._loadData();
+        //     }
+        // }, true);
+        //
+        // $scope.$watch('ctrl._mapOptions.getCurrentModelId()', () => {
+        //     if (this._mapOptions.getCurrentModelId()) {
+        //         this._loadModel(true);
+        //     }
+        // });
 
         $scope.$watch('ctrl._mapOptions.getCurrentRemovedReactions()', () => {
             let removedReactions = this._mapOptions.getCurrentRemovedReactions();
@@ -105,12 +105,14 @@ class MapComponentCtrl {
                                                                          oldVal: types.MapObject, scope) {
             if (newVal.id != oldVal.id){
                 scope.ctrl.mapChanged();
-            }
-
-            let selected = newVal.selected;
-            if(selected.method && selected.phase && selected.method && selected.experiment){
-                if(newVal.id == oldVal.id){
-                    scope.ctrl._loadMap(selected);
+            } else {
+                let selected = newVal.selected;
+                if (!scope.ctrl._mapOptions.compareSelectedItems(selected, oldVal.selected)) {
+                    if (selected.method && selected.phase && selected.sample && selected.experiment) {
+                        if (newVal.id == oldVal.id) {
+                            scope.ctrl._loadMap(selected);
+                        }
+                    }
                 }
             }
         }, true);
@@ -133,14 +135,13 @@ class MapComponentCtrl {
     }
 
     private mapChanged(): void {
-        // let mapObject = this._mapOptions.getCurrentMapObject();
-        // if(this._mapOptions.isCompleteMapObject(mapObject)){
-        //     this._initMap();
-        //     this._loadData();
-        //
-        // }
-        console.log('Map changed!');
+        let mapObject = this._mapOptions.getCurrentMapObject();
+        if(this._mapOptions.isCompleteMapObject(mapObject)){
+            this._builder.load_model(this._mapOptions.getCurrentModel());
+            this._loadData();
+            this._builder.draw_knockout_reactions();
 
+        }
     }
 
     private _setMap(map: string): void {
@@ -185,10 +186,11 @@ class MapComponentCtrl {
             // Add loaded data to shared scope
             this._mapOptions.setMap(responses[0].data);
             this._mapOptions.setModel(responses[1].data.model, responses[1].data['model-id']);
+            this._loadModel(true);
             this._mapOptions.setReactionData(responses[1].data.fluxes);
+            this._loadData();
             this._mapOptions.setMapInfo(responses[2].data);
 
-            // this.$scope.$root.$broadcast('infoFromMap', this.info);
             this.shared.loading--;
         }, (error) => {
             this.toastService.showErrorToast('Oops! Sorry, there was a problem with fetching the data.');
@@ -244,7 +246,7 @@ class MapComponentCtrl {
             ],
             reaction_no_data_color: '#CBCBCB',
             reaction_no_data_size: 10,
-            reaction_knockout: this._mapOptions.getCurrentRemovedReactions() ? this._mapOptions.getCurrentRemovedReactions() : []
+            reaction_knockout: this._mapOptions.getCurrentRemovedReactions()
         };
         this._builder = escher.Builder(this._mapOptions.getCurrentMap(), null, null, this._mapElement, settings);
         if (this._mapOptions.getCurrentModelId() != null){
@@ -353,7 +355,7 @@ class MapComponentCtrl {
             .style('left', (<MouseEvent> d3.event).pageX + 'px')
             .style('top', (<MouseEvent> d3.event).pageY + 'px')
             .style('visibility', 'visible');
-        this.$scope.$apply();
+        // this.$scope.$apply();
     }
 }
 
