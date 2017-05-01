@@ -10,10 +10,6 @@ var SettingsComponentController = (function () {
         this.mapOptions = MapOptions;
         this.$mdSidenav = $mdSidenav;
     }
-    //
-    // public getSelectedItems(): types.SelectedItems {
-    //     return this.mapOptions.selectedItems;
-    // }
     SettingsComponentController.prototype.disableInfo = function () {
         return !this.mapOptions.getCurrentMapInfo()['medium'];
     };
@@ -29,13 +25,13 @@ var SettingsComponentController = (function () {
     SettingsComponentController.prototype.getMapObjectsIds = function () {
         return this.mapOptions.getMapObjectsIds();
     };
+    SettingsComponentController.prototype.addMapObject = function () {
+        this.mapOptions.addMapObject();
+    };
     return SettingsComponentController;
 }());
 exports.SettingsComponent = {
     controller: SettingsComponentController,
     controllerAs: 'ctrl',
-    template: template.toString(),
-    bindings: {
-        shared: '='
-    }
+    template: template.toString()
 };

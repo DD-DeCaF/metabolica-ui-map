@@ -11,6 +11,10 @@
 					<md-icon md-font-icon="build">build</md-icon>
 				</md-tab-label>
 				<md-tab-body>
+					<md-button class="md-fab md-primary md-mini"
+							   ng-click="ctrl.addMapObject()">
+						<md-icon md-font-icon="add">add</md-icon>
+					</md-button>
 					<md-content ng-repeat="id in ctrl.getMapObjectsIds()">
 						<pv-maploader id="id"></pv-maploader>
 					</md-content>

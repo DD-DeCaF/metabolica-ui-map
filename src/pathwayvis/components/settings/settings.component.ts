@@ -5,7 +5,6 @@ import * as template from './settings.component.html'
 import './settings.component.scss';
 import angular = require("angular");
 import {MapOptionService} from "../../services/mapoption.service";
-import * as types from '../../types';
 
 class SettingsComponentController{
 
@@ -18,10 +17,6 @@ class SettingsComponentController{
         this.mapOptions = MapOptions;
         this.$mdSidenav = $mdSidenav;
     }
-    //
-    // public getSelectedItems(): types.SelectedItems {
-    //     return this.mapOptions.selectedItems;
-    // }
 
     public disableInfo(): boolean{
         return !this.mapOptions.getCurrentMapInfo()['medium'];
@@ -43,13 +38,14 @@ class SettingsComponentController{
     public getMapObjectsIds(): number[]{
         return this.mapOptions.getMapObjectsIds();
     }
+
+    public addMapObject(): void{
+        this.mapOptions.addMapObject();
+    }
 }
 
 export const SettingsComponent : angular.IComponentOptions = {
     controller: SettingsComponentController,
     controllerAs: 'ctrl',
     template: template.toString(),
-    bindings: {
-        shared: '=',
-    }
-}
+};
