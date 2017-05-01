@@ -234,17 +234,26 @@ export class MapOptionService {
             id: id,
             selected: {
                 'map_id' : 'Central metabolism',
-                'model_id' : null
+                'model_id' : null,
+                'method': this.getDeafultMethod()
             },
             mapData: {
                 map: {},
                 model: {},
                 sections: {},
-                info: {}
+                info: {},
+                removedReactions: []
             }
         };
         this.mapObjects.push(obj);
         this.selectedMapObject = id;
+    }
+
+    public compareSelectedItems(selected1: types.SelectedItems, selected2: types.SelectedItems): boolean{
+        return selected1.method == selected2.method &&
+                selected1.experiment == selected2.experiment &&
+                selected1.sample == selected2.sample &&
+                selected1.phase == selected2.phase
     }
 
     public isCompleteMapObject(mapObject: types.MapObject): boolean{
