@@ -20,11 +20,10 @@ interface MapSettings {
 }
 
 export class MapOptionService {
-    private previousSelected: number = 0;
     private apiService: APIService;
     private samplesSpecies: any = {};
     private mapObjects: types.MapObject[] = [];
-    public shouldLoadMap: boolean = true;
+    public shouldLoadMap: boolean = false;
 
     public selectedMapObjectId: number = 0;
 
@@ -32,7 +31,7 @@ export class MapOptionService {
         map_id : 'Central metabolism',
         model_id : null,
         map: {}
-    };
+    };f
 
     // TODO: should get methods and default method from backend
     public methods: Method[] = [
@@ -266,7 +265,7 @@ export class MapOptionService {
         if (tmpId > this.mapObjects.length - 1){
             tmpId = 0;
         }
-        this.selectedMapObjectId= tmpId;
+        this.setActiveObject(tmpId);
     }
 
     public previousMapObject(): void {
@@ -274,7 +273,7 @@ export class MapOptionService {
         if (tmpId < 0){
             tmpId = this.mapObjects.length - 1;
         }
-        this.selectedMapObjectId= tmpId;
+        this.setActiveObject(tmpId);
     }
 
     public compareSelectedItems(selected1: types.SelectedItems, selected2: types.SelectedItems): boolean{
@@ -297,12 +296,7 @@ export class MapOptionService {
 
     public setActiveObject(id: number) {
         this.shouldLoadMap = false;
-        this.previousSelected = this.selectedMapObjectId;
         this.selectedMapObjectId = id;
-    }
-
-    public getPreviousObjectId(){
-        return this.previousSelected;
     }
 
     public getMethods(): object {
