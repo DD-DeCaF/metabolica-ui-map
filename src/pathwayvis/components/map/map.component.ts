@@ -59,7 +59,7 @@ class MapComponentCtrl {
         $scope.$watch('ctrl._mapOptions.getMapSettings()', () => {
             let settings = this._mapOptions.getMapSettings();
             if(settings.model_id && settings.map_id){
-                this._setMap(this._mapOptions.getSelectedMap())
+                this._setMap(this._mapOptions.getSelectedMap());
 
                 let builder = this._builder;
                 if (builder){
@@ -81,18 +81,9 @@ class MapComponentCtrl {
             }
         }, true);
 
-        // Reaction data watcher
-        // $scope.$watch('ctrl._mapOptions.getCurrentReactionData()', () => {
-        //     if (this._mapOptions.getCurrentReactionData()) {
-        //         this._loadData();
-        //     }
-        // }, true);
-        //
-        // $scope.$watch('ctrl._mapOptions.getCurrentModelId()', () => {
-        //     if (this._mapOptions.getCurrentModelId()) {
-        //         this._loadModel(true);
-        //     }
-        // });
+        $scope.$watch('ctrl._mapOptions.getCurrentMapObjectId()', () => {
+            this.mapChanged();
+        });
 
         $scope.$watch('ctrl._mapOptions.getCurrentRemovedReactions()', () => {
             let removedReactions = this._mapOptions.getCurrentRemovedReactions();
@@ -101,18 +92,11 @@ class MapComponentCtrl {
             }
         }, true);
 
-        $scope.$watch('ctrl._mapOptions.getCurrentMapObject()', function(newVal: types.MapObject,
-                                                                         oldVal: types.MapObject, scope) {
-            if (newVal.id != oldVal.id){
-                scope.ctrl.mapChanged();
-            } else {
-                let selected = newVal.selected;
-                if (!scope.ctrl._mapOptions.compareSelectedItems(selected, oldVal.selected)) {
-                    if (selected.method && selected.phase && selected.sample && selected.experiment) {
-                        if (newVal.id == oldVal.id) {
-                            scope.ctrl._loadMap(selected);
-                        }
-                    }
+        $scope.$watch('ctrl._mapOptions.getCurrentSelectedItems()',() => {
+            let selected = this._mapOptions.getCurrentSelectedItems();
+            if(this._mapOptions.shouldLoadMap){
+                if (selected.method && selected.phase && selected.sample && selected.experiment) {
+                    this._loadMap(selected);
                 }
             }
         }, true);
