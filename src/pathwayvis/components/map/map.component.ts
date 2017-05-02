@@ -339,6 +339,11 @@ class MapComponentCtrl {
             .style('visibility', 'visible');
         // this.$scope.$apply();
     }
+
+    public showLegend(): boolean{
+        return !!this._mapOptions.getCurrentReactionData();
+
+    }
 }
 
 export const mapComponent: angular.IComponentOptions = {
