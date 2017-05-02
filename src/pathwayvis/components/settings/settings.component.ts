@@ -24,16 +24,16 @@ class SettingsComponentController{
     }
 
     public disableInfo(): boolean{
-        return !this.mapOptions.getCurrentMapInfo()['medium'];
+        return !this.mapOptions.getCurrentMapInfo()['medium'] || this.disableForAnimation();
 
     }
 
     public disableMapSelector(): boolean{
-        return !this.mapOptions.getModel();
+        return !this.mapOptions.getModel() || this.disableForAnimation();
     }
 
     public disableKnockedOutTab(): boolean{
-        return !this.mapOptions.getCurrentRemovedReactions();
+        return this.mapOptions.getCurrentRemovedReactions().length <= 0 || this.disableForAnimation();
     }
 
     public toggleRight(): void{
@@ -76,6 +76,14 @@ class SettingsComponentController{
 
     public disablePlayBtn(): boolean{
         return this.mapOptions.getNumberOfMapObjects() <= 1;
+    }
+
+    public disableControls(): boolean{
+        return this.disablePlayBtn() || this.animationPromis;
+    }
+
+    public disableForAnimation(): boolean{
+        return !!this.animationPromis;
     }
 }
 
