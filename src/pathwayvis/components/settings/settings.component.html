@@ -24,10 +24,10 @@
 							<md-icon md-font-icon="skip_previous">navigate_before</md-icon>
 						</md-button>
 						<md-button class="md-icon-button"
-								   ng-click="ctrl.previousMapObject()"
+								   ng-click="ctrl.toggleAnimation()"
 								   ng-disabled="ctrl.disablePlayBtn()"
 						>
-							<md-icon md-font-icon="play_arrow">play_arrow</md-icon>
+							<md-icon md-font-icon="ctrl.playIcon()">{{ctrl.playIcon()}}</md-icon>
 						</md-button>
 						<md-button class="md-icon-button"
 								   ng-click="ctrl.nextMapObject()"
@@ -37,7 +37,7 @@
 						</md-button>
 					</div>
 					<md-content ng-repeat="id in ctrl.getMapObjectsIds()">
-						<pv-maploader id="id"></pv-maploader>
+						<pv-maploader id="id" animating="ctrl.animating"></pv-maploader>
 					</md-content>
 				</md-tab-body>
 			</md-tab>

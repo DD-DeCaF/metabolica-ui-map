@@ -13,10 +13,11 @@ class MapLoaderComponentCtrl {
     public phases: types.Phase[];
     public selected: types.SelectedItems = {};
 
+    public animating: boolean;
     public id: number;
     public samples: types.Sample[];
     private mapOptions: MapOptionService;
-    private toastService
+    private toastService;
 
 
     constructor ($scope: angular.IScope,
@@ -99,5 +100,6 @@ export const MapLoaderComponent: angular.IComponentOptions = {
     template: template.toString(),
     bindings: {
         id: '<',
+        animating: '<'
     }
 };

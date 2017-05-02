@@ -1,5 +1,6 @@
 <md-card name="loadData" novalidate layout="column">
-	<md-toolbar class="md-hue-3" ng-click="ctrl.setActiveObject()">
+	<md-toolbar ng-class="{'md-primary md-hue-2': ctrl.isActiveObject() || ctrl.animating, 'md-hue-3':ctrl.isActiveObject() || !ctrl.animating}"
+				ng-click="ctrl.setActiveObject()">
 		<div class="md-toolbar-tools" layout="column" layout-align="center start">
 			<div layout="row" layout-align="space-around center" style="width: 100%">
 				<p class="md-caption">Method: {{ctrl.selected.method}}</p>
@@ -11,7 +12,7 @@
 			</div>
 		</div>
 	</md-toolbar>
-	<md-content layout="column" layout-padding ng-hide="!ctrl.isActiveObject()">
+	<md-content layout="column" layout-padding ng-hide="!ctrl.isActiveObject() || ctrl.animating">
 		<md-input-container>
 			<label>Method</label>
 			<md-select name="method"
