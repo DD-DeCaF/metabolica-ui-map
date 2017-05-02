@@ -290,16 +290,14 @@ class MapComponentCtrl {
             this._builder.set_reaction_data(reactionData);
             this._builder.set_reaction_fva_data(fvaData);
 
-            return;
+        } else {
+            // Remove zero values
+            reactionData = _.pickBy(reactionData, (value: number) => {
+                if (Math.abs(value) > Math.pow(10, -7)) return true;
+            });
+
+            this._builder.set_reaction_data(reactionData);
         }
-
-        // Remove zero values
-        reactionData = _.pickBy(reactionData, (value: number) => {
-            if (Math.abs(value) > Math.pow(10, -7)) return true;
-        });
-
-        this._builder.set_reaction_data(reactionData);
-
         this._loadContextMenu();
     }
 

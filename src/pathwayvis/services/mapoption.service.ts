@@ -16,6 +16,7 @@ interface Method {
 interface MapSettings {
     map_id: string;
     model_id: string;
+    map: types.Map
 }
 
 export class MapOptionService {
@@ -27,9 +28,10 @@ export class MapOptionService {
 
     public selectedMapObjectId: number = 0;
 
-    public mapSettings: MapSettings = {
-        'map_id' : 'Central metabolism',
-        'model_id' : null
+    public mapSettings: MapSettings = <any>{
+        map_id : 'Central metabolism',
+        model_id : null,
+        map: {}
     };
 
     // TODO: should get methods and default method from backend
@@ -76,18 +78,18 @@ export class MapOptionService {
     }
 
     public getCurrentMapId(): string{
-        if(this.mapObjects[this.selectedMapObjectId].mapData.map.map) {
-            return this.mapObjects[this.selectedMapObjectId].mapData.map.map[0].map_id;
+        if(this.mapSettings.map.map) {
+            return this.mapSettings.map.map[0].map_id;
         }
         return null;
     }
 
     public getCurrentMap(): object{
-        return this.mapObjects[this.selectedMapObjectId].mapData.map.map;
+        return this.mapSettings.map.map;
     }
 
     public setMap(map: object): void{
-        this.mapObjects[this.selectedMapObjectId].mapData.map.map = map;
+        this.mapSettings.map.map = map;
     }
 
     public getCurrentReactionData(): object{
@@ -283,7 +285,7 @@ export class MapOptionService {
     }
 
     public isCompleteMapObject(mapObject: types.MapObject): boolean{
-         if(mapObject.mapData.map.reactionData && mapObject.mapData.model && mapObject.mapData.map.map){
+         if(mapObject.mapData.map.reactionData && mapObject.mapData.model){
              return true;
          }
          return false;
