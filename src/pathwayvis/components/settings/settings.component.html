@@ -14,12 +14,13 @@
 					<div class="playbar md-accent" layout="row" layout-align="space-around center">
 						<md-button class="md-icon-button"
 								   ng-click="ctrl.addMapObject()"
+								   ng-disabled="ctrl.disableForAnimation()"
 						>
 							<md-icon md-font-icon="add">add</md-icon>
 						</md-button>
 						<md-button class="md-icon-button"
 								   ng-click="ctrl.previousMapObject()"
-								   ng-disabled="ctrl.disablePlayBtn()"
+								   ng-disabled="ctrl.disableControls()"
 						>
 							<md-icon md-font-icon="skip_previous">navigate_before</md-icon>
 						</md-button>
@@ -31,7 +32,7 @@
 						</md-button>
 						<md-button class="md-icon-button"
 								   ng-click="ctrl.nextMapObject()"
-								   ng-disabled="ctrl.disablePlayBtn()"
+								   ng-disabled="ctrl.disableControls()"
 						>
 							<md-icon md-font-icon="skip_next">navigate_next</md-icon>
 						</md-button>
