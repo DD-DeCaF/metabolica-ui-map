@@ -19,11 +19,13 @@ interface MapSettings {
 }
 
 export class MapOptionService {
+    private previousSelected: number = 0;
     private apiService: APIService;
     private samplesSpecies: any = {};
     private mapObjects: types.MapObject[] = [];
+    public shouldLoadMap: boolean = true;
 
-    public selectedMapObject: number = 0;
+    public selectedMapObjectId: number = 0;
 
     public mapSettings: MapSettings = {
         'map_id' : 'Central metabolism',
@@ -62,82 +64,86 @@ export class MapOptionService {
     }
 
     public getCurrentMapObject(): types.MapObject{
-        return this.mapObjects[this.selectedMapObject];
+        return this.mapObjects[this.selectedMapObjectId];
+    }
+
+    public getCurrentMapObjectId(): number{
+        return this.selectedMapObjectId;
     }
 
     public getCurrentMapData(): types.MapData{
-        return this.mapObjects[this.selectedMapObject].mapData;
+        return this.mapObjects[this.selectedMapObjectId].mapData;
     }
 
     public getCurrentMapId(): string{
-        if(this.mapObjects[this.selectedMapObject].mapData.map.map) {
-            return this.mapObjects[this.selectedMapObject].mapData.map.map[0].map_id;
+        if(this.mapObjects[this.selectedMapObjectId].mapData.map.map) {
+            return this.mapObjects[this.selectedMapObjectId].mapData.map.map[0].map_id;
         }
         return null;
     }
 
     public getCurrentMap(): object{
-        return this.mapObjects[this.selectedMapObject].mapData.map.map;
+        return this.mapObjects[this.selectedMapObjectId].mapData.map.map;
     }
 
     public setMap(map: object): void{
-        this.mapObjects[this.selectedMapObject].mapData.map.map = map;
+        this.mapObjects[this.selectedMapObjectId].mapData.map.map = map;
     }
 
     public getCurrentReactionData(): object{
-        if(this.mapObjects[this.selectedMapObject].mapData.map.reactionData){
-            return this.mapObjects[this.selectedMapObject].mapData.map.reactionData;
+        if(this.mapObjects[this.selectedMapObjectId].mapData.map.reactionData){
+            return this.mapObjects[this.selectedMapObjectId].mapData.map.reactionData;
         }
         return null;
     }
 
     public setReactionData(data: object){
-        this.mapObjects[this.selectedMapObject].mapData.map.reactionData = data;
+        this.mapObjects[this.selectedMapObjectId].mapData.map.reactionData = data;
     }
 
     public getCurrentModel(): types.Model{
-        return this.mapObjects[this.selectedMapObject].mapData.model;
+        return this.mapObjects[this.selectedMapObjectId].mapData.model;
     }
 
     public setModel(model: types.Model, model_id: string): void{
-        this.mapObjects[this.selectedMapObject].mapData.model = model;
+        this.mapObjects[this.selectedMapObjectId].mapData.model = model;
         if (model_id){
-            this.mapObjects[this.selectedMapObject].mapData.model.uid = model_id;
+            this.mapObjects[this.selectedMapObjectId].mapData.model.uid = model_id;
         }
     }
 
     public getCurrentModelId(): string{
-        if(this.mapObjects[this.selectedMapObject].mapData.model.uid){
-            return this.mapObjects[this.selectedMapObject].mapData.model.uid;
+        if(this.mapObjects[this.selectedMapObjectId].mapData.model.uid){
+            return this.mapObjects[this.selectedMapObjectId].mapData.model.uid;
         }
         return null;
     }
 
     public getCurrentMapInfo(): object{
-        if(this.mapObjects[this.selectedMapObject].mapData.info){
-            return this.mapObjects[this.selectedMapObject].mapData.info;
+        if(this.mapObjects[this.selectedMapObjectId].mapData.info){
+            return this.mapObjects[this.selectedMapObjectId].mapData.info;
         }
         return null;
     }
 
     public setMapInfo(info: object){
-        this.mapObjects[this.selectedMapObject].mapData.info = info;
+        this.mapObjects[this.selectedMapObjectId].mapData.info = info;
     }
 
     public getCurrentRemovedReactions(): string[]{
-        return this.mapObjects[this.selectedMapObject].mapData.removedReactions;
+        return this.mapObjects[this.selectedMapObjectId].mapData.removedReactions;
     }
 
     public setRemovedReactions(reactions: string[]){
-        this.mapObjects[this.selectedMapObject].mapData.removedReactions = reactions;
+        this.mapObjects[this.selectedMapObjectId].mapData.removedReactions = reactions;
     }
 
     public getCurrentGrowthRate(): number{
-        return this.mapObjects[this.selectedMapObject].mapData.map.growthRate;
+        return this.mapObjects[this.selectedMapObjectId].mapData.map.growthRate;
     }
 
     public setCurrentGrowthRate(growthRate: number){
-        this.mapObjects[this.selectedMapObject].mapData.map.growthRate = growthRate;
+        this.mapObjects[this.selectedMapObjectId].mapData.map.growthRate = growthRate;
         if (_.round(growthRate, 5) === 0) {
             this.toastService.showWarnToast('Growth rate is 0!');
         }
@@ -145,26 +151,30 @@ export class MapOptionService {
 
 
     public setMethodId(method: string) : void {
-        this.mapObjects[this.selectedMapObject].selected.method = method;
+        this.shouldLoadMap = true;
+        this.mapObjects[this.selectedMapObjectId].selected.method = method;
     }
 
     public setExperiment(experiment: number) : void {
-        this.mapObjects[this.selectedMapObject].selected.sample = null;
-        this.mapObjects[this.selectedMapObject].selected.phase = null;
-        this.mapObjects[this.selectedMapObject].selected.experiment = experiment;
+        this.mapObjects[this.selectedMapObjectId].selected.sample = null;
+        this.mapObjects[this.selectedMapObjectId].selected.phase = null;
+        this.shouldLoadMap = true;
+        this.mapObjects[this.selectedMapObjectId].selected.experiment = experiment;
     }
 
     public setSample(sample: number) : void {
-        this.mapObjects[this.selectedMapObject].selected.phase = null;
-        this.mapObjects[this.selectedMapObject].selected.sample = sample;
+        this.mapObjects[this.selectedMapObjectId].selected.phase = null;
+        this.shouldLoadMap = true;
+        this.mapObjects[this.selectedMapObjectId].selected.sample = sample;
     }
 
     public setPhase(phase: number) : void {
-        this.mapObjects[this.selectedMapObject].selected.phase = phase;
+        this.shouldLoadMap = true;
+        this.mapObjects[this.selectedMapObjectId].selected.phase = phase;
     }
 
     public getCurrentSelectedItems() : types.SelectedItems {
-        return this.mapObjects[this.selectedMapObject].selected;
+        return this.mapObjects[this.selectedMapObjectId].selected;
     }
 
     public getDeafultMethod(): string {
@@ -213,7 +223,7 @@ export class MapOptionService {
     }
 
     public getExperiment(): number {
-        return this.mapObjects[this.selectedMapObject].selected.experiment;
+        return this.mapObjects[this.selectedMapObjectId].selected.experiment;
     }
 
     public getMapObjectsIds(): number[] {
@@ -225,7 +235,7 @@ export class MapOptionService {
     }
 
     public isActiveObject(id: number){
-        return id == this.selectedMapObject;
+        return id == this.selectedMapObjectId;
     }
 
     public addMapObject(): void{
@@ -246,23 +256,23 @@ export class MapOptionService {
             }
         };
         this.mapObjects.push(obj);
-        this.selectedMapObject = id;
+        this.selectedMapObjectId = id;
     }
 
     public nextMapObject(): void {
-        let tmpId = this.selectedMapObject + 1;
+        let tmpId = this.selectedMapObjectId + 1;
         if (tmpId > this.mapObjects.length - 1){
             tmpId = 0;
         }
-        this.selectedMapObject= tmpId;
+        this.selectedMapObjectId= tmpId;
     }
 
     public previousMapObject(): void {
-        let tmpId = this.selectedMapObject - 1;
+        let tmpId = this.selectedMapObjectId - 1;
         if (tmpId < 0){
             tmpId = this.mapObjects.length - 1;
         }
-        this.selectedMapObject= tmpId;
+        this.selectedMapObjectId= tmpId;
     }
 
     public compareSelectedItems(selected1: types.SelectedItems, selected2: types.SelectedItems): boolean{
@@ -279,8 +289,18 @@ export class MapOptionService {
          return false;
     }
 
+    public getMapObject(id: number){
+        return this.mapObjects[id];
+    }
+
     public setActiveObject(id: number) {
-        this.selectedMapObject = id;
+        this.shouldLoadMap = false;
+        this.previousSelected = this.selectedMapObjectId;
+        this.selectedMapObjectId = id;
+    }
+
+    public getPreviousObjectId(){
+        return this.previousSelected;
     }
 
     public getMethods(): object {
