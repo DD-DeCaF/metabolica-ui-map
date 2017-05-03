@@ -8,11 +8,6 @@ import {APIService} from "./api";
 import {ToastService} from "./toastservice";
 import angular = require("angular");
 
-interface Method {
-    id: string;
-    name: string;
-}
-
 interface MapSettings {
     map_id: string;
     model_id: string;
@@ -34,7 +29,7 @@ export class MapOptionService {
     };f
 
     // TODO: should get methods and default method from backend
-    public methods: Method[] = [
+    public methods: types.Method[] = [
         {'id': 'fba', 'name': 'FBA'},
         {'id': 'pfba', 'name': 'pFBA'},
         {'id': 'fva', 'name': 'FVA'},
@@ -44,7 +39,7 @@ export class MapOptionService {
         {'id': 'room', 'name': 'ROOM'}
     ];
 
-    public experiments: any;
+    public experiments: types.Experiment[];
     public organismModel: any;
 
     private toastService: ToastService;
@@ -179,7 +174,18 @@ export class MapOptionService {
     }
 
     public getDeafultMethod(): string {
-        return 'pfba';
+        return this.methods[1].id;
+    }
+
+    public getMethodName(id: string): string{
+        let result = "_";
+        this.methods.some((item: types.Method) =>{
+            if(id.localeCompare(item.id) === 0){
+                result = item.name;
+                return true
+            }
+        });
+        return result;
     }
 
     public getMapSettings(): MapSettings {
@@ -225,6 +231,23 @@ export class MapOptionService {
 
     public getExperiment(): number {
         return this.mapObjects[this.selectedMapObjectId].selected.experiment;
+    }
+
+    public getExperiments(): types.Experiment[]{
+        return this.experiments;
+    }
+
+    public getExperimentName(id: number): string{
+        let result = "_";
+        if(this.experiments){
+            this.experiments.some((item: types.Experiment) =>{
+                if(id == item.id){
+                    result = item.name;
+                    return true
+                }
+            });
+        }
+        return result;
     }
 
     public getMapObjectsIds(): number[] {

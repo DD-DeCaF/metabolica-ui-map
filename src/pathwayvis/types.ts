@@ -74,6 +74,11 @@ export interface Message {
     data: any;
 }
 
+export interface Method {
+    id: string;
+    name: string;
+}
+
 interface APIitem {
     id: number;
     name: string;

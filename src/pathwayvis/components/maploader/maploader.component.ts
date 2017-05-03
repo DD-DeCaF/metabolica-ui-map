@@ -12,6 +12,7 @@ class MapLoaderComponentCtrl {
     public hideSelection: boolean = false;
     public phases: types.Phase[];
     public selected: types.SelectedItems = {};
+    public methodName: string;
 
     public animating: boolean;
     public id: number;
@@ -40,6 +41,18 @@ class MapLoaderComponentCtrl {
         this.mapOptions.setMethodId(this.selected.method);
     }
 
+    public getMethodName(): string{
+        return this.mapOptions.getMethodName(this.selected.method);
+    }
+
+    public getExperiments(): types.Experiment[]{
+        return this.mapOptions.getExperiments();
+    }
+
+    public getExperimentName(): string{
+        return this.mapOptions.getExperimentName(this.selected.experiment);
+    }
+
     public changeExperiment(): void{
         if(this.selected.experiment){
             this.mapOptions.getSamples(this.selected.experiment)
@@ -53,6 +66,19 @@ class MapLoaderComponentCtrl {
         }
     }
 
+    public getSampleName(): string{
+        let result = "_";
+        if(this.samples){
+            this.samples.some((item: types.Sample) =>{
+                if(this.selected.sample == item.id){
+                    result = item.name;
+                    return true
+                }
+            });
+        }
+        return result;
+    }
+
     public changeSample(): void{
         if(this.selected.sample){
             this.mapOptions.getPhases(this.selected.sample).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
@@ -63,6 +89,19 @@ class MapLoaderComponentCtrl {
                 this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected sample.');
             });
         }
+    }
+
+    public getPhaseName(): string{
+        let result = "_";
+        if(this.phases){
+            this.phases.some((item: types.Phase) =>{
+                if(this.selected.phase == item.id){
+                    result = item.name;
+                    return true
+                }
+            });
+        }
+        return result;
     }
 
     public changePhase(){
