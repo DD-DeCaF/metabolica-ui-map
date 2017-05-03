@@ -97,6 +97,7 @@ class MapComponentCtrl {
             if(this._mapOptions.shouldLoadMap){
                 if (selected.method && selected.phase && selected.sample && selected.experiment) {
                     this._loadMap(selected);
+                    this._loadContextMenu();
                 }
             }
         }, true);
@@ -124,6 +125,7 @@ class MapComponentCtrl {
             this._builder.load_model(this._mapOptions.getCurrentModel());
             this._loadData();
             this._builder.draw_knockout_reactions();
+            this._loadContextMenu();
 
         }
     }
@@ -148,10 +150,6 @@ class MapComponentCtrl {
     private _loadMap(selectedItem: types.SelectedItems): void{
         this.shared.loading++;
         let settings = this._mapOptions.getMapSettings();
-        const mapPromise = this._api.request_model('map', {
-            'model': settings.model_id,
-            'map': settings.map_id,
-        });
 
         const modelPromise = this._api.get('samples/:sampleId/model', {
             'sampleId': selectedItem.sample,
@@ -166,14 +164,12 @@ class MapComponentCtrl {
             'phase-id': selectedItem.phase
         });
 
-        this._q.all([mapPromise, modelPromise, infoPromise]).then((responses: any) => {
-            // Add loaded data to shared scope
-            this._mapOptions.setMap(responses[0].data);
-            this._mapOptions.setModel(responses[1].data.model, responses[1].data['model-id']);
+        this._q.all([modelPromise, infoPromise]).then((responses: any) => {
+            this._mapOptions.setModel(responses[0].data.model, responses[0].data['model-id']);
             this._loadModel(true);
-            this._mapOptions.setReactionData(responses[1].data.fluxes);
+            this._mapOptions.setReactionData(responses[0].data.fluxes);
             this._loadData();
-            this._mapOptions.setMapInfo(responses[2].data);
+            this._mapOptions.setMapInfo(responses[1].data);
 
             this.shared.loading--;
         }, (error) => {
