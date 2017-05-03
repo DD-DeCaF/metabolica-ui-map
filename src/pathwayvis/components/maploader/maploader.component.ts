@@ -131,6 +131,14 @@ class MapLoaderComponentCtrl {
         return "expand_less"
     }
 
+    public remove(){
+        this.mapOptions.removeMapObject(this.id);
+    }
+
+    public hideRemoveBtn(): boolean{
+        return this.mapOptions.getMapObjectsIds().length <= 1;
+    }
+
 }
 
 export const MapLoaderComponent: angular.IComponentOptions = {
