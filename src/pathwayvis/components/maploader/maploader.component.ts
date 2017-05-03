@@ -101,6 +101,9 @@ class MapLoaderComponentCtrl {
                 }
             });
         }
+        if(result.length > 10){
+            result = result.substr(0, 10) + "..."
+        }
         return result;
     }
 
