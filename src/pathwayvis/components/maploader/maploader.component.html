@@ -1,21 +1,18 @@
 <md-card name="loadData" novalidate layout="column">
 	<md-toolbar ng-class="{'md-primary': ctrl.isActiveObject(), 'md-accent': !ctrl.isActiveObject()}"
 				ng-click="ctrl.setActiveObject()">
-		<!--<div class="md-toolbar-tools" layout="column" layout-align="center start">-->
-			<!--<div layout="row" layout-align="space-around center" style="width: 100%">-->
-				<!--<p class="md-caption">{{ctrl.getMethodName()}}</p>-->
-				<!--<p class="md-caption">{{ctrl.getExperimentName()}}</p>-->
-			<!--</div>-->
-			<!--<div layout="row" layout-align="space-around center" style="width: 100%">-->
-				<!--<p class="md-caption">{{ctrl.getSampleName()}}</p>-->
-				<!--<p class="md-caption">{{ctrl.getPhaseName()}}</p>-->
-			<!--</div>-->
-		<!--</div>-->
 		<div class="md-toolbar-tools" layout="row">
 			<p class="md-caption">{{ctrl.getMethodName()}}</p> -
 			<p class="md-caption">{{ctrl.getExperimentName()}}</p> -
 			<p class="md-caption">{{ctrl.getSampleName()}}</p> -
 			<p class="md-caption">{{ctrl.getPhaseName()}}</p>
+			<md-button class="md-icon-button"
+					   style="right: 0; margin-left: auto"
+					   ng-click="ctrl.remove()"
+					   ng-hide="ctrl.hideRemoveBtn()"
+			>
+				<md-icon md-font-icon="remove">remove_circle_outline</md-icon>
+			</md-button>
 		</div>
 	</md-toolbar>
 	<md-content layout="column" layout-padding ng-hide="!ctrl.isActiveObject() || ctrl.animating">

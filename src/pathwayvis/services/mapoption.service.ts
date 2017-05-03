@@ -26,7 +26,9 @@ export class MapOptionService {
         map_id : 'Central metabolism',
         model_id : null,
         map: {}
-    };f
+    };
+
+    private mapObjectsIds: number[] = [];
 
     // TODO: should get methods and default method from backend
     public methods: types.Method[] = [
@@ -251,11 +253,7 @@ export class MapOptionService {
     }
 
     public getMapObjectsIds(): number[] {
-        let ids = [];
-        this.mapObjects.forEach((item: types.MapObject) => {
-            ids.push(item.id);
-        });
-        return ids;
+        return this.mapObjectsIds;
     }
 
     public isActiveObject(id: number){
@@ -280,23 +278,38 @@ export class MapOptionService {
             }
         };
         this.mapObjects.push(obj);
+        this.mapObjectsIds.push(id);
         this.selectedMapObjectId = id;
     }
 
+    public removeMapObject(id: number): void {
+        this.nextMapObject();
+        let index = this.mapObjectsIds.indexOf(id);
+        this.mapObjectsIds.splice(index, 1);
+        this.mapObjects[id] = null;
+    }
+
     public nextMapObject(): void {
-        let tmpId = this.selectedMapObjectId + 1;
-        if (tmpId > this.mapObjects.length - 1){
-            tmpId = 0;
+        let index = this.mapObjectsIds.indexOf(this.selectedMapObjectId) + 1;
+        let activeId = 0;
+        if(index > this.mapObjectsIds.length - 1){
+            activeId = this.mapObjectsIds[0];
+        } else {
+            activeId = this.mapObjectsIds[index];
         }
-        this.setActiveObject(tmpId);
+
+        this.setActiveObject(activeId);
     }
 
     public previousMapObject(): void {
-        let tmpId = this.selectedMapObjectId - 1;
-        if (tmpId < 0){
-            tmpId = this.mapObjects.length - 1;
+        let index = this.mapObjectsIds.indexOf(this.selectedMapObjectId) - 1;
+        let activeId = 0;
+        if(index < 0){
+            activeId = this.mapObjectsIds[this.mapObjectsIds.length-1];
+        } else {
+            activeId = this.mapObjectsIds[index];
         }
-        this.setActiveObject(tmpId);
+        this.setActiveObject(activeId);
     }
 
     public compareSelectedItems(selected1: types.SelectedItems, selected2: types.SelectedItems): boolean{

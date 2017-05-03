@@ -75,7 +75,7 @@ class SettingsComponentController{
     }
 
     public disablePlayBtn(): boolean{
-        return this.mapOptions.getNumberOfMapObjects() <= 1;
+        return this.mapOptions.getMapObjectsIds().length <= 1;
     }
 
     public disableControls(): boolean{
