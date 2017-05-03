@@ -1,15 +1,21 @@
 <md-card name="loadData" novalidate layout="column">
 	<md-toolbar ng-class="{'md-primary': ctrl.isActiveObject(), 'md-accent': !ctrl.isActiveObject()}"
 				ng-click="ctrl.setActiveObject()">
-		<div class="md-toolbar-tools" layout="column" layout-align="center start">
-			<div layout="row" layout-align="space-around center" style="width: 100%">
-				<p class="md-caption">Method: {{ctrl.selected.method}}</p>
-				<p class="md-caption">Experiment: {{ctrl.selected.experiment}}</p>
-			</div>
-			<div layout="row" layout-align="space-around center" style="width: 100%">
-				<p class="md-caption">Sample: {{ctrl.selected.sample}}</p>
-				<p class="md-caption">Phase: {{ctrl.selected.phase}}</p>
-			</div>
+		<!--<div class="md-toolbar-tools" layout="column" layout-align="center start">-->
+			<!--<div layout="row" layout-align="space-around center" style="width: 100%">-->
+				<!--<p class="md-caption">{{ctrl.getMethodName()}}</p>-->
+				<!--<p class="md-caption">{{ctrl.getExperimentName()}}</p>-->
+			<!--</div>-->
+			<!--<div layout="row" layout-align="space-around center" style="width: 100%">-->
+				<!--<p class="md-caption">{{ctrl.getSampleName()}}</p>-->
+				<!--<p class="md-caption">{{ctrl.getPhaseName()}}</p>-->
+			<!--</div>-->
+		<!--</div>-->
+		<div class="md-toolbar-tools" layout="row">
+			<p class="md-caption">{{ctrl.getMethodName()}}</p> -
+			<p class="md-caption">{{ctrl.getExperimentName()}}</p> -
+			<p class="md-caption">{{ctrl.getSampleName()}}</p> -
+			<p class="md-caption">{{ctrl.getPhaseName()}}</p>
 		</div>
 	</md-toolbar>
 	<md-content layout="column" layout-padding ng-hide="!ctrl.isActiveObject() || ctrl.animating">
@@ -27,7 +33,7 @@
 			<md-select name="experiment"
 					   ng-model="ctrl.selected.experiment"
 					   ng-change="ctrl.changeExperiment()"
-					   ng-disabled="!ctrl.mapOptions.experiments || ctrl.mapOptions.experiments.length === 0"
+					   ng-disabled="!ctrl.getExperiments() || ctrl.mapOptions.experiments.length === 0"
 			>
 				<md-option ng-repeat="experiment in ctrl.mapOptions.experiments" value="{{experiment.id}}">{{experiment.name}}</md-option>
 			</md-select>
