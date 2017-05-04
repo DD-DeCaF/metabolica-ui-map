@@ -1,3 +1,4 @@
+///<reference path="actions/actions.service.ts"/>
 /**
  * Created by dandann on 03/04/2017.
  */
@@ -7,6 +8,7 @@ import * as _ from 'lodash';
 import {APIService} from "./api";
 import {ToastService} from "./toastservice";
 import angular = require("angular");
+import {ActionsService} from "./actions/actions.service";
 
 interface MapSettings {
     map_id: string;
@@ -45,10 +47,14 @@ export class MapOptionService {
     public organismModel: any;
 
     private toastService: ToastService;
+    private actions: ActionsService;
+    // private $scope: angular.IScope;
 
-    constructor(api: APIService, ToastService: ToastService) {
+    constructor(api: APIService, ToastService: ToastService, actions: ActionsService) {
         this.apiService = api;
         this.toastService = ToastService;
+        this.actions = actions;
+        // this.$scope = $scope;
 
         this.apiService.get('experiments').then((response: angular.IHttpPromiseCallbackArg<types.Experiment[]>) => {
             this.experiments = response.data;
@@ -342,4 +348,19 @@ export class MapOptionService {
     public getNumberOfMapObjects(): number {
         return this.mapObjects.length;
     }
+
+    public actionHandler(action, id): any {
+        const shared  = JSON.parse(JSON.stringify(this.getCurrentMapData()));
+
+        if (action.type === 'reaction:knockout:do') shared.removedReactions.push(id);
+        if (action.type === 'reaction:knockout:undo'){
+            let index = shared.removedReactions.indexOf(id);
+            if(index > -1){
+                shared.removedReactions.splice(index, 1);
+            }
+        }
+        return this.actions.callAction(action, {shared: shared})
+    }
+
+
 }

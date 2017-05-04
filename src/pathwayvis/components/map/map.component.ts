@@ -63,6 +63,7 @@ class MapComponentCtrl {
 
                 let builder = this._builder;
                 if (builder){
+                    this._builder.set_knockout_reactions(this._mapOptions.getCurrentRemovedReactions());
                     builder.draw_knockout_reactions();
                 }
             }
@@ -89,6 +90,14 @@ class MapComponentCtrl {
             let removedReactions = this._mapOptions.getCurrentRemovedReactions();
             if (this._builder && removedReactions) {
                 this._builder.set_knockout_reactions(removedReactions);
+                this._builder.draw_knockout_reactions();
+            }
+        }, true);
+
+        $scope.$watch('ctrl._mapOptions.getCurrentReactionData()', () => {
+            let reactionData = this._mapOptions.getCurrentReactionData();
+            if (this._builder && reactionData) {
+                this._loadData();
             }
         }, true);
 
@@ -97,7 +106,6 @@ class MapComponentCtrl {
             if(this._mapOptions.shouldLoadMap){
                 if (selected.method && selected.phase && selected.sample && selected.experiment) {
                     this._loadMap(selected);
-                    this._loadContextMenu();
                 }
             }
         }, true);
@@ -123,8 +131,7 @@ class MapComponentCtrl {
         let mapObject = this._mapOptions.getCurrentMapObject();
         if(this._mapOptions.isCompleteMapObject(mapObject)){
             this._builder.load_model(this._mapOptions.getCurrentModel());
-            this._loadData();
-            this._builder.draw_knockout_reactions();
+            this._builder.set_knockout_reactions(this._mapOptions.getCurrentRemovedReactions());
             this._loadContextMenu();
 
         }
@@ -182,24 +189,12 @@ class MapComponentCtrl {
      * Callback function for clicked action button in context menu
      */
     public processActionClick(action, data) {
-        this.shared.loading++;
-
-        const shared  = JSON.parse(JSON.stringify(this._mapOptions.getCurrentMapData()));
-
-        if (action.type === 'reaction:knockout:do') shared.removedReactions.push(data.bigg_id);
-        if (action.type === 'reaction:knockout:undo'){
-            let index = shared.removedReactions.indexOf(data.bigg_id);
-            if(index > -1){
-                shared.removedReactions.splice(index, 1);
-            }
-        }
-        this.actions.callAction(action, {shared: shared}).then((response) => {
+        this._mapOptions.actionHandler(action, data.bigg_id).then((response) => {
             this._mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
             this._mapOptions.setReactionData(response.fluxes);
             this._mapOptions.setRemovedReactions(response['removed-reactions']);
             this.$scope.$apply();
         });
-        this.shared.loading--;
     }
 
     /**
@@ -333,7 +328,7 @@ class MapComponentCtrl {
             .style('left', (<MouseEvent> d3.event).pageX + 'px')
             .style('top', (<MouseEvent> d3.event).pageY + 'px')
             .style('visibility', 'visible');
-        // this.$scope.$apply();
+        this.$scope.$apply();
     }
 
     public showLegend(): boolean{
