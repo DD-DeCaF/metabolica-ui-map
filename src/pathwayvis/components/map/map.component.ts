@@ -35,6 +35,7 @@ class MapComponentCtrl {
     private toastService: ToastService;
     private info: Object;
     private _q: any;
+    private $window: angular.IWindowService;
 
     /* @ngInject */
     constructor ($scope: angular.IScope,
@@ -43,9 +44,10 @@ class MapComponentCtrl {
                  ws: WSService,
                  ToastService: ToastService,
                  $q: angular.IQService,
-                 MapOptions: MapOptionService
+                 MapOptions: MapOptionService,
+                 $window: angular.IWindowService
     ) {
-
+        this.$window = $window;
         this._api = api;
         this._ws = ws;
         this._mapElement = d3.select('.map-container');
@@ -189,6 +191,12 @@ class MapComponentCtrl {
      * Callback function for clicked action button in context menu
      */
     public processActionClick(action, data) {
+
+        if (action.type === 'reaction:link'){
+            this.$window.open('http://bigg.ucsd.edu/universal/reactions/' + data.bigg_id);
+            return;
+        }
+
         this._mapOptions.actionHandler(action, data.bigg_id).then((response) => {
             this._mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
             this._mapOptions.setReactionData(response.fluxes);
