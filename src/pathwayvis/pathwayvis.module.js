@@ -41,7 +41,8 @@ export const PathwayVisModule = angular.module('pathwayvis', [
 
         appNavigationProvider.register('app.pathwayvis', {
             title: 'Interactive Map',
-            icon: 'donut_large'
+            icon: 'donut_large',
+			authRequired: false
         });
 
         $stateProvider
