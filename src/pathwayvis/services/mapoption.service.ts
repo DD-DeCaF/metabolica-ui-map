@@ -17,8 +17,8 @@ interface MapSettings {
 }
 
 export class MapOptionService {
+    models: string[];
     private apiService: APIService;
-    private samplesSpecies: any = {};
     private mapObjects: types.MapObject[] = [];
     public shouldLoadMap: boolean = false;
 
@@ -116,6 +116,10 @@ export class MapOptionService {
         }
     }
 
+    public setSelectedModel(model_id: string): void{
+        this.mapSettings.model_id = model_id;
+    }
+
     public getCurrentModelId(): string{
         if(this.mapObjects[this.selectedMapObjectId].mapData.model.uid){
             return this.mapObjects[this.selectedMapObjectId].mapData.model.uid;
@@ -166,7 +170,7 @@ export class MapOptionService {
         this.mapObjects[this.selectedMapObjectId].selected.experiment = experiment;
     }
 
-    public setSample(sample: number) : void {
+    public setSample(sample: number[]) : void {
         this.mapObjects[this.selectedMapObjectId].selected.phase = null;
         this.shouldLoadMap = true;
         this.mapObjects[this.selectedMapObjectId].selected.sample = sample;
@@ -217,22 +221,34 @@ export class MapOptionService {
             let promise = this.apiService.get('experiments/:experimentId/samples', {
                 experimentId: experiment
             });
-            promise.then((response: angular.IHttpPromiseCallbackArg<types.Sample[]>) => {
-                response.data.forEach((value) => {
-                    this.samplesSpecies[value.id] = value.organism;
-                });
-            }, (error) => {
-                this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected experiment.');
-            });
             return promise;
         }
     }
 
-    public getPhases(sample: number) : angular.IPromise<Object> {
+    public getPhases(sample: number[]) : angular.IPromise<Object> {
         if (sample) {
-            this.mapSettings.model_id = this.organismModel[this.samplesSpecies[sample]];
-            return this.apiService.get('samples/:sampleId/phases', {
-                sampleId: sample
+            this.getModelOptions(sample).then(
+                (response: angular.IHttpPromiseCallbackArg<string[]>) => {
+                    this.models = response.data;
+                    this.setSelectedModel(this.models[0]);
+                }, (error) => {
+                    this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected sample.');
+                });
+
+            return this.apiService.get('samples/phases', {
+                'sample-ids': sample
+            });
+        }
+    }
+
+    public getModels(): string[]{
+        return this.models;
+    }
+
+    public getModelOptions(sample: number[]) : angular.IPromise<Object> {
+        if (sample) {
+            return this.apiService.get('samples/model-options', {
+                'sample-ids': sample
             });
         }
     }
@@ -363,4 +379,11 @@ export class MapOptionService {
     }
 
 
+    public isMaster(id: number): boolean {
+        return this.mapObjectsIds[0] == id;
+    }
+
+    public setModels(models: string[]) {
+        this.models = models;
+    }
 }

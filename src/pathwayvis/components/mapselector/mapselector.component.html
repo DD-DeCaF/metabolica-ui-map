@@ -1,7 +1,23 @@
-<md-list>
-	<md-list-item ng-repeat="map in ctrl.maps" style="width: 100%">
-		<md-button ng-click="ctrl.setMap(map)" style="text-align:left; width: 100%">
-			{{map}}
-		</md-button>
-	</md-list-item>
-</md-list>
+<md-content layout="column">
+	<section>
+		<md-subheader class="md-accent">Model</md-subheader>
+		<md-select name="model"
+				   ng-model="ctrl.model"
+				   ng-change="ctrl.changeModel()"
+		>
+			<md-option ng-repeat="model in ctrl.getModels()" value="{{model}}">{{model}}</md-option>
+		</md-select>
+	</section>
+	<section>
+		<md-subheader class="md-accent">Maps</md-subheader>
+
+		<md-list>
+			<md-list-item ng-repeat="map in ctrl.maps" >
+				<md-button ng-click="ctrl.setMap(map)" style="text-align:left; width: 100%">
+					{{map}}
+				</md-button>
+			</md-list-item>
+		</md-list>
+	</section>
+</md-content>
+
