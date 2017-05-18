@@ -80,9 +80,15 @@ class MapLoaderComponentCtrl {
     }
 
     public changeSample(): void{
-        if(this.selected.sample){
-            this.mapOptions.getPhases(this.selected.sample).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
-                this.mapOptions.setSample(this.selected.sample);
+        let sample = this.selected.sample;
+        if(sample){
+
+            if(this.mapOptions.isMaster(this.id)) {
+                this.mapOptions.setModelsFromSample(sample);
+            }
+
+            this.mapOptions.getPhases(sample).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
+                this.mapOptions.setSample(sample);
                 this.phases = response.data;
                 this.selected.phase = null;
             }, (error) => {

@@ -227,26 +227,17 @@ export class MapOptionService {
 
     public getPhases(sample: number[]) : angular.IPromise<Object> {
         if (sample) {
-            this.setModelsFromSample(sample);
-
-            this.getModelOptions(sample).then(
-                (response: angular.IHttpPromiseCallbackArg<string[]>) => {
-                    this.models = response.data;
-                    this.setSelectedModel(this.models[0]);
-                }, (error) => {
-                    this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected sample.');
-                });
-
             return this.apiService.get('samples/phases', {
                 'sample-ids': sample
             });
         }
     }
 
-    private setModelsFromSample(sample: number[]): void{
+    public setModelsFromSample(sample: number[]): void{
         this.getModelOptions(sample).then(
             (response: angular.IHttpPromiseCallbackArg<string[]>) => {
-                this.setModels(response.data)
+                this.models = response.data;
+                this.setSelectedModel(this.models[0]);
             }, (error) => {
                 this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected sample.');
             });
