@@ -1,13 +1,14 @@
 <md-content layout="column">
-	<section>
-		<md-subheader class="md-accent">Model</md-subheader>
+	<md-input-container style="margin-left: 10px;">
+		<label>Model</label>
 		<md-select name="model"
 				   ng-model="ctrl.model"
 				   ng-change="ctrl.changeModel()"
+				   flex
 		>
 			<md-option ng-repeat="model in ctrl.getModels()" value="{{model}}">{{model}}</md-option>
 		</md-select>
-	</section>
+	</md-input-container>
 	<section>
 		<md-subheader class="md-accent">Maps</md-subheader>
 
