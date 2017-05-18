@@ -9,16 +9,11 @@
 			<md-option ng-repeat="model in ctrl.getModels()" value="{{model}}">{{model}}</md-option>
 		</md-select>
 	</md-input-container>
-	<section>
+	<md-list>
 		<md-subheader class="md-accent">Maps</md-subheader>
-
-		<md-list>
-			<md-list-item ng-repeat="map in ctrl.maps" >
-				<md-button ng-click="ctrl.setMap(map)" style="text-align:left; width: 100%">
-					{{map}}
-				</md-button>
-			</md-list-item>
-		</md-list>
-	</section>
+		<md-list-item ng-repeat="map in ctrl.maps" ng-click="ctrl.setMap(map)">
+				{{map}}
+		</md-list-item>
+	</md-list>
 </md-content>
 
