@@ -62,15 +62,16 @@ class MapLoaderComponentCtrl {
                     this.samples = response.data;
                     this.selected.sample = null;
                     this.selected.phase = null;
+                    this.selected.model = null;
                 });
         }
     }
 
     public getSampleName(): string{
         let result = "_";
-        if(this.samples){
+        if(this.samples && this.selected.sample){
             this.samples.some((item: types.Sample) =>{
-                if(this.selected.sample == item.id){
+                if(this.selected.sample.toString() == JSON.stringify(item.id)){
                     result = item.name;
                     return true
                 }
@@ -81,6 +82,15 @@ class MapLoaderComponentCtrl {
 
     public changeSample(): void{
         if(this.selected.sample){
+            this.mapOptions.getModelOptions(this.selected.sample).then(
+                (response: angular.IHttpPromiseCallbackArg<string[]>) => {
+                    this.mapOptions.setModels(response.data)
+                    this.mapOptions.setSelectedModel(this.selected.model);
+                }, (error) => {
+                    this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected sample.');
+                });
+
+
             this.mapOptions.getPhases(this.selected.sample).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
                 this.mapOptions.setSample(this.selected.sample);
                 this.phases = response.data;
@@ -89,6 +99,14 @@ class MapLoaderComponentCtrl {
                 this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected sample.');
             });
         }
+    }
+
+    public changeModel(): void{
+        this.mapOptions.setSelectedModel(this.selected.model);
+    }
+
+    public hideModelSelect(): boolean{
+        return !this.mapOptions.isMaster(this.id)
     }
 
     public getPhaseName(): string{

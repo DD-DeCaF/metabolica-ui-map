@@ -9,11 +9,12 @@ import {MapService} from "../../services/map.service";
 
 
 class MapSelectorComponentCtrl {
+    public model: string;
     public allMaps: any;
     public maps: any;
     private _selectedMap: any;
     private mapOptions: MapOptionService;
-    private mapService: MapService
+    private mapService: MapService;
 
     constructor (MapService: MapService, $scope: angular.IScope, MapOptions: MapOptionService){
         this.mapService = MapService;
@@ -23,6 +24,7 @@ class MapSelectorComponentCtrl {
         this.allMaps = MapService.getAllMaps();
 
         $scope.$watch('ctrl.mapOptions.getModel()', () => {
+            this.model = this.mapOptions.getModel();
             this.setMapsFromModel(this.mapOptions.getModel());
         }, true);
     }
@@ -31,6 +33,13 @@ class MapSelectorComponentCtrl {
         this.mapOptions.setSelectedMap(map);
     }
 
+    public getModels(): string[]{
+        return this.mapOptions.getModels();
+    }
+
+    public changeModel(): void{
+        this.mapOptions.setSelectedModel(this.model);
+    }
 
     public setMapsFromModel(model): void{
         if(model){
@@ -38,7 +47,7 @@ class MapSelectorComponentCtrl {
             this.maps = this.mapService.getMapsFromModel(model);
             if (!this.mapService.usableMap(map_id, model))
             {
-                this._selectedMap = this.maps[0];
+                this.mapOptions.setSelectedMap(this.maps[0]);
             }
         }
     }

@@ -62,7 +62,7 @@ export interface MapObject{
 
 export interface SelectedItems {
     experiment?: number;
-    sample?: number;
+    sample?: number[];
     phase?: number;
     method?: string;
     map?: string;
@@ -85,7 +85,9 @@ interface APIitem {
 }
 
 export interface Phase extends APIitem {}
-export interface Sample extends APIitem {
+export interface Sample {
+    id: number[];
+    name: string;
 	organism: string;
 }
 export interface Experiment extends APIitem {}

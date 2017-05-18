@@ -160,16 +160,17 @@ class MapComponentCtrl {
         this.shared.loading++;
         let settings = this._mapOptions.getMapSettings();
 
-        const modelPromise = this._api.get('samples/:sampleId/model', {
-            'sampleId': selectedItem.sample,
+        const modelPromise = this._api.get('data-adjusted/model', {
+            'sample-ids': selectedItem.sample,
             'phase-id': selectedItem.phase,
             'method': selectedItem.method,
             'map': settings.map_id,
-            'with-fluxes': 1
+            'with-fluxes': 1,
+            'model-id': settings.model_id
         });
 
-        const infoPromise = this._api.get('samples/:sampleId/info', {
-            'sampleId': selectedItem.sample,
+        const infoPromise = this._api.get('samples/info', {
+            'sample-ids': selectedItem.sample,
             'phase-id': selectedItem.phase
         });
 

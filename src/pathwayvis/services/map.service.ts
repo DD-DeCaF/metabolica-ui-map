@@ -5,7 +5,7 @@ import {APIService} from "./api";
 
 export class MapService {
     private apiService : APIService;
-    private allMaps: string[];
+    private allMaps: {};
 
     constructor(api: APIService){
         this.apiService = api;
@@ -15,7 +15,7 @@ export class MapService {
         });
     }
 
-    public getAllMaps(): string[]{
+    public getAllMaps(): {}{
         return this.allMaps;
     }
 
@@ -24,7 +24,18 @@ export class MapService {
         return (maps.indexOf(map) !== -1);
     }
 
-    public getMapsFromModel(model): string {
+    public getMapsFromModel(model): string[] {
         return this.allMaps[model];
+    }
+
+    public getDefaultMap(model): string{
+        let defaultMap = 'Central metabolism';
+        if(this.allMaps){
+            if (this.allMaps[model].includes(defaultMap)){
+                return defaultMap
+            }
+            return this.allMaps[model][0];
+        }
+        return null;
     }
 }
