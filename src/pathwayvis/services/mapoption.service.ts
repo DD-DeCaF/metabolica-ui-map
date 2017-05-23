@@ -17,7 +17,8 @@ interface MapSettings {
 }
 
 export class MapOptionService {
-    models: string[];
+    public shouldUpdateData: boolean = false;
+    public models: string[];
     private apiService: APIService;
     private mapObjects: types.MapObject[] = [];
     public shouldLoadMap: boolean = false;
@@ -67,6 +68,8 @@ export class MapOptionService {
         this.addMapObject();
     }
 
+    public
+
     public getCurrentMapObject(): types.MapObject{
         return this.mapObjects[this.selectedMapObjectId];
     }
@@ -101,22 +104,33 @@ export class MapOptionService {
         return null;
     }
 
-    public setReactionData(data: object){
-        this.mapObjects[this.selectedMapObjectId].mapData.map.reactionData = data;
+    public setReactionData(data: object, object_id: number=null){
+        if(!object_id){
+            object_id = this.selectedMapObjectId;
+        }
+        this.mapObjects[object_id].mapData.map.reactionData = data;
     }
 
     public getCurrentModel(): types.Model{
         return this.mapObjects[this.selectedMapObjectId].mapData.model;
     }
 
-    public setModel(model: types.Model, model_id: string): void{
-        this.mapObjects[this.selectedMapObjectId].mapData.model = model;
+    public setModel(model: types.Model, model_id: string, object_id: number=null): void{
+        if(!object_id){
+            object_id = this.selectedMapObjectId;
+        }
+
+        this.mapObjects[object_id].mapData.model = model;
+
         if (model_id){
-            this.mapObjects[this.selectedMapObjectId].mapData.model.uid = model_id;
+            this.mapObjects[object_id].mapData.model.uid = model_id;
         }
     }
 
     public setSelectedModel(model_id: string): void{
+        if(this.mapSettings.model_id){
+            this.shouldUpdateData = true;
+        }
         this.mapSettings.model_id = model_id;
     }
 
@@ -134,8 +148,11 @@ export class MapOptionService {
         return null;
     }
 
-    public setMapInfo(info: object){
-        this.mapObjects[this.selectedMapObjectId].mapData.info = info;
+    public setMapInfo(info: object, object_id: number = null){
+        if(!object_id){
+            object_id = this.selectedMapObjectId;
+        }
+        this.mapObjects[object_id].mapData.info = info;
     }
 
     public getCurrentRemovedReactions(): string[]{
@@ -183,6 +200,10 @@ export class MapOptionService {
 
     public getCurrentSelectedItems() : types.SelectedItems {
         return this.mapObjects[this.selectedMapObjectId].selected;
+    }
+
+    public getMapObject(id: number): types.MapObject{
+        return this.mapObjects[id];
     }
 
     public getDeafultMethod(): string {
@@ -350,10 +371,6 @@ export class MapOptionService {
          return false;
     }
 
-    public getMapObject(id: number){
-        return this.mapObjects[id];
-    }
-
     public setActiveObject(id: number) {
         this.shouldLoadMap = false;
         this.selectedMapObjectId = id;
@@ -387,5 +404,9 @@ export class MapOptionService {
 
     public setModels(models: string[]) {
         this.models = models;
+    }
+
+    public dataUpdated(): void {
+        this.shouldUpdateData = false;
     }
 }

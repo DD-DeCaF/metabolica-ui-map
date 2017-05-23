@@ -14,7 +14,7 @@ import './views/map.component.scss';
 import * as template from './views/map.component.html';
 import {ToastService} from "../../services/toastservice";
 import {MapOptionService} from "../../services/mapoption.service";
-import {isUndefined} from "util";
+import {isNullOrUndefined, isUndefined} from "util";
 
 
 /**
@@ -61,6 +61,10 @@ class MapComponentCtrl {
         $scope.$watch('ctrl._mapOptions.getMapSettings()', () => {
             let settings = this._mapOptions.getMapSettings();
             if(settings.model_id && settings.map_id){
+                if(this._mapOptions.shouldUpdateData){
+                    this.updateAllMaps();
+                    this._mapOptions.dataUpdated();
+                }
                 this._setMap(this._mapOptions.getSelectedMap());
 
                 let builder = this._builder;
@@ -98,16 +102,28 @@ class MapComponentCtrl {
 
         $scope.$watch('ctrl._mapOptions.getCurrentReactionData()', () => {
             let reactionData = this._mapOptions.getCurrentReactionData();
-            if (this._builder && reactionData) {
-                this._loadData();
+            let model = this._mapOptions.getCurrentModelId();
+            if (this._builder) {
+                if(model){
+                    this._loadModel(true);
+                }
+                if(reactionData) {
+                    this._loadData();
+                }
             }
         }, true);
+
+        // $scope.$watch('ctrl._mapOptions.getCurrentModel()', () => {
+        //     if (this._builder && this._mapOptions.getCurrentModelId()) {
+        //         this._loadModel(true);
+        //     }
+        // }, true);
 
         $scope.$watch('ctrl._mapOptions.getCurrentSelectedItems()',() => {
             let selected = this._mapOptions.getCurrentSelectedItems();
             if(this._mapOptions.shouldLoadMap){
                 if (selected.method && selected.phase && selected.sample && selected.experiment) {
-                    this._loadMap(selected);
+                    this._loadMap(selected, this._mapOptions.selectedMapObjectId);
                 }
             }
         }, true);
@@ -156,7 +172,18 @@ class MapComponentCtrl {
         }
     };
 
-    private _loadMap(selectedItem: types.SelectedItems): void{
+    private updateAllMaps(){
+        let self = this;
+        let id_list = this._mapOptions.getMapObjectsIds();
+        id_list.forEach(function (id) {
+            console.log(id);
+            let selectedItem = self._mapOptions.getMapObject(id).selected;
+            self._loadMap(selectedItem, id);
+        })
+
+    }
+
+    private _loadMap(selectedItem: types.SelectedItems, id: number): void{
         this.shared.loading++;
         let settings = this._mapOptions.getMapSettings();
 
@@ -175,11 +202,9 @@ class MapComponentCtrl {
         });
 
         this._q.all([modelPromise, infoPromise]).then((responses: any) => {
-            this._mapOptions.setModel(responses[0].data.model, responses[0].data['model-id']);
-            this._loadModel(true);
-            this._mapOptions.setReactionData(responses[0].data.fluxes);
-            this._loadData();
-            this._mapOptions.setMapInfo(responses[1].data);
+            this._mapOptions.setModel(responses[0].data.model, responses[0].data['model-id'], id);
+            this._mapOptions.setReactionData(responses[0].data.fluxes, id);
+            this._mapOptions.setMapInfo(responses[1].data, id);
 
             this.shared.loading--;
         }, (error) => {
@@ -236,20 +261,19 @@ class MapComponentCtrl {
         if (this._mapOptions.getCurrentModelId() != null){
             this._loadModel(false);
         }
-        // this._loadContextMenu();
     }
 
     /**
      * Loads model to the map
      */
     private _loadModel(restore_knockouts: Boolean): void {
+        let model = this._mapOptions.getCurrentModel();
         // Load model data
-        this._builder.load_model(this._mapOptions.getCurrentModel());
+        this._builder.load_model(model);
 
         // Empty previously removed reactions
         if (restore_knockouts) this._mapOptions.setRemovedReactions([]);
         // Check removed and added reactions and genes from model
-        let model = this._mapOptions.getCurrentModel();
         const changes = model.notes.changes;
 
         if (changes && this._mapOptions.getCurrentRemovedReactions().length == 0) {
