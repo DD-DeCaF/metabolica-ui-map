@@ -14,7 +14,6 @@ import './views/map.component.scss';
 import * as template from './views/map.component.html';
 import {ToastService} from "../../services/toastservice";
 import {MapOptionService} from "../../services/mapoption.service";
-import {isNullOrUndefined, isUndefined} from "util";
 
 
 /**
@@ -109,15 +108,12 @@ class MapComponentCtrl {
                 }
                 if(reactionData) {
                     this._loadData();
+                } else {
+                    this._builder.set_reaction_data(reactionData);
                 }
             }
         }, true);
 
-        // $scope.$watch('ctrl._mapOptions.getCurrentModel()', () => {
-        //     if (this._builder && this._mapOptions.getCurrentModelId()) {
-        //         this._loadModel(true);
-        //     }
-        // }, true);
 
         $scope.$watch('ctrl._mapOptions.getCurrentSelectedItems()',() => {
             let selected = this._mapOptions.getCurrentSelectedItems();
@@ -151,7 +147,6 @@ class MapComponentCtrl {
             this._builder.load_model(this._mapOptions.getCurrentModel());
             this._builder.set_knockout_reactions(this._mapOptions.getCurrentRemovedReactions());
             this._loadContextMenu();
-
         }
     }
 
@@ -364,9 +359,8 @@ class MapComponentCtrl {
         this.$scope.$apply();
     }
 
-    public showLegend(): boolean{
+    public showLegen(): boolean{
         return !!this._mapOptions.getCurrentReactionData();
-
     }
 }
 
