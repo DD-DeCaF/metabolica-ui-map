@@ -17,21 +17,17 @@ interface MapSettings {
 }
 
 export class MapOptionService {
-    public shouldUpdateData: boolean = false;
+    public shouldUpdateData: boolean;
     public models: string[];
     private apiService: APIService;
-    private mapObjects: types.MapObject[] = [];
-    public shouldLoadMap: boolean = false;
+    private mapObjects: types.MapObject[];
+    public shouldLoadMap: boolean;
 
-    public selectedMapObjectId: number = 0;
+    public selectedMapObjectId: number;
 
-    public mapSettings: MapSettings = <any>{
-        map_id : 'Central metabolism',
-        model_id : null,
-        map: {}
-    };
+    public mapSettings: MapSettings;
 
-    private mapObjectsIds: number[] = [];
+    private mapObjectsIds: number[];
 
     // TODO: should get methods and default method from backend
     public methods: types.Method[] = [
@@ -45,7 +41,6 @@ export class MapOptionService {
     ];
 
     public experiments: types.Experiment[];
-    public organismModel: any;
 
     private toastService: ToastService;
     private actions: ActionsService;
@@ -61,14 +56,25 @@ export class MapOptionService {
             this.experiments = response.data;
         });
 
-        this.apiService.get('species').then((response: angular.IHttpPromiseCallbackArg<any>) => {
-            this.organismModel = response.data;
-        });
+        this.init();
+    }
+
+    public init(): void{
+        this.mapObjectsIds = [];
+        this.mapSettings = <any>{
+            map_id : 'Central metabolism',
+            model_id : null,
+            map: {}
+        };
+        this.selectedMapObjectId = 0;
+
+        this.mapObjects = [];
+        this.shouldLoadMap = false;
+
+        this.shouldUpdateData = false;
 
         this.addMapObject();
     }
-
-    public
 
     public getCurrentMapObject(): types.MapObject{
         return this.mapObjects[this.selectedMapObjectId];

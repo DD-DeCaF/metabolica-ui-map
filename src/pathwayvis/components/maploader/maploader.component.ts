@@ -33,6 +33,7 @@ class MapLoaderComponentCtrl {
 
         if(this.mapOptions.getExperiment()){
             this.selected.experiment = this.mapOptions.getExperiment();
+            this.changeExperiment();
         }
         $mdSidenav('right').open();
     };
