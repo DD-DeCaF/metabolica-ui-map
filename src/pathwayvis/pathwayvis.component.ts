@@ -33,6 +33,8 @@ export class PathwayVisComponentController {
     }
 
     public $onInit(){
+        this.mapOptions.init();
+
         let item = this.$sharing.item('experiment');
         if(item){
             this.mapOptions.setExperiment(item._id);
