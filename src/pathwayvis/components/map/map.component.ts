@@ -196,8 +196,9 @@ class MapComponentCtrl {
         });
 
         this._q.all([modelPromise, infoPromise]).then((responses: any) => {
-            this._mapOptions.setModel(responses[0].data['response'][selectedItem.phase].model, responses[0].data['response']['model-id'], id);
-            this._mapOptions.setReactionData(responses[0].data['response'][selectedItem.phase].fluxes, id);
+            let modelResponse = responses[0].data['response'][selectedItem.phase];
+            this._mapOptions.setModel(modelResponse.model, modelResponse['modelId'], id);
+            this._mapOptions.setReactionData(modelResponse.fluxes, id);
             this._mapOptions.setMapInfo(responses[1].data['response'][selectedItem.phase], id);
 
             this.shared.loading--;
