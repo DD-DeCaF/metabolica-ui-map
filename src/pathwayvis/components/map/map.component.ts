@@ -171,7 +171,6 @@ class MapComponentCtrl {
         let self = this;
         let id_list = this._mapOptions.getMapObjectsIds();
         id_list.forEach(function (id) {
-            console.log(id);
             let selectedItem = self._mapOptions.getMapObject(id).selected;
             self._loadMap(selectedItem, id);
         })
@@ -182,24 +181,24 @@ class MapComponentCtrl {
         this.shared.loading++;
         let settings = this._mapOptions.getMapSettings();
 
-        const modelPromise = this._api.get('data-adjusted/model', {
-            'sample-ids': selectedItem.sample,
-            'phase-id': selectedItem.phase,
+        const modelPromise = this._api.post('data-adjusted/model', {
+            'sampleIds': JSON.parse(selectedItem.sample),
+            'phaseId': JSON.parse(selectedItem.phase),
             'method': selectedItem.method,
             'map': settings.map_id,
-            'with-fluxes': 1,
-            'model-id': settings.model_id
+            'withFluxes': true,
+            'modelId': settings.model_id
         });
 
-        const infoPromise = this._api.get('samples/info', {
-            'sample-ids': selectedItem.sample,
-            'phase-id': selectedItem.phase
+        const infoPromise = this._api.post('samples/info', {
+            'sampleIds': JSON.parse(selectedItem.sample),
+            'phaseId': JSON.parse(selectedItem.phase)
         });
 
         this._q.all([modelPromise, infoPromise]).then((responses: any) => {
-            this._mapOptions.setModel(responses[0].data.model, responses[0].data['model-id'], id);
-            this._mapOptions.setReactionData(responses[0].data.fluxes, id);
-            this._mapOptions.setMapInfo(responses[1].data, id);
+            this._mapOptions.setModel(responses[0].data['response'][selectedItem.phase].model, responses[0].data['response']['model-id'], id);
+            this._mapOptions.setReactionData(responses[0].data['response'][selectedItem.phase].fluxes, id);
+            this._mapOptions.setMapInfo(responses[1].data['response'][selectedItem.phase], id);
 
             this.shared.loading--;
         }, (error) => {
