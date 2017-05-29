@@ -60,7 +60,7 @@ class MapLoaderComponentCtrl {
                 .then((response: angular.IHttpPromiseCallbackArg<types.Sample[]>) => {
                     // need to set null properties first!
                     this.mapOptions.setExperiment(this.selected.experiment);
-                    this.samples = response.data;
+                    this.samples = response.data['response'];
                     this.selected.sample = null;
                     this.selected.phase = null;
                 });
@@ -90,7 +90,7 @@ class MapLoaderComponentCtrl {
 
             this.mapOptions.getPhases(sample).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
                 this.mapOptions.setSample(sample);
-                this.phases = response.data;
+                this.phases = response.data['response'];
                 this.selected.phase = null;
             }, (error) => {
                 this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected sample.');
@@ -106,7 +106,7 @@ class MapLoaderComponentCtrl {
         let result = "_";
         if(this.phases){
             this.phases.some((item: types.Phase) =>{
-                if(this.selected.phase == item.id){
+                if(this.selected.phase == item.id.toString()){
                     result = item.name;
                     return true
                 }
