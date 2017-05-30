@@ -62,8 +62,8 @@ export interface MapObject{
 
 export interface SelectedItems {
     experiment?: number;
-    sample?: number[];
-    phase?: number;
+    sample?: string;
+    phase?: string;
     method?: string;
     map?: string;
     model?: string;

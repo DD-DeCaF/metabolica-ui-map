@@ -13,6 +13,7 @@ import {ActionsService} from './services/actions/actions.service';
 import DONUT_LARGE from '../../img/icons/donut_large.svg';
 import {DecafAPIProvider} from './providers/decafapi.provider';
 import {ModelAPIProvider} from './providers/modelapi.provider';
+import {ModelWSProvider} from './providers/modelws.provider';
 import {LegendComponent} from './components/legend/legend.component';
 import {SettingsComponent} from './components/settings/settings.component';
 import {InfoComponent} from './components/info/info.component';
@@ -22,6 +23,7 @@ export const PathwayVisModule = angular.module('pathwayvis', [
 	])
 	.provider('decafAPI', DecafAPIProvider)
 	.provider('modelAPI', ModelAPIProvider)
+	.provider('modelWS', ModelWSProvider)
 	.service('api', APIService)
 	.service('ws', WSService)
 	.service('actions', ActionsService)

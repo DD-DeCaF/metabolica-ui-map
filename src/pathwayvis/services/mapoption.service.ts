@@ -53,7 +53,7 @@ export class MapOptionService {
         // this.$scope = $scope;
 
         this.apiService.get('experiments').then((response: angular.IHttpPromiseCallbackArg<types.Experiment[]>) => {
-            this.experiments = response.data;
+            this.experiments = response.data['response'];
         });
 
         this.init();
@@ -193,13 +193,13 @@ export class MapOptionService {
         this.mapObjects[this.selectedMapObjectId].selected.experiment = experiment;
     }
 
-    public setSample(sample: number[]) : void {
+    public setSample(sample: string) : void {
         this.mapObjects[this.selectedMapObjectId].selected.phase = null;
         this.shouldLoadMap = true;
         this.mapObjects[this.selectedMapObjectId].selected.sample = sample;
     }
 
-    public setPhase(phase: number) : void {
+    public setPhase(phase: string) : void {
         this.shouldLoadMap = true;
         this.mapObjects[this.selectedMapObjectId].selected.phase = phase;
     }
@@ -252,18 +252,18 @@ export class MapOptionService {
         }
     }
 
-    public getPhases(sample: number[]) : angular.IPromise<Object> {
+    public getPhases(sample: string) : angular.IPromise<Object> {
         if (sample) {
-            return this.apiService.get('samples/phases', {
-                'sample-ids': sample
+            return this.apiService.post('samples/phases', {
+                'sampleIds': JSON.parse(sample)
             });
         }
     }
 
-    public setModelsFromSample(sample: number[]): void{
+    public setModelsFromSample(sample: string): void{
         this.getModelOptions(sample).then(
             (response: angular.IHttpPromiseCallbackArg<string[]>) => {
-                this.models = response.data;
+                this.models = response.data['response'];
                 this.setSelectedModel(this.models[0]);
             }, (error) => {
                 this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected sample.');
@@ -274,10 +274,10 @@ export class MapOptionService {
         return this.models;
     }
 
-    public getModelOptions(sample: number[]) : angular.IPromise<Object> {
+    public getModelOptions(sample: string) : angular.IPromise<Object> {
         if (sample) {
-            return this.apiService.get('samples/model-options', {
-                'sample-ids': sample
+            return this.apiService.post('samples/model-options', {
+                'sampleIds': JSON.parse(sample)
             });
         }
     }
@@ -316,8 +316,8 @@ export class MapOptionService {
         let obj = <any> {
             id: id,
             selected: {
-                'map_id' : 'Central metabolism',
-                'model_id' : null,
+                'mapId' : 'Central metabolism',
+                'modelId' : null,
                 'method': this.getDeafultMethod()
             },
             mapData: {
