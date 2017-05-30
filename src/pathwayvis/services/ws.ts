@@ -1,5 +1,7 @@
 import * as _ from 'lodash';
 import {ToastService} from "./toastservice";
+import {ModelWSProvider} from '../providers/modelws.provider';
+
 
 interface RequestDetails {
     path: string;
@@ -12,9 +14,6 @@ interface Callback {
     data: string;
 }
 
-
-// WS url
-export const WS_ROOT_URL = 'wss://api.dd-decaf.eu/wsmodels/';
 
 export class WSService {
 
@@ -29,6 +28,7 @@ export class WSService {
     private _callbacks: Callback[] = [];
     private _q: angular.IQService;
     private toastService: ToastService;
+    private modelWS: ModelWSProvider;
 
     public onopen: (ev: Event) => void = function (event: Event) {};
     public onclose: (ev: CloseEvent) => void = function (event: CloseEvent) {};
@@ -36,14 +36,16 @@ export class WSService {
     public onmessage: (ev: MessageEvent) => void = function (event: MessageEvent) {};
     public onerror: (ev: ErrorEvent) => void = function (event: ErrorEvent) {};
 
-    constructor($q: angular.IQService, ToastService: ToastService) {
+    constructor($q: angular.IQService, ToastService: ToastService, modelWS: ModelWSProvider) {
         this._q = $q;
         this.toastService = ToastService;
+        this.modelWS = modelWS;
     }
 
     public connect(reconnectAttempt: boolean, path: string) {
         this.readyState = WebSocket.CONNECTING;
-        this._url = WS_ROOT_URL + path;
+
+        this._url = this.modelWS + '/' + path;
 
         this._ws = new WebSocket(this._url);
         this.onconnecting();
