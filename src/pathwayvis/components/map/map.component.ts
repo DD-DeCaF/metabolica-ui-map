@@ -359,7 +359,7 @@ class MapComponentCtrl {
         this.$scope.$apply();
     }
 
-    public showLegen(): boolean{
+    public showLegend(): boolean{
         return !!this._mapOptions.getCurrentReactionData();
     }
 }
