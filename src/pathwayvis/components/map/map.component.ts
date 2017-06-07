@@ -339,8 +339,6 @@ class MapComponentCtrl {
                     element: this.contextElement
                 });
 
-                console.log(this.contextElement);
-
                 if (this.contextElement) {
                     this._renderContextMenu(contextMenu, selection);
                     (<Event> d3_select.event).preventDefault();
