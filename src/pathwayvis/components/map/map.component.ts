@@ -1,4 +1,5 @@
 import * as escher from 'escher-vis';
+import * as d3_select from 'd3-selection';
 import * as d3 from 'd3';
 import * as _ from 'lodash';
 import "jquery-ui";
@@ -232,7 +233,7 @@ class MapComponentCtrl {
     private _initMap(): void {
         // Default map settings
         let settings = {
-            menu: 'none',
+            menu: 'zoom',
             scroll_behavior: 'zoom',
             fill_screen: true,
             ignore_bootstrap: true,
@@ -331,6 +332,8 @@ class MapComponentCtrl {
         selection.selectAll('.reaction, .reaction-label')
             .style('cursor', 'pointer')
             .on('contextmenu', (d) => {
+                console.log(d);
+                console.log(d3.event);
                 this.contextElement = d;
                 this.contextActions = this.actions.getList({
                     type: 'map:reaction',
@@ -338,9 +341,11 @@ class MapComponentCtrl {
                     element: this.contextElement
                 });
 
+                console.log(this.contextElement);
+
                 if (this.contextElement) {
                     this._renderContextMenu(contextMenu, selection);
-                    (<Event> d3.event).preventDefault();
+                    (<Event> d3_select.event).preventDefault();
                 }
             });
 
@@ -354,8 +359,8 @@ class MapComponentCtrl {
      */
     private _renderContextMenu(contextMenu, selection): void {
         contextMenu.style('position', 'absolute')
-            .style('left', (<MouseEvent> d3.event).pageX + 'px')
-            .style('top', (<MouseEvent> d3.event).pageY + 'px')
+            .style('left', (<MouseEvent> d3_select.event).pageX + 'px')
+            .style('top', (<MouseEvent> d3_select.event).pageY + 'px')
             .style('visibility', 'visible');
         this.$scope.$apply();
     }
