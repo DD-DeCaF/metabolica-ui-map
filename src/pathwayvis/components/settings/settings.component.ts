@@ -37,7 +37,6 @@ class SettingsComponentController{
     }
 
     public toggleRight(): void{
-        console.log('hi hi hi');
         this.$mdSidenav('right').toggle()
     }
 

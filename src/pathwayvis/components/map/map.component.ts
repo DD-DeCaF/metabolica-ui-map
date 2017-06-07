@@ -233,7 +233,7 @@ class MapComponentCtrl {
     private _initMap(): void {
         // Default map settings
         let settings = {
-            menu: 'zoom',
+            menu: 'none',
             scroll_behavior: 'zoom',
             fill_screen: true,
             ignore_bootstrap: true,
@@ -332,8 +332,6 @@ class MapComponentCtrl {
         selection.selectAll('.reaction, .reaction-label')
             .style('cursor', 'pointer')
             .on('contextmenu', (d) => {
-                console.log(d);
-                console.log(d3.event);
                 this.contextElement = d;
                 this.contextActions = this.actions.getList({
                     type: 'map:reaction',
