@@ -17,7 +17,7 @@ class InfoComponentCtrl {
     }
 
     public getGenotypeChanges(): string[]{
-        return this._mapOptions.getCurrentMapInfo()['genotype-changes'];
+        return this._mapOptions.getMapInfo()['genotype-changes'];
     }
 
     public showGenotypeChanges(): boolean{
@@ -29,11 +29,11 @@ class InfoComponentCtrl {
     }
 
     public getMeasurements(): object[]{
-        return this._mapOptions.getCurrentMapInfo()['measurements'];
+        return this._mapOptions.getMapInfo()['measurements'];
     }
 
     public getMedium(): object[]{
-        return this._mapOptions.getCurrentMapInfo()['medium'];
+        return this._mapOptions.getMapInfo()['medium'];
     }
 }
 

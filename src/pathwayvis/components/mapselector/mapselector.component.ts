@@ -38,7 +38,7 @@ class MapSelectorComponentCtrl {
     }
 
     public changeModel(): void{
-        this.mapOptions.setSelectedModel(this.model);
+        this.mapOptions.setModel(this.model);
     }
 
     public setMapsFromModel(model): void{
