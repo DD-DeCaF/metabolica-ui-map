@@ -24,7 +24,7 @@ class SettingsComponentController{
     }
 
     public disableInfo(): boolean{
-        return !this.mapOptions.getCurrentMapInfo()['medium'] || this.disableForAnimation();
+        return !this.mapOptions.getMapInfo()['medium'] || this.disableForAnimation();
 
     }
 
@@ -33,7 +33,7 @@ class SettingsComponentController{
     }
 
     public disableKnockedOutTab(): boolean{
-        return this.mapOptions.getCurrentRemovedReactions().length <= 0 || this.disableForAnimation();
+        return this.mapOptions.getRemovedReactions().length <= 0 || this.disableForAnimation();
     }
 
     public toggleRight(): void{
@@ -75,7 +75,7 @@ class SettingsComponentController{
     }
 
     public disablePlayBtn(): boolean{
-        return this.mapOptions.getMapObjectsIds().length <= 1;
+        return this.mapOptions.getCollectionSize() <= 1;
     }
 
     public disableControls(): boolean{

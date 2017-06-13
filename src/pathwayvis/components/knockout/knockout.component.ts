@@ -27,7 +27,7 @@ class KnockoutComponentCtrl {
     }
 
     public getRemovedReactions(): string[]{
-        return this.mapOptions.getCurrentRemovedReactions();
+        return this.mapOptions.getRemovedReactions();
     }
 
     public getCurrentGrowthRate(): number{

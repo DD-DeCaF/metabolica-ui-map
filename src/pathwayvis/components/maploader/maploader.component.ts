@@ -4,11 +4,13 @@ import  * as template from "./maploader.component.html";
 import * as angular from "angular";
 import {ToastService} from "../../services/toastservice";
 import {MapOptionService} from "../../services/mapoption.service";
+import {MethodService} from "../../services/method.service";
 /**
  * Created by dandann on 15/03/2017.
  */
 
 class MapLoaderComponentCtrl {
+    methodService: MethodService;
     public hideSelection: boolean = false;
     public phases: types.Phase[];
     public selected: types.SelectedItems = {};
@@ -24,12 +26,14 @@ class MapLoaderComponentCtrl {
     constructor ($scope: angular.IScope,
                  ToastService: ToastService,
                  $mdSidenav: angular.material.ISidenavService,
-                 MapOptions: MapOptionService)
+                 MapOptions: MapOptionService,
+                 MethodService: MethodService)
     {
         this.mapOptions = MapOptions;
         this.toastService = ToastService;
+        this.methodService = MethodService;
 
-        this.selected.method = this.mapOptions.getDeafultMethod();
+        this.selected.method = MethodService.defaultMethod();
 
         if(this.mapOptions.getExperiment()){
             this.selected.experiment = this.mapOptions.getExperiment();
@@ -43,7 +47,7 @@ class MapLoaderComponentCtrl {
     }
 
     public getMethodName(): string{
-        return this.mapOptions.getMethodName(this.selected.method);
+        return this.methodService.getMethodName(this.selected.method);
     }
 
     public getExperiments(): types.Experiment[]{
@@ -123,7 +127,7 @@ class MapLoaderComponentCtrl {
     }
 
     public getMethods(): object{
-        return this.mapOptions.getMethods();
+        return this.methodService.methods;
     }
 
     public isActiveObject(): boolean{
@@ -131,7 +135,7 @@ class MapLoaderComponentCtrl {
     }
 
     public setActiveObject(): void{
-        return this.mapOptions.setActiveObject(this.id);
+        return this.mapOptions.setSelectedId(this.id);
     }
 
     public toggle(show: boolean) : void{

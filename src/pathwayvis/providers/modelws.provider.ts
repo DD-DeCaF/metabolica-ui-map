@@ -1,5 +1,5 @@
 export class ModelWSProvider {
-    host = 'wss://api.dd-decaf.eu';
+    host = 'wss://api-staging.dd-decaf.eu';
     prefix = '/wsmodels';
 
     $get() {

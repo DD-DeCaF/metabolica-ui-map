@@ -20,6 +20,8 @@ import {MapOptionService} from "../../services/mapoption.service";
  * Pathway map component
  */
 class MapComponentCtrl {
+    restore_knockouts: boolean;
+    resetKnockouts: boolean;
     public shared: types.Shared;
     public actions: ActionsService;
     public contextActions: types.Action[];
@@ -68,17 +70,17 @@ class MapComponentCtrl {
 
                 let builder = this._builder;
                 if (builder){
-                    this._builder.set_knockout_reactions(this._mapOptions.getCurrentRemovedReactions());
+                    this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
                     builder.draw_knockout_reactions();
                 }
             }
         }, true);
 
         // Map watcher
-        $scope.$watch('ctrl._mapOptions.getCurrentMapId()', () => {
-            if (this._mapOptions.getCurrentMapId()) {
+        $scope.$watch('ctrl._mapOptions.getMapId()', () => {
+            if (this._mapOptions.getMapId()) {
                 this._initMap();
-                if (this._mapOptions.getCurrentReactionData()) {
+                if (this._mapOptions.getReactionData()) {
                     this._loadData();
                 }
                 if (this._builder){
@@ -87,24 +89,24 @@ class MapComponentCtrl {
             }
         }, true);
 
-        $scope.$watch('ctrl._mapOptions.getCurrentMapObjectId()', () => {
+        $scope.$watch('ctrl._mapOptions.getSelectedId()', () => {
             this.mapChanged();
         });
 
-        $scope.$watch('ctrl._mapOptions.getCurrentRemovedReactions()', () => {
-            let removedReactions = this._mapOptions.getCurrentRemovedReactions();
+        $scope.$watch('ctrl._mapOptions.getRemovedReactions()', () => {
+            let removedReactions = this._mapOptions.getRemovedReactions();
             if (this._builder && removedReactions) {
                 this._builder.set_knockout_reactions(removedReactions);
                 this._builder.draw_knockout_reactions();
             }
         }, true);
 
-        $scope.$watch('ctrl._mapOptions.getCurrentReactionData()', () => {
-            let reactionData = this._mapOptions.getCurrentReactionData();
-            let model = this._mapOptions.getCurrentModelId();
+        $scope.$watch('ctrl._mapOptions.getReactionData()', () => {
+            let reactionData = this._mapOptions.getReactionData();
+            let model = this._mapOptions.getDataModelId();
             if (this._builder) {
                 if(model){
-                    this._loadModel(true);
+                    this._loadModel();
                 }
                 if(reactionData) {
                     this._loadData();
@@ -119,7 +121,7 @@ class MapComponentCtrl {
             let selected = this._mapOptions.getCurrentSelectedItems();
             if(this._mapOptions.shouldLoadMap){
                 if (selected.method && selected.phase && selected.sample && selected.experiment) {
-                    this._loadMap(selected, this._mapOptions.selectedMapObjectId);
+                    this._loadMap(selected, this._mapOptions.selectedCardId);
                 }
             }
         }, true);
@@ -127,25 +129,13 @@ class MapComponentCtrl {
         $scope.$on('$destroy', function handler() {
             ws.close();
         });
-
-        $scope.$on('knockout', function handler(event, reaction){
-            if (this._builder){
-                this._builder.knockout_reaction(reaction);
-            }
-        });
-
-        $scope.$on('undo_knockout', function handler(event, reaction){
-            if (this._builder){
-                this._builder.undo_knockout_reaction(reaction);
-            }
-        });
     }
 
     private mapChanged(): void {
-        let mapObject = this._mapOptions.getCurrentMapObject();
-        if(this._mapOptions.isCompleteMapObject(mapObject)){
-            this._builder.load_model(this._mapOptions.getCurrentModel());
-            this._builder.set_knockout_reactions(this._mapOptions.getCurrentRemovedReactions());
+        let mapObject = this._mapOptions.getDataObject();
+        if(mapObject.isComplete()){
+            this._builder.load_model(this._mapOptions.getDataModel());
+            this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
             this._loadContextMenu();
         }
     }
@@ -171,7 +161,7 @@ class MapComponentCtrl {
         let self = this;
         let id_list = this._mapOptions.getMapObjectsIds();
         id_list.forEach(function (id) {
-            let selectedItem = self._mapOptions.getMapObject(id).selected;
+            let selectedItem = self._mapOptions.getDataObject(id).selected;
             self._loadMap(selectedItem, id);
         })
 
@@ -195,9 +185,11 @@ class MapComponentCtrl {
             'phaseId': JSON.parse(selectedItem.phase)
         });
 
+        this.resetKnockouts = true;
+
         this._q.all([modelPromise, infoPromise]).then((responses: any) => {
             let modelResponse = responses[0].data['response'][selectedItem.phase];
-            this._mapOptions.setModel(modelResponse.model, modelResponse['modelId'], id);
+            this._mapOptions.setDataModel(modelResponse.model, modelResponse['modelId'], id);
             this._mapOptions.setReactionData(modelResponse.fluxes, id);
             this._mapOptions.setMapInfo(responses[1].data['response'][selectedItem.phase], id);
 
@@ -250,28 +242,29 @@ class MapComponentCtrl {
             ],
             reaction_no_data_color: '#CBCBCB',
             reaction_no_data_size: 10,
-            reaction_knockout: this._mapOptions.getCurrentRemovedReactions()
+            reaction_knockout: this._mapOptions.getRemovedReactions()
         };
-        this._builder = escher.Builder(this._mapOptions.getCurrentMap(), null, null, this._mapElement, settings);
-        if (this._mapOptions.getCurrentModelId() != null){
-            this._loadModel(false);
+        this._builder = escher.Builder(this._mapOptions.getMap(), null, null, this._mapElement, settings);
+        if (this._mapOptions.getDataModelId() != null){
+            this._loadModel();
         }
     }
 
     /**
      * Loads model to the map
      */
-    private _loadModel(restore_knockouts: Boolean): void {
-        let model = this._mapOptions.getCurrentModel();
+    private _loadModel(): void {
+        let model = this._mapOptions.getDataModel();
         // Load model data
         this._builder.load_model(model);
 
         // Empty previously removed reactions
-        if (restore_knockouts) this._mapOptions.setRemovedReactions([]);
+        if (this.resetKnockouts) this._mapOptions.setRemovedReactions([]);
+        this.resetKnockouts = false;
         // Check removed and added reactions and genes from model
         const changes = model.notes.changes;
 
-        if (changes && this._mapOptions.getCurrentRemovedReactions().length == 0) {
+        if (changes && this._mapOptions.getRemovedReactions().length == 0) {
             // this.shared.removedReactions
             let reactions = changes.removed.reactions.map(function (reaction: types.Reaction) {
                 return reaction.id;
@@ -291,7 +284,7 @@ class MapComponentCtrl {
      * TODO: handle metabolite and gene data
      */
     private _loadData(): void {
-        let reactionData = this._mapOptions.getCurrentReactionData();
+        let reactionData = this._mapOptions.getReactionData();
 
         // Handle FVA method response
         let selected = this._mapOptions.getCurrentSelectedItems();
@@ -333,7 +326,7 @@ class MapComponentCtrl {
                 this.contextElement = d;
                 this.contextActions = this.actions.getList({
                     type: 'map:reaction',
-                    shared: this._mapOptions.getCurrentMapData(),
+                    shared: this._mapOptions.getMapData(),
                     element: this.contextElement
                 });
 
@@ -360,7 +353,7 @@ class MapComponentCtrl {
     }
 
     public showLegend(): boolean{
-        return !!this._mapOptions.getCurrentReactionData();
+        return !!this._mapOptions.getReactionData();
     }
 }
 
