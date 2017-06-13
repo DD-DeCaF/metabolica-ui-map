@@ -87,7 +87,7 @@ class SettingsComponentController{
     }
 }
 
-export const SettingsComponent : angular.IComponentOptions = {
+export const SettingsComponent = {
     controller: SettingsComponentController,
     controllerAs: 'ctrl',
     template: template.toString(),

@@ -45,7 +45,7 @@ class KnockoutComponentCtrl {
     }
 }
 
-export const KnockoutComponent: angular.IComponentOptions = {
+export const KnockoutComponent = {
     controller: KnockoutComponentCtrl,
     controllerAs: 'ctrl',
     template: template.toString(),
