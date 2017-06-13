@@ -44,10 +44,26 @@ export interface Shared {
     removedReactions?: string[];
 }
 
+export interface MapData {
+    map?: Map;
+    model?: Model;
+    sections?: any;
+    method?: string;
+    removedReactions?: string[];
+    info?: object;
+    selected?: SelectedItems;
+}
+
+export interface MapObject{
+    id: number;
+    mapData: MapData;
+    selected: SelectedItems;
+}
+
 export interface SelectedItems {
     experiment?: number;
-    sample?: number;
-    phase?: number;
+    sample?: string;
+    phase?: string;
     method?: string;
     map?: string;
     model?: string;
@@ -58,13 +74,20 @@ export interface Message {
     data: any;
 }
 
+export interface Method {
+    id: string;
+    name: string;
+}
+
 interface APIitem {
     id: number;
     name: string;
 }
 
 export interface Phase extends APIitem {}
-export interface Sample extends APIitem {
+export interface Sample {
+    id: number[];
+    name: string;
 	organism: string;
 }
 export interface Experiment extends APIitem {}

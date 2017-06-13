@@ -11,22 +11,48 @@
 					<md-icon md-font-icon="build">build</md-icon>
 				</md-tab-label>
 				<md-tab-body>
-					<md-content>
-						<pv-maploader></pv-maploader>
+					<div class="playbar md-accent" layout="row" layout-align="space-around center">
+						<md-button class="md-icon-button"
+								   ng-click="ctrl.addMapObject()"
+								   ng-disabled="ctrl.disableForAnimation()"
+						>
+							<md-icon md-font-icon="add">add</md-icon>
+						</md-button>
+						<md-button class="md-icon-button"
+								   ng-click="ctrl.previousMapObject()"
+								   ng-disabled="ctrl.disableControls()"
+						>
+							<md-icon md-font-icon="skip_previous">navigate_before</md-icon>
+						</md-button>
+						<md-button class="md-icon-button"
+								   ng-click="ctrl.toggleAnimation()"
+								   ng-disabled="ctrl.disablePlayBtn()"
+						>
+							<md-icon md-font-icon="ctrl.playIcon()">{{ctrl.playIcon()}}</md-icon>
+						</md-button>
+						<md-button class="md-icon-button"
+								   ng-click="ctrl.nextMapObject()"
+								   ng-disabled="ctrl.disableControls()"
+						>
+							<md-icon md-font-icon="skip_next">navigate_next</md-icon>
+						</md-button>
+					</div>
+					<md-content ng-repeat="id in ctrl.getMapObjectsIds()">
+						<pv-maploader id="id" animating="ctrl.animating"></pv-maploader>
 					</md-content>
 				</md-tab-body>
 			</md-tab>
 
-			<md-tab id="info_tab" ng-disabled="!ctrl.shared.map.map.length > 0">
+			<md-tab id="info_tab" ng-disabled="ctrl.disableInfo()">
 				<md-tab-label>
 					<md-icon md-font-icon="info">info</md-icon>
 				</md-tab-label>
 				<md-tab-body>
-					<pv-info shared="ctrl.shared"></pv-info>
+					<pv-info></pv-info>
 				</md-tab-body>
 			</md-tab>
 
-			<md-tab id="map_selector" ng-disabled="!ctrl.shared.map.map.length > 0">
+			<md-tab id="map_selector" ng-disabled="ctrl.disableMapSelector()">
 				<md-tab-label>
 					<md-icon md-font-icon="layers">layers</md-icon>
 				</md-tab-label>
@@ -35,7 +61,7 @@
 				</md-tab-body>
 			</md-tab>
 
-			<md-tab id="knock_out_tab">
+			<md-tab id="knock_out_tab" ng-disabled="ctrl.disableKnockedOutTab()">
 				<md-tab-label>
 					<md-icon md-font-icon="delete">delete</md-icon>
 				</md-tab-label>

@@ -1,20 +1,24 @@
 import * as types from './types';
 import * as template from './views/pathwayvis.component.html';
 import './views/pathwayvis.component.scss';
-import * as _ from 'lodash';
 import * as angular from "angular";
+import {MapOptionService} from "./services/mapoption.service";
 
 
 
 export class PathwayVisComponentController {
     public shared: types.Shared;
     public showInfo: any;
-    private $mdDialog: ng.material.IDialogService;
-    private dialog: any;
-
+    private $sharing: any;
+    private $scope: angular.IScope;
+    private mapOptions: MapOptionService;
 
     constructor($scope: angular.IScope,
-                $mdDialog: ng.material.IDialogService) {
+                $sharing,
+                MapOptions: MapOptionService,
+    ) {
+        this.$sharing = $sharing;
+        this.$scope = $scope;
         // Init shared scope
         this.shared = <any>{
             loading: 0,
@@ -23,27 +27,20 @@ export class PathwayVisComponentController {
             sections: {}
         };
 
-        this.$mdDialog = $mdDialog;
+        this.mapOptions = MapOptions;
 
         this.showInfo = false;
-
-        this.showDialog();
     }
 
-    public toggleInfo(): void {
-        this.showInfo = !this.showInfo;
+    public $onInit(){
+        this.mapOptions.init();
+
+        let item = this.$sharing.item('experiment');
+        if(item){
+            this.mapOptions.setExperiment(item.id);
+        }
+
     }
-
-    public showDialog(): void {
-        let dialog = {
-            contentElement: '#map-options-dialog',
-            parent: angular.element(document.getElementsByClassName('container')[0]),
-            clickOutsideToClose: !_.isEmpty(this.shared.map),
-            escapeToClose: !_.isEmpty(this.shared.map)
-        };
-
-        this.$mdDialog.show(dialog);
-    };
 }
 
 export const PathwayVisComponent: angular.IComponentOptions = {

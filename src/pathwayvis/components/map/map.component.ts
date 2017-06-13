@@ -1,4 +1,5 @@
 import * as escher from 'escher-vis';
+import * as d3_select from 'd3-selection';
 import * as d3 from 'd3';
 import * as _ from 'lodash';
 import "jquery-ui";
@@ -12,201 +13,198 @@ import * as types from '../../types';
 
 import './views/map.component.scss';
 import * as template from './views/map.component.html';
+import {ToastService} from "../../services/toastservice";
+import {MapOptionService} from "../../services/mapoption.service";
 
 
 /**
  * Pathway map component
  */
 class MapComponentCtrl {
-    public title: string;
+    restore_knockouts: boolean;
+    resetKnockouts: boolean;
     public shared: types.Shared;
     public actions: ActionsService;
     public contextActions: types.Action[];
     public contextElement: Object;
-    public selected: types.SelectedItems = {};
 
+    private _mapOptions: MapOptionService;
     private _mapElement: d3.Selection<any>;
     private _builder: any;
     private _api: APIService;
     private _ws: WSService;
     private $scope: angular.IScope;
-    private _toastr: angular.toastr.IToastrService;
-    private _model: any;
+    private toastService: ToastService;
     private info: Object;
     private _q: any;
+    private $window: angular.IWindowService;
 
     /* @ngInject */
     constructor ($scope: angular.IScope,
                  api: APIService,
                  actions: ActionsService,
                  ws: WSService,
-                 toastr: angular.toastr.IToastrService,
-                 $q: angular.IQService
+                 ToastService: ToastService,
+                 $q: angular.IQService,
+                 MapOptions: MapOptionService,
+                 $window: angular.IWindowService
     ) {
-
+        this.$window = $window;
         this._api = api;
         this._ws = ws;
         this._mapElement = d3.select('.map-container');
-        this._toastr = toastr;
+        this.toastService = ToastService;
         this._q = $q;
+        this._mapOptions = MapOptions;
 
         this.actions = actions;
         this.$scope = $scope;
 
-        $scope.$on('selectedMapChanged', function (ev, map) {
-            ev.currentScope['ctrl']._setMap(map);
-        });
-        $scope.$on('modelChanged', function (event, model) {
-            event.currentScope['ctrl']._setModel(model);
-        });
-        $scope.$on('loadMap', function (ev, selected: types.SelectedItems) {
-            ev.currentScope['ctrl']._loadMap(selected);
-        });
+        $scope.$watch('ctrl._mapOptions.getMapSettings()', () => {
+            let settings = this._mapOptions.getMapSettings();
+            if(settings.model_id && settings.map_id){
+                if(this._mapOptions.shouldUpdateData){
+                    this.updateAllMaps();
+                    this._mapOptions.dataUpdated();
+                }
+                this._setMap(this._mapOptions.getSelectedMap());
+
+                let builder = this._builder;
+                if (builder){
+                    builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
+                }
+            }
+        }, true);
 
         // Map watcher
-        $scope.$watch('ctrl.shared.map.map[0].map_id', () => {
-            if (!_.isEmpty(this.shared.map.map)) {
+        $scope.$watch('ctrl._mapOptions.getMapId()', () => {
+            if (this._mapOptions.getMapId()) {
                 this._initMap();
-                if (this.shared.map.reactionData) {
+                if (this._mapOptions.getReactionData()) {
                     this._loadData();
                 }
-
                 if (this._builder){
-                    this._builder.draw_knockout_reactions();
+                    this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
                 }
             }
         }, true);
 
-        // Reaction data watcher
-        $scope.$watch('ctrl.shared.map.reactionData', () => {
-            if (this.shared.map.reactionData) {
-                this._loadData();
+        $scope.$watch('ctrl._mapOptions.getSelectedId()', () => {
+            this.mapChanged();
+        });
+
+        $scope.$watch('ctrl._mapOptions.getRemovedReactions()', () => {
+            let removedReactions = this._mapOptions.getRemovedReactions();
+            if (this._builder && removedReactions) {
+                this._builder.set_knockout_reactions(removedReactions);
             }
         }, true);
 
-        $scope.$watch('ctrl.shared.model.uid', () => {
-            if (this.shared.model.uid) {
-                this._loadModel(true);
-            }
-        });
-
-        $scope.$watch('ctrl.shared.removedReactions', () => {
+        $scope.$watch('ctrl._mapOptions.getReactionData()', () => {
+            let reactionData = this._mapOptions.getReactionData();
+            let model = this._mapOptions.getDataModelId();
             if (this._builder) {
-                this._builder.set_knockout_reactions(this.shared.removedReactions);
+                if(model){
+                    this._loadModel();
+                }
+                if(reactionData) {
+                    this._loadData();
+                } else {
+                    this._builder.set_reaction_data(reactionData);
+                }
+            }
+        }, true);
+
+
+        $scope.$watch('ctrl._mapOptions.getCurrentSelectedItems()',() => {
+            let selected = this._mapOptions.getCurrentSelectedItems();
+            if(this._mapOptions.shouldLoadMap){
+                if ((selected.method !== null) &&
+                    (selected.phase !== null) &&
+                    (selected.sample !== null) &&
+                    (selected.experiment !== null)) {
+                    this._loadMap(selected, this._mapOptions.selectedCardId);
+                }
             }
         }, true);
 
         $scope.$on('$destroy', function handler() {
             ws.close();
         });
-
-        $scope.$on('knockout', function handler(event, reaction){
-            if (this._builder){
-                this._builder.knockout_reaction(reaction);
-            }
-        });
-
-        $scope.$on('undo_knockout', function handler(event, reaction){
-            if (this._builder){
-                this._builder.undo_knockout_reaction(reaction);
-            }
-        });
-
-        $scope.$on('draw_knockout', function handler(ev){
-            let builder = ev.currentScope['ctrl']._builder;
-            if (builder){
-                builder.draw_knockout_reaction();
-            }
-        })
     }
 
-    private _setModel(model): void {
-        this._model = model;
+    private mapChanged(): void {
+        let mapObject = this._mapOptions.getDataObject();
+        if(mapObject.isComplete()){
+            this._builder.load_model(this._mapOptions.getDataModel());
+            this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
+            this._loadContextMenu();
+        }
     }
 
     private _setMap(map: string): void {
-        this.selected.map = map;
-        if (!_.isEmpty(this.selected.map)) {
+        if (map) {
             this.shared.loading++;
+            let settings = this._mapOptions.getMapSettings();
             this._api.request_model('map', {
-                'model': this._model,
-                'map': this.selected.map,
+                'model': settings.model_id,
+                'map': settings.map_id,
             }).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
-                this.shared.map.map = response.data;
-                this.$scope.$emit('draw_knockout');
+                this._mapOptions.setMap(response.data);
                 this.shared.loading--;
             }, (error) => {
-                this._toastr.error('Oops! Sorry, there was a problem loading selected map.', '', {
-                    closeButton: true,
-                    timeOut: 10500
-                });
-
+                this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected map.');
                 this.shared.loading--;
             });
-            if (this.selected.method == 'fva' || this.selected.method == 'pfba-fva') {
-                this.shared.removedReactions = [];
-                this.shared.loading++;
-                this._api.get('samples/:sampleId/model', {
-                    'sampleId': this.selected.sample,
-                    'phase-id': this.selected.phase,
-                    'method': this.selected.method,
-                    'map': this.selected.map,
-                    'with-fluxes': 1
-                }).then((response: angular.IHttpPromiseCallbackArg<any>) => {
-                    this.shared.model = response.data.model;
-                    this.shared.model.uid = response.data['model-id'];
-                    this.shared.map.reactionData = response.data.fluxes;
-                    this.shared.loading--;
-                }, (error) => {
-                    this._toastr.error('Oops! Sorry, there was a problem loading selected map.', '', {
-                        closeButton: true,
-                        timeOut: 10500
-                    });
-
-                    this.shared.loading--;
-                });
-            }
         }
     };
 
-    private _loadMap(selectedItem: types.SelectedItems){
-        this.shared.loading++;
-        const mapPromise = this._api.request_model('map', {
-            'model': selectedItem.model,
-            'map': this.selected.map,
-        });
+    private updateAllMaps(){
+        let self = this;
+        let id_list = this._mapOptions.getMapObjectsIds();
+        id_list.forEach(function (id) {
+            let selectedItem = self._mapOptions.getDataObject(id).selected;
+            self._loadMap(selectedItem, id);
+        })
 
-        const modelPromise = this._api.get('samples/:sampleId/model', {
-            'sampleId': selectedItem.sample,
-            'phase-id': selectedItem.phase,
+    }
+
+    private _loadMap(selectedItem: types.SelectedItems, id: number): void{
+        let settings = this._mapOptions.getMapSettings();
+
+        let sampleIds = null;
+        if (selectedItem.sample) sampleIds = JSON.parse(selectedItem.sample);
+
+        let phaseId = null;
+        if (selectedItem.phase) phaseId = JSON.parse(selectedItem.phase);
+
+        if (sampleIds === null || phaseId === null) return;
+
+        const modelPromise = this._api.post('data-adjusted/model', {
+            'sampleIds': sampleIds,
+            'phaseId': phaseId,
             'method': selectedItem.method,
-            'map': this.selected.map,
-            'with-fluxes': 1
+            'map': settings.map_id,
+            'withFluxes': true,
+            'modelId': settings.model_id
         });
 
-        const infoPromise = this._api.get('samples/:sampleId/info', {
-            'sampleId': selectedItem.sample,
-            'phase-id': selectedItem.phase
+        const infoPromise = this._api.post('samples/info', {
+            'sampleIds': sampleIds,
+            'phaseId': phaseId
         });
 
-        this._q.all([mapPromise, modelPromise, infoPromise]).then((responses: any) => {
-            // Add loaded data to shared scope
-            this.shared.map.map = responses[0].data;
-            this.shared.model = responses[1].data.model;
-            this.shared.model.uid = responses[1].data['model-id'];
-            this.shared.map.reactionData = responses[1].data.fluxes;
-            this.shared.method = selectedItem.method;
-            this.info = responses[2].data;
-
-            this.$scope.$root.$broadcast('infoFromMap', this.info);
+        this.resetKnockouts = true;
+        this.shared.loading++;
+        this._q.all([modelPromise, infoPromise]).then((responses: any) => {
+            let modelResponse = responses[0].data['response'][selectedItem.phase];
+            this._mapOptions.setDataModel(modelResponse.model, modelResponse['modelId'], id);
+            this._mapOptions.setReactionData(modelResponse.fluxes, id);
+            this._mapOptions.setMapInfo(responses[1].data['response'][selectedItem.phase], id);
 
             this.shared.loading--;
         }, (error) => {
-            this._toastr.error('Oops! Sorry, there was a problem with fetching the data.', '', {
-                closeButton: true,
-                timeOut: 10500
-            });
-
+            this.toastService.showErrorToast('Oops! Sorry, there was a problem with fetching the data.');
             this.shared.loading--;
         })
     }
@@ -215,20 +213,18 @@ class MapComponentCtrl {
      * Callback function for clicked action button in context menu
      */
     public processActionClick(action, data) {
-        this.shared.loading++;
 
-        const shared = _.cloneDeep(this.shared);
+        if (action.type === 'reaction:link'){
+            this.$window.open('http://bigg.ucsd.edu/universal/reactions/' + data.bigg_id);
+            return;
+        }
 
-        if (action.type === 'reaction:knockout:do') shared.removedReactions.push(data.bigg_id);
-        if (action.type === 'reaction:knockout:undo') _.remove(shared.removedReactions, (id) => id === data.bigg_id);
-
-        this.actions.callAction(action, {shared: shared}).then((response) => {
-            this.shared.map.growthRate = parseFloat(response['growth-rate']);
-            this.shared.map.reactionData = response.fluxes;
-            this.shared.removedReactions = response['removed-reactions'];
+        this._mapOptions.actionHandler(action, data.bigg_id).then((response) => {
+            this._mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
+            this._mapOptions.setReactionData(response.fluxes);
+            this._mapOptions.setRemovedReactions(response['removed-reactions']);
             this.$scope.$apply();
         });
-        this.shared.loading--;
     }
 
     /**
@@ -255,35 +251,41 @@ class MapComponentCtrl {
             ],
             reaction_no_data_color: '#CBCBCB',
             reaction_no_data_size: 10,
-            reaction_knockout: this.shared.removedReactions ? this.shared.removedReactions : []
+            reaction_knockout: this._mapOptions.getRemovedReactions()
         };
-        this._builder = escher.Builder(this.shared.map.map, null, null, this._mapElement, settings);
-        if (!_.isEmpty(this.shared.model)) this._loadModel(false);
-        this._loadContextMenu();
+        this._builder = escher.Builder(this._mapOptions.getMap(), null, null, this._mapElement, settings);
+        if (this._mapOptions.getDataModelId() != null){
+            this._loadModel();
+        }
     }
 
     /**
      * Loads model to the map
      */
-    private _loadModel(restore_knockouts: Boolean): void {
+    private _loadModel(): void {
+        let model = this._mapOptions.getDataModel();
         // Load model data
-        this._builder.load_model(this.shared.model);
+        this._builder.load_model(model);
 
         // Empty previously removed reactions
-        if (restore_knockouts) this.shared.removedReactions = [];
+        if (this.resetKnockouts) this._mapOptions.setRemovedReactions([]);
+        this.resetKnockouts = false;
         // Check removed and added reactions and genes from model
-        const changes = this.shared.model.notes.changes;
+        const changes = model.notes.changes;
 
-        if (!_.isEmpty(changes) && _.isEmpty(this.shared.removedReactions)) {
-            this.shared.removedReactions = _.map(changes.removed.reactions, (reaction: types.Reaction) => {
+        if (changes && this._mapOptions.getRemovedReactions().length == 0) {
+            // this.shared.removedReactions
+            let reactions = changes.removed.reactions.map(function (reaction: types.Reaction) {
                 return reaction.id;
             });
+            this._mapOptions.setRemovedReactions(reactions);
         }
 
         // Open WS connection for model if it is not opened
         if (!this._ws.readyState) {
-            this._ws.connect(true, this.shared.model.uid);
+            this._ws.connect(true, model.uid);
         }
+
     }
 
     /**
@@ -291,10 +293,11 @@ class MapComponentCtrl {
      * TODO: handle metabolite and gene data
      */
     private _loadData(): void {
-        let reactionData = this.shared.map.reactionData;
+        let reactionData = this._mapOptions.getReactionData();
 
         // Handle FVA method response
-        if (this.shared.method === 'fva' || this.shared.method === 'pfba-fva') {
+        let selected = this._mapOptions.getCurrentSelectedItems();
+        if (selected.method === 'fva' || selected.method === 'pfba-fva') {
 
             // const fvaData = reactionData;
             const fvaData = _.pickBy(reactionData, (data) => {
@@ -308,15 +311,15 @@ class MapComponentCtrl {
             this._builder.set_reaction_data(reactionData);
             this._builder.set_reaction_fva_data(fvaData);
 
-            return;
+        } else {
+            // Remove zero values
+            reactionData = _.pickBy(reactionData, (value: number) => {
+                if (Math.abs(value) > Math.pow(10, -7)) return true;
+            });
+
+            this._builder.set_reaction_data(reactionData);
         }
-
-        // Remove zero values
-        reactionData = _.pickBy(reactionData, (value: number) => {
-            if (Math.abs(value) > Math.pow(10, -7)) return true;
-        });
-
-        this._builder.set_reaction_data(reactionData);
+        this._loadContextMenu();
     }
 
     /**
@@ -332,13 +335,13 @@ class MapComponentCtrl {
                 this.contextElement = d;
                 this.contextActions = this.actions.getList({
                     type: 'map:reaction',
-                    shared: this.shared,
+                    shared: this._mapOptions.getMapData(),
                     element: this.contextElement
                 });
 
                 if (this.contextElement) {
                     this._renderContextMenu(contextMenu, selection);
-                    (<Event> d3.event).preventDefault();
+                    (<Event> d3_select.event).preventDefault();
                 }
             });
 
@@ -352,14 +355,18 @@ class MapComponentCtrl {
      */
     private _renderContextMenu(contextMenu, selection): void {
         contextMenu.style('position', 'absolute')
-            .style('left', (<MouseEvent> d3.event).pageX + 'px')
-            .style('top', (<MouseEvent> d3.event).pageY + 'px')
+            .style('left', (<MouseEvent> d3_select.event).pageX + 'px')
+            .style('top', (<MouseEvent> d3_select.event).pageY + 'px')
             .style('visibility', 'visible');
         this.$scope.$apply();
     }
+
+    public showLegend(): boolean{
+        return !!this._mapOptions.getReactionData();
+    }
 }
 
-export const mapComponent: angular.IComponentOptions = {
+export const mapComponent = {
     controller: MapComponentCtrl,
     controllerAs: 'ctrl',
     template: template.toString(),

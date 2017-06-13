@@ -49,8 +49,26 @@ export class ActionsService {
      * @param {[type]} action Callback function from action
      * @param {Object} args Object with arguments that is applied to `this` in action class
      */
-    public callAction(action: Action, args: Object)  {
+    public callAction(action: Action, args: Object): any  {
         return this.$injector.invoke(action.callback, args);
+    }
+}
+
+/**
+ * Link to bigg
+ */
+
+@registerAction
+class LinkReaction implements Action {
+    public label = 'Open in BIGG reactions';
+    public type: string = 'reaction:link';
+
+    public canDisplay(context: any): boolean {
+        return context.type === 'map:reaction'
+    }
+
+    public callback(...args: any[]): void {
+        throw new Error("Method not implemented.");
     }
 }
 
@@ -105,3 +123,4 @@ class UndoKnockout extends Knockout {
         return false;
     }
 }
+

@@ -5,13 +5,14 @@
   "dependencies": {
     "angular": "^1.6.2",
     "angular-fixed-table-header": "github:daniel-nagy/fixed-table-header",
-    "angular-toastr": "github:Foxandxss/angular-toastr",
+    "angular-material-data-table": "^0.10.10",
     "d3": "^3.5.17",
+	"d3-selection": "^1.0.3",
     "escher-vis": "github:DD-DeCaF/escher",
-    "metabolica": "github:biosustain/metabolica-ui",
     "jquery": "^3.1.1",
     "jquery-ui": "^1.12.1",
-    "lodash": "^4.16.4"
+    "lodash": "^4.16.4",
+    "metabolica": "github:biosustain/metabolica-ui"
   },
   "scripts": {
     "build": "webpack",
@@ -20,11 +21,11 @@
   "devDependencies": {
     "@types/angular": "^1.6.7",
     "@types/angular-material": "^1.1.45",
-    "@types/angular-toastr": "^1.6.30",
     "@types/d3": "^3.5.17",
     "@types/jquery": "^2.0.40",
     "@types/lodash": "^4.14.53",
     "@types/node": "^7.0.5",
+	"@types/d3-selection": "^1.0.3",
     "angular": "^1.6.2",
     "babel-core": "^6.22.1",
     "babel-loader": "^6.2.10",

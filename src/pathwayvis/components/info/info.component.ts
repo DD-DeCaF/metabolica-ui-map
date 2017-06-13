@@ -1,33 +1,43 @@
 /**
  * Created by dandann on 28/03/2017.
  */
-import 'angular-toastr';
-
 import './info.component.scss';
 import * as template from './info.component.html';
+import {MapOptionService} from "../../services/mapoption.service";
 
 /**
  * sidebar component
  */
 class InfoComponentCtrl {
-    private _scope: angular.IScope;
-    public info;
+    private _mapOptions: MapOptionService;
 
     /* @ngInject */
-    constructor ($scope: angular.IScope) {
-        this._scope = $scope;
-
-        $scope.$on('infoFromMap', function handler(ev, info){
-            ev.currentScope['ctrl'].setInfo(info);
-        })
+    constructor (MapOptions: MapOptionService) {
+        this._mapOptions = MapOptions;
     }
 
-    private setInfo(info): void {
-        this.info = info;
+    public getGenotypeChanges(): string[]{
+        return this._mapOptions.getMapInfo()['genotype-changes'];
+    }
+
+    public showGenotypeChanges(): boolean{
+        let genotypeChanges = this.getGenotypeChanges();
+        if(genotypeChanges){
+            return genotypeChanges.length > 0;
+        }
+        return false;
+    }
+
+    public getMeasurements(): object[]{
+        return this._mapOptions.getMapInfo()['measurements'];
+    }
+
+    public getMedium(): object[]{
+        return this._mapOptions.getMapInfo()['medium'];
     }
 }
 
-export const InfoComponent: angular.IComponentOptions = {
+export const InfoComponent = {
     controller: InfoComponentCtrl,
     controllerAs: 'ctrl',
     template: template.toString(),

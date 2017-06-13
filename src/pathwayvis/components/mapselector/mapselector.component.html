@@ -1,20 +1,19 @@
-<!--<md-menu ng-show="ctrl.maps">
-	<md-button class="md-fab md-primary md-mini" ng-click="ctrl.openMenu($mdMenu, $event)">
-		<md-icon md-font-icon="layers">layers</md-icon>
-	</md-button>
-	<md-menu-content>
-		<md-menu-item ng-repeat="map in ctrl.maps">
-			<md-button ng-click="ctrl.setMap(map)" style="text-align:left">
+<md-content layout="column">
+	<md-input-container style="margin-left: 10px;">
+		<label>Model</label>
+		<md-select name="model"
+				   ng-model="ctrl.model"
+				   ng-change="ctrl.changeModel()"
+				   flex
+		>
+			<md-option ng-repeat="model in ctrl.getModels()" value="{{model}}">{{model}}</md-option>
+		</md-select>
+	</md-input-container>
+	<md-list>
+		<md-subheader class="md-accent">Maps</md-subheader>
+		<md-list-item ng-repeat="map in ctrl.maps" ng-click="ctrl.setMap(map)">
 				{{map}}
-			</md-button>
-		</md-menu-item>
-	</md-menu-content>
-</md-menu>-->
+		</md-list-item>
+	</md-list>
+</md-content>
 
-<md-list>
-	<md-list-item ng-repeat="map in ctrl.maps" style="width: 100%">
-		<md-button ng-click="ctrl.setMap(map)" style="text-align:left; width: 100%">
-			{{map}}
-		</md-button>
-	</md-list-item>
-</md-list>
