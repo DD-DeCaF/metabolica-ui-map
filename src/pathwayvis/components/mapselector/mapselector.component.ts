@@ -54,7 +54,7 @@ class MapSelectorComponentCtrl {
 }
 
 
-export const MapSelectorComponent: angular.IComponentOptions = {
+export const MapSelectorComponent = {
     controller: MapSelectorComponentCtrl,
     controllerAs: 'ctrl',
     template: template.toString(),

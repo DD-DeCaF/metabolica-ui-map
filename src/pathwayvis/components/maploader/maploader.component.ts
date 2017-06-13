@@ -159,7 +159,7 @@ class MapLoaderComponentCtrl {
 
 }
 
-export const MapLoaderComponent: angular.IComponentOptions = {
+export const MapLoaderComponent = {
     controller: MapLoaderComponentCtrl,
     controllerAs: 'ctrl',
     template: template.toString(),

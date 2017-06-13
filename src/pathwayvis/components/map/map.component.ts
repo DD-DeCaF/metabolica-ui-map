@@ -70,8 +70,7 @@ class MapComponentCtrl {
 
                 let builder = this._builder;
                 if (builder){
-                    this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
-                    builder.draw_knockout_reactions();
+                    builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
                 }
             }
         }, true);
@@ -84,7 +83,7 @@ class MapComponentCtrl {
                     this._loadData();
                 }
                 if (this._builder){
-                    this._builder.draw_knockout_reactions();
+                    this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
                 }
             }
         }, true);
@@ -97,7 +96,6 @@ class MapComponentCtrl {
             let removedReactions = this._mapOptions.getRemovedReactions();
             if (this._builder && removedReactions) {
                 this._builder.set_knockout_reactions(removedReactions);
-                this._builder.draw_knockout_reactions();
             }
         }, true);
 
@@ -120,7 +118,10 @@ class MapComponentCtrl {
         $scope.$watch('ctrl._mapOptions.getCurrentSelectedItems()',() => {
             let selected = this._mapOptions.getCurrentSelectedItems();
             if(this._mapOptions.shouldLoadMap){
-                if (selected.method && selected.phase && selected.sample && selected.experiment) {
+                if ((selected.method !== null) &&
+                    (selected.phase !== null) &&
+                    (selected.sample !== null) &&
+                    (selected.experiment !== null)) {
                     this._loadMap(selected, this._mapOptions.selectedCardId);
                 }
             }
@@ -168,12 +169,19 @@ class MapComponentCtrl {
     }
 
     private _loadMap(selectedItem: types.SelectedItems, id: number): void{
-        this.shared.loading++;
         let settings = this._mapOptions.getMapSettings();
 
+        let sampleIds = null;
+        if (selectedItem.sample) sampleIds = JSON.parse(selectedItem.sample);
+
+        let phaseId = null;
+        if (selectedItem.phase) phaseId = JSON.parse(selectedItem.phase);
+
+        if (sampleIds === null || phaseId === null) return;
+
         const modelPromise = this._api.post('data-adjusted/model', {
-            'sampleIds': JSON.parse(selectedItem.sample),
-            'phaseId': JSON.parse(selectedItem.phase),
+            'sampleIds': sampleIds,
+            'phaseId': phaseId,
             'method': selectedItem.method,
             'map': settings.map_id,
             'withFluxes': true,
@@ -181,12 +189,12 @@ class MapComponentCtrl {
         });
 
         const infoPromise = this._api.post('samples/info', {
-            'sampleIds': JSON.parse(selectedItem.sample),
-            'phaseId': JSON.parse(selectedItem.phase)
+            'sampleIds': sampleIds,
+            'phaseId': phaseId
         });
 
         this.resetKnockouts = true;
-
+        this.shared.loading++;
         this._q.all([modelPromise, infoPromise]).then((responses: any) => {
             let modelResponse = responses[0].data['response'][selectedItem.phase];
             this._mapOptions.setDataModel(modelResponse.model, modelResponse['modelId'], id);
@@ -357,7 +365,7 @@ class MapComponentCtrl {
     }
 }
 
-export const mapComponent: angular.IComponentOptions = {
+export const mapComponent = {
     controller: MapComponentCtrl,
     controllerAs: 'ctrl',
     template: template.toString(),

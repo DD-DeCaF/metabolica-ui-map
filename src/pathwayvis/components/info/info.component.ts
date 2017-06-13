@@ -37,7 +37,7 @@ class InfoComponentCtrl {
     }
 }
 
-export const InfoComponent: angular.IComponentOptions = {
+export const InfoComponent = {
     controller: InfoComponentCtrl,
     controllerAs: 'ctrl',
     template: template.toString(),

@@ -270,7 +270,6 @@ export class MapOptionService {
     }
 
     public getMapObjectsIds(): number[] {
-        console.log(this.dataHandler.getIds());
         return this.dataHandler.getIds();
     }
 
