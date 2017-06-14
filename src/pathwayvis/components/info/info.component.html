@@ -17,11 +17,7 @@
 				<tbody md-body>
 					<tr md-row ng-repeat="change in ctrl.getMeasurements()">
 						<td md-cell>{{ change["name"] }}</td>
-<<<<<<< HEAD
-						<td md-cell>{{ change["measurement"] }} {{change["unit"]}}/gh<sup>-1</sup></td>
-=======
 						<td md-cell>{{ change["measurements"].join(', ') }} {{change["unit"]}}/gh<sup>-1</sup></td>
->>>>>>> 3d401eb28b9253b768da2c1003f2946a6828bf32
 					</tr>
 				</tbody>
 			</table>
