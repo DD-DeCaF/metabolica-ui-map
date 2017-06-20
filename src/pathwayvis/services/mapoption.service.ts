@@ -190,25 +190,6 @@ export class MapOptionService {
         return this.getDataObject().selected;
     }
 
-    // public getMapObject(id: number): types.MapObject{
-    //     return this.mapObjects[id];
-    // }
-
-    // public getDeafultMethod(): string {
-    //     return this.methods[1].id;
-    // }
-
-    // public getMethodName(id: string): string{
-    //     let result = "_";
-    //     this.methods.some((item: types.Method) =>{
-    //         if(id.localeCompare(item.id) === 0){
-    //             result = item.name;
-    //             return true
-    //         }
-    //     });
-    //     return result;
-    // }
-
     public getSamples(experiment: number) : angular.IPromise<Object> {
         if(experiment){
             let promise = this.apiService.get('experiments/:experimentId/samples', {

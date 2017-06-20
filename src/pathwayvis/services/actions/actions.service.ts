@@ -55,24 +55,6 @@ export class ActionsService {
 }
 
 /**
- * Link to bigg
- */
-
-@registerAction
-class LinkReaction implements Action {
-    public label = 'Open in BIGG reactions';
-    public type: string = 'reaction:link';
-
-    public canDisplay(context: any): boolean {
-        return context.type === 'map:reaction'
-    }
-
-    public callback(...args: any[]): void {
-        throw new Error("Method not implemented.");
-    }
-}
-
-/**
  * Knockout reaction
  */
 @registerAction
