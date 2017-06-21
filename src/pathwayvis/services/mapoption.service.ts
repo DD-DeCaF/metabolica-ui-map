@@ -166,6 +166,7 @@ export class MapOptionService {
     public setMethodId(method: string) : void {
         this.shouldLoadMap = true;
         this.getDataObject().selected.method = method;
+        this.getDataObject().mapData.method = method;
     }
 
     public setExperiment(experiment: number) : void {
