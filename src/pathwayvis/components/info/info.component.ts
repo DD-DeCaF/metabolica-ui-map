@@ -17,7 +17,7 @@ class InfoComponentCtrl {
     }
 
     public getGenotypeChanges(): string[]{
-        return this._mapOptions.getMapInfo()['genotype-changes'];
+        return this._mapOptions.getMapInfo()['genotypeChanges'];
     }
 
     public showGenotypeChanges(): boolean{

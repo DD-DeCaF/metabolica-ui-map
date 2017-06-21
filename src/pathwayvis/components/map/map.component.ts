@@ -201,6 +201,7 @@ class MapComponentCtrl {
             this._mapOptions.setDataModel(modelResponse.model, modelResponse['modelId'], id);
             this._mapOptions.setReactionData(modelResponse.fluxes, id);
             this._mapOptions.setMapInfo(responses[1].data['response'][selectedItem.phase], id);
+            this._mapOptions.setMethodId(selectedItem.method);
 
             this.shared.loading--;
         }, (error) => {
