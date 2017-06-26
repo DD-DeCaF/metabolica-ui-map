@@ -40,10 +40,8 @@ export const PathwayVisModule = angular.module('pathwayvis', [
 	.component('pvLegend', LegendComponent)
 	.component('pvSettings', SettingsComponent)
 	.component('pvInfo', InfoComponent)
-	.config(function ($mdIconProvider, $stateProvider, appNavigationProvider, appAuthProvider) {
+	.config(function ($mdIconProvider, $stateProvider, appNavigationProvider) {
 		$mdIconProvider.icon('donut_large', DONUT_LARGE, 24);
-
-		appAuthProvider.isRequired = false;
 
         appNavigationProvider.register('app.pathwayvis', {
             title: 'Interactive Map',
