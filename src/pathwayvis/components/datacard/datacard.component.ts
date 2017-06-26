@@ -1,6 +1,6 @@
 import {APIService} from "../../services/api";
 import * as types from '../../types';
-import  * as template from "./maploader.component.html";
+import  * as template from "./datacard.component.html";
 import * as angular from "angular";
 import {ToastService} from "../../services/toastservice";
 import {MapOptionService} from "../../services/mapoption.service";
@@ -9,7 +9,7 @@ import {MethodService} from "../../services/method.service";
  * Created by dandann on 15/03/2017.
  */
 
-class MapLoaderComponentCtrl {
+class DataCardComponentCtrl {
     methodService: MethodService;
     public hideSelection: boolean = false;
     public phases: types.Phase[];
@@ -159,8 +159,8 @@ class MapLoaderComponentCtrl {
 
 }
 
-export const MapLoaderComponent = {
-    controller: MapLoaderComponentCtrl,
+export const DataCardComponent = {
+    controller: DataCardComponentCtrl,
     controllerAs: 'ctrl',
     template: template.toString(),
     bindings: {

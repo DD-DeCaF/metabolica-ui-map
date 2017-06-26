@@ -9,7 +9,7 @@ import {PathwayVisComponent} from './pathwayvis.component'
 import {mapComponent} from './components/map/map.component';
 import {KnockoutComponent} from './components/knockout/knockout.component';
 import {MapSelectorComponent} from './components/mapselector/mapselector.component';
-import {MapLoaderComponent} from './components/maploader/maploader.component';
+import {DataCardComponent} from './components/datacard/datacard.component';
 import {ActionsService} from './services/actions/actions.service';
 import DONUT_LARGE from '../../img/icons/donut_large.svg';
 import {DecafAPIProvider} from './providers/decafapi.provider';
@@ -36,7 +36,7 @@ export const PathwayVisModule = angular.module('pathwayvis', [
 	.component('pvMap', mapComponent)
 	.component('pvKnockout', KnockoutComponent)
 	.component('pvMapSelector', MapSelectorComponent)
-	.component('pvMaploader', MapLoaderComponent)
+	.component('pvMaploader', DataCardComponent)
 	.component('pvLegend', LegendComponent)
 	.component('pvSettings', SettingsComponent)
 	.component('pvInfo', InfoComponent)
