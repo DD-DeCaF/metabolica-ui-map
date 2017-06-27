@@ -11,7 +11,7 @@ class CardControllerComponentCtrl{
 
     public mapOptions: MapOptionService;
     public animating: boolean = false;
-    public spicies: string;
+    public species: string;
     public speciesList: string[] = ['E.Coli', 'Yest', 'Human'];
 
     constructor(MapOptions: MapOptionService,
@@ -20,6 +20,8 @@ class CardControllerComponentCtrl{
     ){
         this.mapOptions = MapOptions;
         this.$interval = $interval;
+
+        this.species = this.speciesList[0];
 
         $mdSidenav('right').open();
     }
