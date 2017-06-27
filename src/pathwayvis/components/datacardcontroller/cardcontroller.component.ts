@@ -11,6 +11,8 @@ class CardControllerComponentCtrl{
 
     public mapOptions: MapOptionService;
     public animating: boolean = false;
+    public spicies: string;
+    public speciesList: string[] = ['E.Coli', 'Yest', 'Human'];
 
     constructor(MapOptions: MapOptionService,
                 $interval: angular.IIntervalService,
