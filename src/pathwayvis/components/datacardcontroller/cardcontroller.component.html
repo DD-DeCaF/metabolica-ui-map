@@ -1,10 +1,29 @@
 <div class="playbar md-accent" layout="row" layout-align="space-around center">
-	<md-button class="md-icon-button"
-			   ng-click="ctrl.addMapObject()"
-			   ng-disabled="ctrl.disableForAnimation()"
-	>
-		<md-icon md-font-icon="add">add</md-icon>
-	</md-button>
+
+	<md-menu>
+		<md-button class="md-icon-button"
+				   ng-disabled="ctrl.disableForAnimation()"
+				   ng-click="$mdMenu.open($event)"
+		>
+			<md-icon md-font-icon="add">add</md-icon>
+		</md-button>
+		<md-menu-content>
+			<md-menu-item>
+				<md-button ng-click="ctrl.addRefMapObject()">
+					<md-icon md-font-icon="add">add</md-icon>
+					Add Reference
+				</md-button>
+			</md-menu-item>
+			<md-menu-item>
+				<md-button ng-click="ctrl.addExpMapObject()">
+					<md-icon md-font-icon="add">add</md-icon>
+					Add experimental
+				</md-button>
+			</md-menu-item>
+		</md-menu-content>
+	</md-menu>
+
+
 	<md-button class="md-icon-button"
 			   ng-click="ctrl.previousMapObject()"
 			   ng-disabled="ctrl.disableControls()"

@@ -12,6 +12,7 @@ import {ActionsService} from "./actions/actions.service";
 import {MapDataObject} from "../models/MapDataObject"
 import {DataHandler} from "../models/DataHandler";
 import {MethodService} from "./method.service";
+import {ObjectType} from "../types";
 
 interface MapSettings {
     map_id: string;
@@ -70,7 +71,7 @@ export class MapOptionService {
 
     public init(): void{
         this.dataHandler = new DataHandler(this.methodService);
-        this.selectedCardId = this.dataHandler.addObject();
+        this.selectedCardId = this.dataHandler.addObject(ObjectType.Reference);
 
         this.mapSettings = <any>{
             map_id : 'Central metabolism',
@@ -85,6 +86,10 @@ export class MapOptionService {
 
     public getDataObject(id: number = this.selectedCardId): MapDataObject{
         return this.dataHandler.getObject(id);
+    }
+
+    public getType(id: number = this.selectedCardId): ObjectType{
+        return this.dataHandler.getObject(id).type;
     }
 
     public getSelectedId(): number{
@@ -259,8 +264,16 @@ export class MapOptionService {
         return id == this.selectedCardId;
     }
 
-    public addMapObject(): void{
-        this.selectedCardId = this.dataHandler.addObject();
+    public addExpMapObject(): void{
+        this.selectedCardId = this.dataHandler.addObject(ObjectType.Experiment);
+    }
+
+    public addRefMapObject(): void{
+        this.selectedCardId = this.dataHandler.addObject(ObjectType.Reference);
+    }
+
+    public addMapObject(type:ObjectType=null): void{
+        this.selectedCardId = this.dataHandler.addObject(type);
     }
 
     public removeMapObject(id: number): void {

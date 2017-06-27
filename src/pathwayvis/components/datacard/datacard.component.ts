@@ -5,6 +5,7 @@ import * as angular from "angular";
 import {ToastService} from "../../services/toastservice";
 import {MapOptionService} from "../../services/mapoption.service";
 import {MethodService} from "../../services/method.service";
+import {ObjectType} from "../../types";
 /**
  * Created by dandann on 15/03/2017.
  */
@@ -25,7 +26,7 @@ class DataCardComponentCtrl {
 
     constructor ($scope: angular.IScope,
                  ToastService: ToastService,
-                 $mdSidenav: angular.material.ISidenavService,
+
                  MapOptions: MapOptionService,
                  MethodService: MethodService)
     {
@@ -39,7 +40,7 @@ class DataCardComponentCtrl {
             this.selected.experiment = this.mapOptions.getExperiment();
             this.changeExperiment();
         }
-        $mdSidenav('right').open();
+
     };
 
     public changeMethod(): void{
@@ -155,6 +156,14 @@ class DataCardComponentCtrl {
 
     public hideRemoveBtn(): boolean{
         return this.mapOptions.getMapObjectsIds().length <= 1;
+    }
+
+    public isExp(): boolean{
+        return this.mapOptions.getType(this.id) === ObjectType.Experiment;
+    }
+
+    public isRef(): boolean{
+        return this.mapOptions.getType(this.id) === ObjectType.Reference;
     }
 
 }

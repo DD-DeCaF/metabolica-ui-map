@@ -1,5 +1,6 @@
 import * as template from './cardcontroller.component.html'
 import {MapOptionService} from "../../services/mapoption.service";
+import {ObjectType} from "../../types";
 /**
  * Created by dandann on 26/06/2017.
  */
@@ -12,18 +13,25 @@ class CardControllerComponentCtrl{
     public animating: boolean = false;
 
     constructor(MapOptions: MapOptionService,
-                $interval: angular.IIntervalService
+                $interval: angular.IIntervalService,
+                $mdSidenav: angular.material.ISidenavService,
     ){
         this.mapOptions = MapOptions;
         this.$interval = $interval;
+
+        $mdSidenav('right').open();
     }
 
     public getMapObjectsIds(): number[]{
         return this.mapOptions.getMapObjectsIds();
     }
 
-    public addMapObject(): void{
-        this.mapOptions.addMapObject();
+    public addExpMapObject(): void{
+        this.mapOptions.addExpMapObject();
+    }
+
+    public addRefMapObject(): void{
+        this.mapOptions.addRefMapObject();
     }
 
     public playIcon(): string{

@@ -3,6 +3,7 @@
  */
 import {MapDataObject} from "./MapDataObject";
 import {MethodService} from "../services/method.service";
+import {ObjectType} from "../types";
 
 export class DataHandler{
     private ids: number[];
@@ -15,8 +16,13 @@ export class DataHandler{
         this.ids = [];
     }
 
-    public addObject(): number{
+    public addObject(type:ObjectType=null): number{
         let id = this.dataObjects.length;
+
+        let object_type = type;
+        if(!object_type){
+            object_type = ObjectType.Experiment;
+        }
 
         let selected = {
             'mapId' : 'Central metabolism',
@@ -32,7 +38,7 @@ export class DataHandler{
             removedReactions: []
         };
 
-        let obj = new MapDataObject(id, mapData, selected)
+        let obj = new MapDataObject(id, object_type, mapData, selected)
 
         this.ids.push(id);
         this.dataObjects.push(obj);

@@ -98,3 +98,8 @@ export interface Action {
     callback: any;
     canDisplay: any;
 }
+
+export enum ObjectType {
+    Experiment,
+    Reference
+}

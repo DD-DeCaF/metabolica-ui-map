@@ -1,17 +1,20 @@
 /**
  * Created by dandann on 06/06/2017.
  */
-import {MapData, SelectedItems, MapObject} from "../types";
+import {MapData, SelectedItems, MapObject, ObjectType} from "../types";
 
 export class MapDataObject implements MapObject{
     public id: number;
     public mapData: MapData;
     public selected: SelectedItems;
+    public type: ObjectType;
 
     constructor(id: number,
+                type: ObjectType,
                 mapData: MapData,
                 selected: SelectedItems){
         this.id = id;
+        this.type = type;
         this.mapData = mapData;
         this.selected = selected;
     }
