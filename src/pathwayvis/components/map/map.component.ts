@@ -15,6 +15,7 @@ import './views/map.component.scss';
 import * as template from './views/map.component.html';
 import {ToastService} from "../../services/toastservice";
 import {MapOptionService} from "../../services/mapoption.service";
+import {ObjectType} from "../../types";
 
 
 /**
@@ -118,12 +119,13 @@ class MapComponentCtrl {
 
         $scope.$watch('ctrl._mapOptions.getCurrentSelectedItems()',() => {
             let selected = this._mapOptions.getCurrentSelectedItems();
-            if(this._mapOptions.shouldLoadMap){
+            let type = this._mapOptions.getDataObject().type;
+            if(this._mapOptions.shouldLoadMap || type == ObjectType.Reference){
                 if ((selected.method !== null) &&
                     (selected.phase !== null) &&
                     (selected.sample !== null) &&
-                    (selected.experiment !== null)) {
-                    this._loadMap(selected, this._mapOptions.selectedCardId);
+                    (selected.experiment !== null) || type == ObjectType.Reference) {
+                    this._loadMap(type, selected, this._mapOptions.selectedCardId);
                 }
             }
         }, true);
@@ -164,50 +166,69 @@ class MapComponentCtrl {
         let id_list = this._mapOptions.getMapObjectsIds();
         id_list.forEach(function (id) {
             let selectedItem = self._mapOptions.getDataObject(id).selected;
-            self._loadMap(selectedItem, id);
+            self._loadMap(self._mapOptions.getDataObject(id).type,
+                            selectedItem,
+                            id);
         })
 
     }
 
-    private _loadMap(selectedItem: types.SelectedItems, id: number): void{
+    private _loadMap(type: ObjectType, selectedItem: types.SelectedItems, id: number): void{
         let settings = this._mapOptions.getMapSettings();
 
-        let sampleIds = null;
-        if (selectedItem.sample) sampleIds = JSON.parse(selectedItem.sample);
+        if(type == ObjectType.Experiment){
+            let sampleIds = null;
+            if (selectedItem.sample) sampleIds = JSON.parse(selectedItem.sample);
 
-        let phaseId = null;
-        if (selectedItem.phase) phaseId = JSON.parse(selectedItem.phase);
+            let phaseId = null;
+            if (selectedItem.phase) phaseId = JSON.parse(selectedItem.phase);
 
-        if (sampleIds === null || phaseId === null) return;
+            if (sampleIds === null || phaseId === null) return;
 
-        const modelPromise = this._api.post('data-adjusted/model', {
-            'sampleIds': sampleIds,
-            'phaseId': phaseId,
-            'method': selectedItem.method,
-            'map': settings.map_id,
-            'withFluxes': true,
-            'modelId': settings.model_id
-        });
+            const modelPromise = this._api.post('data-adjusted/model', {
+                'sampleIds': sampleIds,
+                'phaseId': phaseId,
+                'method': selectedItem.method,
+                'map': settings.map_id,
+                'withFluxes': true,
+                'modelId': settings.model_id
+            });
 
-        const infoPromise = this._api.post('samples/info', {
-            'sampleIds': sampleIds,
-            'phaseId': phaseId
-        });
+            const infoPromise = this._api.post('samples/info', {
+                'sampleIds': sampleIds,
+                'phaseId': phaseId
+            });
 
-        this.resetKnockouts = true;
-        this.shared.loading++;
-        this._q.all([modelPromise, infoPromise]).then((responses: any) => {
-            let modelResponse = responses[0].data['response'][selectedItem.phase];
-            this._mapOptions.setDataModel(modelResponse.model, modelResponse['modelId'], id);
-            this._mapOptions.setReactionData(modelResponse.fluxes, id);
-            this._mapOptions.setMapInfo(responses[1].data['response'][selectedItem.phase], id);
-            this._mapOptions.setMethodId(selectedItem.method);
+            this.resetKnockouts = true;
+            this.shared.loading++;
+            this._q.all([modelPromise, infoPromise]).then((responses: any) => {
+                let modelResponse = responses[0].data['response'][selectedItem.phase];
+                this._mapOptions.setDataModel(modelResponse.model, modelResponse['modelId'], id);
+                this._mapOptions.setReactionData(modelResponse.fluxes, id);
+                this._mapOptions.setMapInfo(responses[1].data['response'][selectedItem.phase], id);
+                this._mapOptions.setMethodId(selectedItem.method);
 
-            this.shared.loading--;
-        }, (error) => {
-            this.toastService.showErrorToast('Oops! Sorry, there was a problem with fetching the data.');
-            this.shared.loading--;
-        })
+                this.shared.loading--;
+            }, (error) => {
+                this.toastService.showErrorToast('Oops! Sorry, there was a problem with fetching the data.');
+                this.shared.loading--;
+            })
+        } else if (type == ObjectType.Reference){
+            if(settings.model_id){
+                let url = 'models/' + settings.model_id;
+                const modelPromise = this._api.post(url, {
+                    "message": {
+                        "to-return": ["fluxes", "model"],
+                    }
+                });
+                this._q.all([modelPromise]).then((response: any) => {
+                    let data = response[0].data;
+                    this._mapOptions.setDataModel(data.model, data.model.id, id);
+                    this._mapOptions.setReactionData(data.fluxes, id);
+                })
+            }
+        }
+
     }
 
     /**

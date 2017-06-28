@@ -1,6 +1,6 @@
 import * as template from './cardcontroller.component.html'
 import {MapOptionService} from "../../services/mapoption.service";
-import {ObjectType} from "../../types";
+import {Species} from "../../types";
 /**
  * Created by dandann on 26/06/2017.
  */
@@ -12,7 +12,6 @@ class CardControllerComponentCtrl{
     public mapOptions: MapOptionService;
     public animating: boolean = false;
     public species: string;
-    public speciesList: string[] = ['E.Coli', 'Yest', 'Human'];
 
     constructor(MapOptions: MapOptionService,
                 $interval: angular.IIntervalService,
@@ -21,9 +20,13 @@ class CardControllerComponentCtrl{
         this.mapOptions = MapOptions;
         this.$interval = $interval;
 
-        this.species = this.speciesList[0];
-
         $mdSidenav('right').open();
+
+        this.species = this.mapOptions.selectedSpecies;
+    }
+
+    public speciesList(): Species[]{
+        return this.mapOptions.getSpeciesList();
     }
 
     public getMapObjectsIds(): number[]{
@@ -54,6 +57,10 @@ class CardControllerComponentCtrl{
             this.animating = true;
             this.animationPromis = this.$interval(this.nextMapObject.bind(this), 500)
         }
+    }
+
+    public changeSpecies(): void{
+        this.mapOptions.setModelsFromSpecies(this.species);
     }
 
     public nextMapObject(): void{

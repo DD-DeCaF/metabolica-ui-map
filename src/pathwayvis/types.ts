@@ -99,6 +99,11 @@ export interface Action {
     canDisplay: any;
 }
 
+export interface Species{
+    id: string;
+    name: string;
+}
+
 export enum ObjectType {
     Experiment,
     Reference

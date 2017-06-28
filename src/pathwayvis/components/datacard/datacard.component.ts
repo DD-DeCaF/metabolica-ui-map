@@ -88,11 +88,6 @@ class DataCardComponentCtrl {
     public changeSample(): void{
         let sample = this.selected.sample;
         if(sample){
-
-            if(this.mapOptions.isMaster(this.id)) {
-                this.mapOptions.setModelsFromSample(sample);
-            }
-
             this.mapOptions.getPhases(sample).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
                 this.mapOptions.setSample(sample);
                 this.phases = response.data['response'];

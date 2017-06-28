@@ -12,7 +12,7 @@ import {ActionsService} from "./actions/actions.service";
 import {MapDataObject} from "../models/MapDataObject"
 import {DataHandler} from "../models/DataHandler";
 import {MethodService} from "./method.service";
-import {ObjectType} from "../types";
+import {ObjectType, Species} from "../types";
 
 interface MapSettings {
     map_id: string;
@@ -33,20 +33,11 @@ export class MapOptionService {
 
     public mapSettings: MapSettings;
 
-    // private mapObjectsIds: number[];
-
-    // TODO: should get methods and default method from backend
-    // public methods: types.Method[] = [
-    //     {'id': 'fba', 'name': 'FBA'},
-    //     {'id': 'pfba', 'name': 'pFBA'},
-    //     {'id': 'fva', 'name': 'FVA'},
-    //     {'id': 'pfba-fva', 'name': 'pFBA-FVA'},
-    //     {'id': 'moma', 'name': 'MOMA'},
-    //     {'id': 'lmoma', 'name': 'lMOMA'},
-    //     {'id': 'room', 'name': 'ROOM'}
-    // ];
+    private speciesList: Species[] = [];
 
     public experiments: types.Experiment[];
+
+    public selectedSpecies: string = "ECOLX";
 
     private toastService: ToastService;
     private actions: ActionsService;
@@ -60,10 +51,21 @@ export class MapOptionService {
         this.actions = actions;
         this.methodService = MethodService;
 
-        // this.$scope = $scope;
-
         this.apiService.get('experiments').then((response: angular.IHttpPromiseCallbackArg<types.Experiment[]>) => {
             this.experiments = response.data['response'];
+        });
+
+        this.apiService.get('species').then((response: angular.IHttpPromiseCallbackArg<any>) => {
+            let species = response.data['response'];
+            for(let item in species){
+                let obj = {'id' : species[item], 'name': item};
+                this.speciesList.push(obj)
+            }
+
+            // Set selected species
+            this.selectedSpecies = this.speciesList[0].id;
+            this.setModelsFromSpecies(this.selectedSpecies);
+
         });
 
         this.init();
@@ -81,7 +83,14 @@ export class MapOptionService {
 
         this.shouldLoadMap = false;
         this.shouldUpdateData = false;
+    }
 
+    public getSelectedSpecies(): string{
+        return this.selectedSpecies;
+    }
+
+    public getSpeciesList(): Species[]{
+        return this.speciesList;
     }
 
     public getDataObject(id: number = this.selectedCardId): MapDataObject{
@@ -223,6 +232,17 @@ export class MapOptionService {
             });
     }
 
+    public setModelsFromSpecies(species: string): void{
+        if(species){
+            let url = 'model-options/' + species;
+            this.apiService.get(url).then((response: angular.IHttpPromiseCallbackArg<any>) => {
+                this.models = response.data;
+                this.shouldUpdateData = true;
+                this.mapSettings.model_id = this.models[0];
+            });
+        }
+    }
+
     public getModels(): string[]{
         return this.models;
     }
@@ -264,12 +284,24 @@ export class MapOptionService {
         return id == this.selectedCardId;
     }
 
-    public addExpMapObject(): void{
-        this.selectedCardId = this.dataHandler.addObject(ObjectType.Experiment);
+    public addRefMapObject(): void{
+        let id = this.dataHandler.addObject(ObjectType.Reference);
+        let url = 'models/' + this.mapSettings.model_id;
+        this.apiService.post(url, {
+            "message": {
+                "to-return": ["fluxes", "model"],
+            }
+        }).then((response: any) => {
+            let data = response.data;
+            this.setDataModel(data.model, data.model.id, id);
+            this.setReactionData(data.fluxes, id);
+        });
+
+        this.selectedCardId = id;
     }
 
-    public addRefMapObject(): void{
-        this.selectedCardId = this.dataHandler.addObject(ObjectType.Reference);
+    public addExpMapObject(): void{
+        this.selectedCardId = this.dataHandler.addObject(ObjectType.Experiment);
     }
 
     public addMapObject(type:ObjectType=null): void{
