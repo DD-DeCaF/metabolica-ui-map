@@ -1,21 +1,21 @@
 <md-card name="loadData" novalidate layout="column">
+	<md-toolbar ng-class="{'md-primary': ctrl.isActiveObject(), 'md-accent': !ctrl.isActiveObject()}"
+				ng-click="ctrl.setActiveObject()">
+		<div class="md-toolbar-tools" layout="row" layout-align="start center">
+			<span class="md-caption" ng-dblclick="ctrl.startEditing()" ng-hide="ctrl.editing">{{ctrl.getName()}}</span>
+			<form ng-submit="ctrl.stopEditing()">
+				<input ng-show="ctrl.editing" class="md-caption" ng-model="ctrl.name" ng-blur="ctrl.stopEditing()" show-focus="ctrl.editing">
+			</form>
+			<md-button class="md-icon-button"
+					   style="right: 0; margin-left: auto"
+					   ng-click="ctrl.remove()"
+					   ng-hide="ctrl.hideRemoveBtn()"
+			>
+				<md-icon md-font-icon="remove">remove_circle_outline</md-icon>
+			</md-button>
+		</div>
+	</md-toolbar>
 	<div ng-if="ctrl.isExp()">
-		<md-toolbar ng-class="{'md-primary': ctrl.isActiveObject(), 'md-accent': !ctrl.isActiveObject()}"
-					ng-click="ctrl.setActiveObject()">
-			<div class="md-toolbar-tools" layout="row">
-				<p class="md-caption">{{ctrl.getMethodName()}}</p> -
-				<p class="md-caption">{{ctrl.getExperimentName()}}</p> -
-				<p class="md-caption">{{ctrl.getSampleName()}}</p> -
-				<p class="md-caption">{{ctrl.getPhaseName()}}</p>
-				<md-button class="md-icon-button"
-						   style="right: 0; margin-left: auto"
-						   ng-click="ctrl.remove()"
-						   ng-hide="ctrl.hideRemoveBtn()"
-				>
-					<md-icon md-font-icon="remove">remove_circle_outline</md-icon>
-				</md-button>
-			</div>
-		</md-toolbar>
 		<md-content layout="column" layout-padding ng-hide="!ctrl.isActiveObject() || ctrl.animating">
 			<md-input-container>
 				<label>Method</label>
@@ -58,21 +58,5 @@
 				</md-select>
 			</md-input-container>
 		</md-content>
-	</div>
-
-	<div ng-if="ctrl.isRef()">
-		<md-toolbar ng-class="{'md-primary': ctrl.isActiveObject(), 'md-accent': !ctrl.isActiveObject()}"
-					ng-click="ctrl.setActiveObject()">
-			<div class="md-toolbar-tools" layout="row">
-				<h1>Reference</h1>
-				<md-button class="md-icon-button"
-						   style="right: 0; margin-left: auto"
-						   ng-click="ctrl.remove()"
-						   ng-hide="ctrl.hideRemoveBtn()"
-				>
-					<md-icon md-font-icon="remove">remove_circle_outline</md-icon>
-				</md-button>
-			</div>
-		</md-toolbar>
 	</div>
 </md-card>

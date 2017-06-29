@@ -74,4 +74,14 @@ export const PathwayVisModule = angular.module('pathwayvis', [
 	.config(function ($mdThemingProvider) {
 		$mdThemingProvider.theme('warn-toast');
 		$mdThemingProvider.theme('error-toast');
-	});
+	})
+	.directive('showFocus', function($timeout) {
+	return function(scope, element, attrs) {
+		scope.$watch(attrs.showFocus,
+			function (newValue) {
+				$timeout(function() {
+					newValue && element[0].focus();
+				});
+			},true);
+	};
+});

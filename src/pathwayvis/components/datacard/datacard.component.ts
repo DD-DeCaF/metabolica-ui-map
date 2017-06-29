@@ -20,7 +20,9 @@ interface SelectedIds {
 }
 
 class DataCardComponentCtrl {
-    methodService: MethodService;
+    public editing: boolean = false;
+    public name: string;
+    private methodService: MethodService;
     public hideSelection: boolean = false;
     public phases: types.Phase[];
     public selected: SelectedIds = {};
@@ -50,7 +52,22 @@ class DataCardComponentCtrl {
             this.changeExperiment();
         }
 
+        this.name = this.getName();
+
     };
+
+    public startEditing(): void{
+        this.editing = true;
+    }
+
+    public stopEditing(): void{
+        this.mapOptions.getDataObject(this.id).setName(this.name);
+        this.editing = false;
+    }
+
+    public getName(): string{
+        return this.mapOptions.getDataObject(this.id).getName();
+    }
 
     public getMethods(): Method[]{
         return this.methodService.methods;

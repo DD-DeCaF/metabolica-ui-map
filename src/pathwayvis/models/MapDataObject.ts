@@ -8,6 +8,7 @@ export class MapDataObject implements MapObject{
     public mapData: MapData;
     public selected: SelectedItems;
     public type: ObjectType;
+    private name: string = "";
 
     constructor(id: number,
                 type: ObjectType,
@@ -37,4 +38,50 @@ export class MapDataObject implements MapObject{
             this.selected.phase == other.selected.phase
     }
 
+    public getName(): string{
+        if(this.name){
+            return this.name;
+        }
+
+        if(this.type == ObjectType.Reference){
+            return 'Reference';
+        }
+
+        if(this.type == ObjectType.Experiment){
+            let name = "";
+
+            if (this.selected.method){
+                name += this.selected.method.name;
+            } else {
+                name += '_'
+            }
+            name += '-';
+
+            if (this.selected.experiment){
+                name += this.selected.experiment.name;
+            } else {
+                name += '_'
+            }
+            name += '-';
+
+            if (this.selected.sample){
+                name += this.selected.sample.name;
+            } else {
+                name += '_'
+            }
+            name += '-';
+
+            if (this.selected.phase){
+                name += this.selected.phase.name;
+            } else {
+                name += '_'
+            }
+
+            return name;
+        }
+    }
+
+    public setName(name: string): void{
+        this.name = name;
+    }
 }
