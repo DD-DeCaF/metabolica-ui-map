@@ -61,10 +61,10 @@ export interface MapObject{
 }
 
 export interface SelectedItems {
-    experiment?: number;
-    sample?: string;
-    phase?: string;
-    method?: string;
+    experiment?: Experiment;
+    sample?: Sample;
+    phase?: Phase;
+    method?: Method;
     map?: string;
     model?: string;
 }

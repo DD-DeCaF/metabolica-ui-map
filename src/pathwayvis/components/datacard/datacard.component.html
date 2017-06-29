@@ -33,7 +33,7 @@
 						   ng-change="ctrl.changeExperiment()"
 						   ng-disabled="!ctrl.getExperiments() || ctrl.mapOptions.experiments.length === 0"
 				>
-					<md-option ng-repeat="experiment in ctrl.mapOptions.experiments" value="{{experiment.id}}">{{experiment.name}}</md-option>
+					<md-option ng-repeat="experiment in ctrl.getExperiments()" value="{{experiment.id}}">{{experiment.name}}</md-option>
 				</md-select>
 			</md-input-container>
 

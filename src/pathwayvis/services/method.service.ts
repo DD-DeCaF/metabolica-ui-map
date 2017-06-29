@@ -15,8 +15,8 @@ export class MethodService{
         {'id': 'room', 'name': 'ROOM'}
     ];
 
-    public defaultMethod(): string{
-        return this.methods[1].id;
+    public defaultMethod(): Method{
+        return this.methods[1];
     }
 
     public getMethodName(id: string): string{
@@ -24,6 +24,17 @@ export class MethodService{
         this.methods.some((item: Method) =>{
             if(id.localeCompare(item.id) === 0){
                 result = item.name;
+                return true
+            }
+        });
+        return result;
+    }
+
+    public getMethod(id: string): Method{
+        let result = null;
+        this.methods.some((item: Method) =>{
+            if(id.localeCompare(item.id) === 0){
+                result = item;
                 return true
             }
         });

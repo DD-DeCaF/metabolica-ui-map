@@ -5,16 +5,25 @@ import * as angular from "angular";
 import {ToastService} from "../../services/toastservice";
 import {MapOptionService} from "../../services/mapoption.service";
 import {MethodService} from "../../services/method.service";
-import {ObjectType} from "../../types";
+import {Method, ObjectType, Phase, Sample} from "../../types";
+import {ExperimentService} from "../../services/experiment.service";
 /**
  * Created by dandann on 15/03/2017.
  */
+
+
+interface SelectedIds {
+    experiment?: number;
+    sample?: string;
+    phase?: string;
+    method?: string;
+}
 
 class DataCardComponentCtrl {
     methodService: MethodService;
     public hideSelection: boolean = false;
     public phases: types.Phase[];
-    public selected: types.SelectedItems = {};
+    public selected: SelectedIds = {};
     public methodName: string;
 
     public animating: boolean;
@@ -22,29 +31,34 @@ class DataCardComponentCtrl {
     public samples: types.Sample[];
     private mapOptions: MapOptionService;
     private toastService;
+    private experimentService: ExperimentService;
 
-
-    constructor ($scope: angular.IScope,
-                 ToastService: ToastService,
-
+    constructor (ToastService: ToastService,
                  MapOptions: MapOptionService,
-                 MethodService: MethodService)
+                 MethodService: MethodService,
+                 ExperimentService: ExperimentService)
     {
         this.mapOptions = MapOptions;
         this.toastService = ToastService;
         this.methodService = MethodService;
+        this.experimentService = ExperimentService;
 
-        this.selected.method = MethodService.defaultMethod();
+        this.selected.method = MethodService.defaultMethod().id;
 
         if(this.mapOptions.getExperiment()){
-            this.selected.experiment = this.mapOptions.getExperiment();
+            this.selected.experiment = this.mapOptions.getExperiment().id;
             this.changeExperiment();
         }
 
     };
 
+    public getMethods(): Method[]{
+        return this.methodService.methods;
+    }
+
     public changeMethod(): void{
-        this.mapOptions.setMethodId(this.selected.method);
+        let method = this.methodService.getMethod(this.selected.method);
+        this.mapOptions.setMethodId(method);
     }
 
     public getMethodName(): string{
@@ -52,11 +66,11 @@ class DataCardComponentCtrl {
     }
 
     public getExperiments(): types.Experiment[]{
-        return this.mapOptions.getExperiments();
+        return this.experimentService.getExperiments();
     }
 
     public getExperimentName(): string{
-        return this.mapOptions.getExperimentName(this.selected.experiment);
+        return this.experimentService.getExperimentName(this.selected.experiment);
     }
 
     public changeExperiment(): void{
@@ -64,7 +78,8 @@ class DataCardComponentCtrl {
             this.mapOptions.getSamples(this.selected.experiment)
                 .then((response: angular.IHttpPromiseCallbackArg<types.Sample[]>) => {
                     // need to set null properties first!
-                    this.mapOptions.setExperiment(this.selected.experiment);
+                    let experiment = this.experimentService.getExperiment(this.selected.experiment);
+                    this.mapOptions.setExperiment(experiment);
                     this.samples = response.data['response'];
                     this.selected.sample = null;
                     this.selected.phase = null;
@@ -86,9 +101,10 @@ class DataCardComponentCtrl {
     }
 
     public changeSample(): void{
-        let sample = this.selected.sample;
-        if(sample){
-            this.mapOptions.getPhases(sample).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
+        let sampleId = this.selected.sample;
+        if(sampleId){
+            this.mapOptions.getPhases(sampleId).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
+                let sample = this.getSample(sampleId);
                 this.mapOptions.setSample(sample);
                 this.phases = response.data['response'];
                 this.selected.phase = null;
@@ -96,6 +112,20 @@ class DataCardComponentCtrl {
                 this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected sample.');
             });
         }
+    }
+
+    private getSample(ids: string): Sample{
+        let result = null;
+        if(this.samples){
+            this.samples.some((item: Sample) =>{
+                let itemId = JSON.stringify(item.id);
+                if(ids == itemId){
+                    result = item;
+                    return true
+                }
+            });
+        }
+        return result;
     }
 
     public hideModelSelect(): boolean{
@@ -119,11 +149,21 @@ class DataCardComponentCtrl {
     }
 
     public changePhase(){
-        this.mapOptions.setPhase(this.selected.phase);
+        let phase = this.getPhase();
+        this.mapOptions.setPhase(phase);
     }
 
-    public getMethods(): object{
-        return this.methodService.methods;
+    private getPhase(): Phase{
+        let result = null;
+        if(this.phases){
+            this.phases.some((item: types.Phase) =>{
+                if(this.selected.phase == item.id.toString()){
+                    result = item;
+                    return true
+                }
+            });
+        }
+        return result;
     }
 
     public isActiveObject(): boolean{

@@ -12,7 +12,7 @@ import {ActionsService} from "./actions/actions.service";
 import {MapDataObject} from "../models/MapDataObject"
 import {DataHandler} from "../models/DataHandler";
 import {MethodService} from "./method.service";
-import {ObjectType, Species} from "../types";
+import {Experiment, Method, ObjectType, Phase, Sample, Species} from "../types";
 
 interface MapSettings {
     map_id: string;
@@ -35,8 +35,6 @@ export class MapOptionService {
 
     private speciesList: Species[] = [];
 
-    public experiments: types.Experiment[];
-
     public selectedSpecies: string = "ECOLX";
 
     private toastService: ToastService;
@@ -50,10 +48,6 @@ export class MapOptionService {
         this.toastService = ToastService;
         this.actions = actions;
         this.methodService = MethodService;
-
-        this.apiService.get('experiments').then((response: angular.IHttpPromiseCallbackArg<types.Experiment[]>) => {
-            this.experiments = response.data['response'];
-        });
 
         this.apiService.get('species').then((response: angular.IHttpPromiseCallbackArg<any>) => {
             let species = response.data['response'];
@@ -177,26 +171,26 @@ export class MapOptionService {
     }
 
 
-    public setMethodId(method: string) : void {
+    public setMethodId(method: Method) : void {
         this.shouldLoadMap = true;
         this.getDataObject().selected.method = method;
-        this.getDataObject().mapData.method = method;
+        this.getDataObject().mapData.method = method.id;
     }
 
-    public setExperiment(experiment: number) : void {
+    public setExperiment(experiment: Experiment) : void {
         this.getDataObject().selected.sample = null;
         this.getDataObject().selected.phase = null;
         this.shouldLoadMap = true;
         this.getDataObject().selected.experiment = experiment;
     }
 
-    public setSample(sample: string) : void {
+    public setSample(sample: Sample) : void {
         this.getDataObject().selected.phase = null;
         this.shouldLoadMap = true;
         this.getDataObject().selected.sample = sample;
     }
 
-    public setPhase(phase: string) : void {
+    public setPhase(phase: Phase) : void {
         this.shouldLoadMap = true;
         this.getDataObject().selected.phase = phase;
     }
@@ -255,25 +249,8 @@ export class MapOptionService {
         }
     }
 
-    public getExperiment(): number {
+    public getExperiment(): Experiment {
         return this.getDataObject().selected.experiment;
-    }
-
-    public getExperiments(): types.Experiment[]{
-        return this.experiments;
-    }
-
-    public getExperimentName(id: number): string{
-        let result = "_";
-        if(this.experiments){
-            this.experiments.some((item: types.Experiment) =>{
-                if(id == item.id){
-                    result = item.name;
-                    return true
-                }
-            });
-        }
-        return result;
     }
 
     public getMapObjectsIds(): number[] {

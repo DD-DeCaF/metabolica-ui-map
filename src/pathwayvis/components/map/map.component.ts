@@ -178,17 +178,17 @@ class MapComponentCtrl {
 
         if(type == ObjectType.Experiment){
             let sampleIds = null;
-            if (selectedItem.sample) sampleIds = JSON.parse(selectedItem.sample);
+            if (selectedItem.sample) sampleIds = JSON.parse(JSON.stringify(selectedItem.sample.id));
 
             let phaseId = null;
-            if (selectedItem.phase) phaseId = JSON.parse(selectedItem.phase);
+            if (selectedItem.phase) phaseId = JSON.parse(JSON.stringify(selectedItem.phase.id));
 
             if (sampleIds === null || phaseId === null) return;
 
             const modelPromise = this._api.post('data-adjusted/model', {
                 'sampleIds': sampleIds,
                 'phaseId': phaseId,
-                'method': selectedItem.method,
+                'method': selectedItem.method.id,
                 'map': settings.map_id,
                 'withFluxes': true,
                 'modelId': settings.model_id
@@ -202,10 +202,10 @@ class MapComponentCtrl {
             this.resetKnockouts = true;
             this.shared.loading++;
             this._q.all([modelPromise, infoPromise]).then((responses: any) => {
-                let modelResponse = responses[0].data['response'][selectedItem.phase];
+                let modelResponse = responses[0].data['response'][JSON.stringify(selectedItem.phase.id)];
                 this._mapOptions.setDataModel(modelResponse.model, modelResponse['modelId'], id);
                 this._mapOptions.setReactionData(modelResponse.fluxes, id);
-                this._mapOptions.setMapInfo(responses[1].data['response'][selectedItem.phase], id);
+                this._mapOptions.setMapInfo(responses[1].data['response'][JSON.stringify(selectedItem.phase.id)], id);
                 this._mapOptions.setMethodId(selectedItem.method);
 
                 this.shared.loading--;
@@ -319,7 +319,7 @@ class MapComponentCtrl {
 
         // Handle FVA method response
         let selected = this._mapOptions.getCurrentSelectedItems();
-        if (selected.method === 'fva' || selected.method === 'pfba-fva') {
+        if (selected.method.id === 'fva' || selected.method.id === 'pfba-fva') {
 
             // const fvaData = reactionData;
             const fvaData = _.pickBy(reactionData, (data) => {
