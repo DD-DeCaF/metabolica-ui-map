@@ -263,10 +263,12 @@ export class MapOptionService {
 
     public addRefMapObject(): void{
         let id = this.dataHandler.addObject(ObjectType.Reference);
+        let method = this.dataHandler.getObject(id).selected.method.id;
         let url = 'models/' + this.mapSettings.model_id;
         this.apiService.post(url, {
             "message": {
                 "to-return": ["fluxes", "model"],
+                "simulation-method": method,
             }
         }).then((response: any) => {
             let data = response.data;

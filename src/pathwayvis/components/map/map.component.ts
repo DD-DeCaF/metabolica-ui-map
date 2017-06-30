@@ -216,15 +216,21 @@ class MapComponentCtrl {
         } else if (type == ObjectType.Reference){
             if(settings.model_id){
                 let url = 'models/' + settings.model_id;
+                let method = this._mapOptions.getDataObject(id).selected.method.id;
+
                 const modelPromise = this._api.post(url, {
                     "message": {
                         "to-return": ["fluxes", "model"],
+                        "simulation-method": method,
                     }
                 });
+                this.shared.loading++;
                 this._q.all([modelPromise]).then((response: any) => {
                     let data = response[0].data;
                     this._mapOptions.setDataModel(data.model, data.model.id, id);
                     this._mapOptions.setReactionData(data.fluxes, id);
+
+                    this.shared.loading--;
                 })
             }
         }

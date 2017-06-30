@@ -15,7 +15,6 @@
 			</md-button>
 		</div>
 	</md-toolbar>
-	<div ng-if="ctrl.isExp()">
 		<md-content layout="column" layout-padding ng-hide="!ctrl.isActiveObject() || ctrl.animating">
 			<md-input-container>
 				<label>Method</label>
@@ -26,37 +25,38 @@
 				</md-select>
 			</md-input-container>
 
-			<md-input-container>
-				<label>Experiment</label>
-				<md-select name="experiment"
-						   ng-model="ctrl.selected.experiment"
-						   ng-change="ctrl.changeExperiment()"
-						   ng-disabled="!ctrl.getExperiments() || ctrl.mapOptions.experiments.length === 0"
-				>
-					<md-option ng-repeat="experiment in ctrl.getExperiments()" value="{{experiment.id}}">{{experiment.name}}</md-option>
-				</md-select>
-			</md-input-container>
+			<div ng-if="ctrl.isExp()">
+				<md-input-container>
+					<label>Experiment</label>
+					<md-select name="experiment"
+							   ng-model="ctrl.selected.experiment"
+							   ng-change="ctrl.changeExperiment()"
+							   ng-disabled="!ctrl.getExperiments() || ctrl.mapOptions.experiments.length === 0"
+					>
+						<md-option ng-repeat="experiment in ctrl.getExperiments()" value="{{experiment.id}}">{{experiment.name}}</md-option>
+					</md-select>
+				</md-input-container>
 
-			<md-input-container>
-				<label>Sample</label>
-				<md-select name="samples"
-						   ng-model="ctrl.selected.sample"
-						   ng-change="ctrl.changeSample()"
-						   ng-disabled="!ctrl.samples || ctrl.samples.length === 0">
-					<md-option ng-repeat="sample in ctrl.samples" value="{{sample.id}}">{{sample.name}}</md-option>
-				</md-select>
-			</md-input-container>
+				<md-input-container>
+					<label>Sample</label>
+					<md-select name="samples"
+							   ng-model="ctrl.selected.sample"
+							   ng-change="ctrl.changeSample()"
+							   ng-disabled="!ctrl.samples || ctrl.samples.length === 0">
+						<md-option ng-repeat="sample in ctrl.samples" value="{{sample.id}}">{{sample.name}}</md-option>
+					</md-select>
+				</md-input-container>
 
 
-			<md-input-container>
-				<label>Phase</label>
-				<md-select name="phase"
-						   ng-model="ctrl.selected.phase"
-						   ng-change="ctrl.changePhase()"
-						   ng-disabled="!ctrl.phases || ctrl.phases.length === 0">
-					<md-option ng-repeat="phase in ctrl.phases" value="{{phase.id}}">{{phase.name}}</md-option>
-				</md-select>
-			</md-input-container>
+				<md-input-container>
+					<label>Phase</label>
+					<md-select name="phase"
+							   ng-model="ctrl.selected.phase"
+							   ng-change="ctrl.changePhase()"
+							   ng-disabled="!ctrl.phases || ctrl.phases.length === 0">
+						<md-option ng-repeat="phase in ctrl.phases" value="{{phase.id}}">{{phase.name}}</md-option>
+					</md-select>
+				</md-input-container>
+			</div>
 		</md-content>
-	</div>
 </md-card>
