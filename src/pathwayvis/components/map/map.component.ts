@@ -16,6 +16,7 @@ import * as template from './views/map.component.html';
 import {ToastService} from "../../services/toastservice";
 import {MapOptionService} from "../../services/mapoption.service";
 import {ObjectType} from "../../types";
+import {MapDataObject} from "../../models/MapDataObject";
 
 
 /**
@@ -119,6 +120,7 @@ class MapComponentCtrl {
                         reactionData = this._mapOptions.getReactionData();
                     }
                     this._removeOpacity();
+
                     this._builder.set_reaction_data(reactionData);
                 }
             }
