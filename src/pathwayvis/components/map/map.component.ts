@@ -113,6 +113,11 @@ class MapComponentCtrl {
                 if(reactionData) {
                     this._loadData();
                 } else {
+                    let type = this._mapOptions.getType();
+                    if( type == ObjectType.Reference){
+                        this._loadMap(type, this._mapOptions.getDataObject(), this._mapOptions.getSelectedId())
+                        reactionData = this._mapOptions.getReactionData();
+                    }
                     this._removeOpacity();
                     this._builder.set_reaction_data(reactionData);
                 }
