@@ -122,11 +122,11 @@ class MapComponentCtrl {
         $scope.$watch('ctrl._mapOptions.getCurrentSelectedItems()',() => {
             let selected = this._mapOptions.getCurrentSelectedItems();
             let type = this._mapOptions.getDataObject().type;
-            if(this._mapOptions.shouldLoadMap || type == ObjectType.Reference){
+            if(this._mapOptions.shouldLoadMap){
                 if ((selected.method !== null) &&
                     (selected.phase !== null) &&
                     (selected.sample !== null) &&
-                    (selected.experiment !== null) || type == ObjectType.Reference) {
+                    (selected.experiment !== null)) {
                     this._loadMap(type, selected, this._mapOptions.selectedCardId);
                 }
             }
