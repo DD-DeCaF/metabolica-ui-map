@@ -229,7 +229,7 @@ export class MapOptionService {
     public setModelsFromSpecies(species: string): void{
         if(species){
             let url = 'model-options/' + species;
-            this.apiService.get(url).then((response: angular.IHttpPromiseCallbackArg<any>) => {
+            this.apiService.getModel(url, {}).then((response: angular.IHttpPromiseCallbackArg<any>) => {
                 this.models = response.data;
                 this.shouldUpdateData = true;
                 this.mapSettings.model_id = this.models[0];

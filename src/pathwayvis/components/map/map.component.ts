@@ -111,11 +111,21 @@ class MapComponentCtrl {
                 if(reactionData) {
                     this._loadData();
                 } else {
+                    this._removeOpacity();
                     this._builder.set_reaction_data(reactionData);
                 }
             }
         }, true);
 
+        $scope.$watch('ctrl._mapOptions.mapSettings.map_id',() => {
+            let idList = this._mapOptions.getMapObjectsIds();
+            idList.forEach((id) => {
+                let card = this._mapOptions.getDataObject(id);
+                if (card.selected.method == 'fva' || card.selected.method == 'pfba-fva') {
+                    this._loadMap(card.type, card.selected, id);
+                }
+            });
+        }, true);
 
         $scope.$watch('ctrl._mapOptions.getCurrentSelectedItems()',() => {
             let selected = this._mapOptions.getCurrentSelectedItems();
@@ -135,9 +145,18 @@ class MapComponentCtrl {
         });
     }
 
+    private _removeOpacity() {
+        let noOpacity = {};
+        angular.forEach(this._builder.map.cobra_model.reactions, function(value, key){
+            noOpacity[key] = {'lower_bound': 0, 'upper_bound': 0};
+        });
+        this._builder.set_reaction_fva_data(noOpacity);
+    }
+
     private mapChanged(): void {
         let mapObject = this._mapOptions.getDataObject();
         if(mapObject.isComplete()){
+            this._removeOpacity();
             this._builder.load_model(this._mapOptions.getDataModel());
             this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
             this._loadContextMenu();
@@ -148,7 +167,7 @@ class MapComponentCtrl {
         if (map) {
             this.shared.loading++;
             let settings = this._mapOptions.getMapSettings();
-            this._api.request_model('map', {
+            this._api.getModel('map', {
                 'model': settings.model_id,
                 'map': settings.map_id,
             }).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
@@ -217,7 +236,7 @@ class MapComponentCtrl {
             if(settings.model_id){
                 let url = 'models/' + settings.model_id;
                 let method = this._mapOptions.getDataObject(id).selected.method.id;
-                const modelPromise = this._api.post(url, {
+                const modelPromise = this._api.postModel(url, {
                     "message": {
                         "to-return": ["fluxes", "model"],
                         "simulation-method": method,
@@ -321,6 +340,7 @@ class MapComponentCtrl {
      */
     private _loadData(): void {
         let reactionData = this._mapOptions.getReactionData();
+        this._removeOpacity();
 
         // Handle FVA method response
         let selected = this._mapOptions.getCurrentSelectedItems();
