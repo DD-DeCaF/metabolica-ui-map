@@ -68,6 +68,8 @@ class MapComponentCtrl {
                 if(this._mapOptions.shouldUpdateData){
                     this.updateAllMaps();
                     this._mapOptions.dataUpdated();
+                } else {
+                    this.updateFVAMaps();
                 }
                 this._setMap(this._mapOptions.getSelectedMap());
 
@@ -117,11 +119,12 @@ class MapComponentCtrl {
                         this._loadMap(type, this._mapOptions.getDataObject(), this._mapOptions.getSelectedId())
                         reactionData = this._mapOptions.getReactionData();
                     }
+                    this._removeOpacity();
+
                     this._builder.set_reaction_data(reactionData);
                 }
             }
         }, true);
-
 
         $scope.$watch('ctrl._mapOptions.getCurrentSelectedItems()',() => {
             let selected = this._mapOptions.getCurrentSelectedItems();
@@ -141,9 +144,19 @@ class MapComponentCtrl {
         });
     }
 
+    private _removeOpacity() {
+        let noOpacity = {};
+        let reactions = this._builder.map.cobra_model.reactions;
+        Object.keys(reactions).forEach(function(key){
+            noOpacity[key] = {'lower_bound': 0, 'upper_bound': 0};
+        });
+        this._builder.set_reaction_fva_data(noOpacity);
+    }
+
     private mapChanged(): void {
         let mapObject = this._mapOptions.getDataObject();
         if(mapObject.isComplete()){
+            this._removeOpacity();
             this._builder.load_model(this._mapOptions.getDataModel());
             this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
             this._loadContextMenu();
@@ -154,7 +167,7 @@ class MapComponentCtrl {
         if (map) {
             this.shared.loading++;
             let settings = this._mapOptions.getMapSettings();
-            this._api.request_model('map', {
+            this._api.getModel('map', {
                 'model': settings.model_id,
                 'map': settings.map_id,
             }).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
@@ -167,16 +180,21 @@ class MapComponentCtrl {
         }
     };
 
-    private updateAllMaps(){
+    private updateAllMaps(FVAonly: boolean = false){
         let self = this;
         let id_list = this._mapOptions.getMapObjectsIds();
         id_list.forEach(function (id) {
             let selectedItem = self._mapOptions.getDataObject(id).selected;
-            self._loadMap(self._mapOptions.getDataObject(id).type,
-                            selectedItem,
-                            id);
+            if (!FVAonly || (FVAonly && (selectedItem.method.id == 'fva' || selectedItem.method.id == 'pfba-fva'))) {
+                self._loadMap(self._mapOptions.getDataObject(id).type,
+                    selectedItem,
+                    id);
+            }
         })
+    }
 
+    private updateFVAMaps(){
+        this.updateAllMaps(true);
     }
 
     private _loadMap(type: ObjectType, selectedItem: types.SelectedItems, id: number): void{
@@ -223,10 +241,11 @@ class MapComponentCtrl {
             if(settings.model_id){
                 let url = 'models/' + settings.model_id;
                 let method = this._mapOptions.getDataObject(id).selected.method.id;
-                const modelPromise = this._api.post(url, {
+                const modelPromise = this._api.postModel(url, {
                     "message": {
                         "to-return": ["fluxes", "model"],
                         "simulation-method": method,
+                        "map": settings.map_id
                     }
                 });
                 this.shared.loading++;
@@ -327,6 +346,7 @@ class MapComponentCtrl {
      */
     private _loadData(): void {
         let reactionData = this._mapOptions.getReactionData();
+        this._removeOpacity();
 
         // Handle FVA method response
         let selected = this._mapOptions.getCurrentSelectedItems();

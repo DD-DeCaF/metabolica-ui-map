@@ -19,44 +19,41 @@ export class APIService {
     }
 
     public get(path: string, parameters: Object = {}): angular.IPromise<Object> {
-        return this._request('GET', path, undefined, parameters);
+        return this._request('GET', path, undefined, parameters, this.api);
     }
 
     public post(path: string, data: Object, parameters: Object = {}): angular.IPromise<Object> {
-        return this._request('POST', path, data, parameters);
+        return this._request('POST', path, data, parameters, this.api);
+    }
+
+    public getModel(path: string, parameters: Object = {}): angular.IPromise<Object> {
+        return this._request('GET', path, undefined, parameters, this.model);
+    }
+
+    public postModel(path: string, data: Object, parameters: Object = {}): angular.IPromise<Object> {
+        return this._request('POST', path, data, parameters, this.model);
     }
 
     public put(path: string, data: Object, parameters: Object = {}): angular.IPromise<Object> {
-        return this._request('PUT', path, data, parameters);
+        return this._request('PUT', path, data, parameters, this.api);
     }
 
     public patch(path: string, data: Object, parameters: Object = {}): angular.IPromise<Object> {
-        return this._request('PATCH', path, data, parameters);
+        return this._request('PATCH', path, data, parameters, this.api);
     }
 
     public delete(path: string, data: Object, parameters: Object = {}): angular.IPromise<Object> {
-        return this._request('DELETE', path, data, parameters);
+        return this._request('DELETE', path, data, parameters, this.api);
     }
 
-    private _request(method: string, path: string, data: Object, params: Object): angular.IHttpPromise<any> {
+    private _request(method: string, path: string, data: Object, params: Object, api): angular.IHttpPromise<any> {
 
         const reqDetails = this._handleParams(path, params);
 
         return this._http({
             method: method,
             data: data,
-            url: this.api + '/' + reqDetails.path,
-            params: reqDetails.params
-        });
-    }
-
-    public request_model(path: string, params: Object): angular.IHttpPromise<any> {
-
-        const reqDetails = this._handleParams(path, params);
-
-        return this._http({
-            method: 'GET',
-            url: this.model + '/' + reqDetails.path,
+            url: api + '/' + reqDetails.path,
             params: reqDetails.params
         });
     }
