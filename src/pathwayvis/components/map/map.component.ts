@@ -67,6 +67,8 @@ class MapComponentCtrl {
                 if(this._mapOptions.shouldUpdateData){
                     this.updateAllMaps();
                     this._mapOptions.dataUpdated();
+                } else {
+                    this.updateFVAMaps();
                 }
                 this._setMap(this._mapOptions.getSelectedMap());
 
@@ -117,16 +119,6 @@ class MapComponentCtrl {
             }
         }, true);
 
-        $scope.$watch('ctrl._mapOptions.mapSettings.map_id',() => {
-            let idList = this._mapOptions.getMapObjectsIds();
-            idList.forEach((id) => {
-                let card = this._mapOptions.getDataObject(id);
-                if (card.selected.method == 'fva' || card.selected.method == 'pfba-fva') {
-                    this._loadMap(card.type, card.selected, id);
-                }
-            });
-        }, true);
-
         $scope.$watch('ctrl._mapOptions.getCurrentSelectedItems()',() => {
             let selected = this._mapOptions.getCurrentSelectedItems();
             let type = this._mapOptions.getDataObject().type;
@@ -147,7 +139,8 @@ class MapComponentCtrl {
 
     private _removeOpacity() {
         let noOpacity = {};
-        angular.forEach(this._builder.map.cobra_model.reactions, function(value, key){
+        let reactions = this._builder.map.cobra_model.reactions;
+        Object.keys(reactions).forEach(function(key){
             noOpacity[key] = {'lower_bound': 0, 'upper_bound': 0};
         });
         this._builder.set_reaction_fva_data(noOpacity);
@@ -180,16 +173,21 @@ class MapComponentCtrl {
         }
     };
 
-    private updateAllMaps(){
+    private updateAllMaps(FVAonly: boolean = false){
         let self = this;
         let id_list = this._mapOptions.getMapObjectsIds();
         id_list.forEach(function (id) {
             let selectedItem = self._mapOptions.getDataObject(id).selected;
-            self._loadMap(self._mapOptions.getDataObject(id).type,
-                            selectedItem,
-                            id);
+            if (!FVAonly || (FVAonly && (selectedItem.method.id == 'fva' || selectedItem.method.id == 'pfba-fva'))) {
+                self._loadMap(self._mapOptions.getDataObject(id).type,
+                    selectedItem,
+                    id);
+            }
         })
+    }
 
+    private updateFVAMaps(){
+        this.updateAllMaps(true);
     }
 
     private _loadMap(type: ObjectType, selectedItem: types.SelectedItems, id: number): void{
@@ -240,6 +238,7 @@ class MapComponentCtrl {
                     "message": {
                         "to-return": ["fluxes", "model"],
                         "simulation-method": method,
+                        "map": settings.map_id
                     }
                 });
                 this.shared.loading++;
