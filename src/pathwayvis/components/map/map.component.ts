@@ -217,7 +217,6 @@ class MapComponentCtrl {
             if(settings.model_id){
                 let url = 'models/' + settings.model_id;
                 let method = this._mapOptions.getDataObject(id).selected.method.id;
-
                 const modelPromise = this._api.post(url, {
                     "message": {
                         "to-return": ["fluxes", "model"],

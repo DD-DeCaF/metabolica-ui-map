@@ -25,8 +25,8 @@
 				</md-select>
 			</md-input-container>
 
-			<div ng-if="ctrl.isExp()">
-				<md-input-container>
+			<!--<div ng-if="ctrl.isExp()">-->
+				<md-input-container ng-hide="ctrl.isRef()">
 					<label>Experiment</label>
 					<md-select name="experiment"
 							   ng-model="ctrl.selected.experiment"
@@ -37,7 +37,7 @@
 					</md-select>
 				</md-input-container>
 
-				<md-input-container>
+				<md-input-container ng-hide="ctrl.isRef()">
 					<label>Sample</label>
 					<md-select name="samples"
 							   ng-model="ctrl.selected.sample"
@@ -48,7 +48,7 @@
 				</md-input-container>
 
 
-				<md-input-container>
+				<md-input-container ng-hide="ctrl.isRef()">
 					<label>Phase</label>
 					<md-select name="phase"
 							   ng-model="ctrl.selected.phase"
@@ -57,6 +57,6 @@
 						<md-option ng-repeat="phase in ctrl.phases" value="{{phase.id}}">{{phase.name}}</md-option>
 					</md-select>
 				</md-input-container>
-			</div>
+			<!--</div>-->
 		</md-content>
 </md-card>
