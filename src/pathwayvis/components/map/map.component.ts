@@ -16,7 +16,6 @@ import * as template from './views/map.component.html';
 import {ToastService} from "../../services/toastservice";
 import {MapOptionService} from "../../services/mapoption.service";
 import {ObjectType} from "../../types";
-import {MapDataObject} from "../../models/MapDataObject";
 
 
 /**
@@ -116,7 +115,7 @@ class MapComponentCtrl {
                 } else {
                     let type = this._mapOptions.getType();
                     if( type == ObjectType.Reference){
-                        this._loadMap(type, this._mapOptions.getDataObject(), this._mapOptions.getSelectedId())
+                        this._loadMap(type, this._mapOptions.getDataObject().selected, this._mapOptions.getSelectedId())
                         reactionData = this._mapOptions.getReactionData();
                     }
                     this._removeOpacity();
