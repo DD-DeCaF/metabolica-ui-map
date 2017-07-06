@@ -18,9 +18,6 @@ class ReactionComponentCtrl{
         this.ws = ws;
     }
 
-
-
-
     public querySearch (query : string){
         let url = 'http://bigg.ucsd.edu/api/v2/search?query=' + query +'&search_type=reactions';
         return $.getJSON(url).then(function(response){
@@ -49,18 +46,6 @@ class ReactionComponentCtrl{
                 });
             this.searchText = "";
         }
-    }
-
-    /**
-     * Create filter function for a query string
-     */
-    public createFilterFor(query) {
-        var lowercaseQuery = angular.lowercase(query);
-
-        return function filterFn(state) {
-            return (state.value.indexOf(lowercaseQuery) === 0);
-        };
-
     }
 
     public getAddedReactions(): BiggReaction[]{
