@@ -37,11 +37,6 @@ export interface Reaction {
 
 export interface Shared {
     loading?: number;
-    map?: Map;
-    model?: Model;
-    sections?: any;
-    method?: string;
-    removedReactions?: string[];
 }
 
 export interface MapData {
