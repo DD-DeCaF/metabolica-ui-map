@@ -31,7 +31,6 @@ class ReactionComponentCtrl{
             let url = 'http://bigg.ucsd.edu/api/v2/' + item.model_bigg_id.toLowerCase() + '/reactions/' + item.bigg_id
             $.getJSON(url)
                 .then(function (response) {
-                    console.log(response);
                     let reaction = <AddedReaction>item;
                     reaction.reaction_string = response['reaction_string'];
 
