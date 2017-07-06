@@ -50,6 +50,7 @@ export interface MapData {
     sections?: any;
     method?: string;
     removedReactions?: string[];
+    addedReactions?: AddedReaction[];
     info?: object;
     selected?: SelectedItems;
 }
@@ -107,4 +108,16 @@ export interface Species{
 export enum ObjectType {
     Experiment,
     Reference
+}
+
+export interface BiggReaction{
+    model_bigg_id: string;
+    bigg_id: string;
+    name: string;
+    organism: string;
+}
+
+export interface AddedReaction extends BiggReaction{
+    metanetx_id: string;
+    reaction_string: string
 }

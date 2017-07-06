@@ -12,7 +12,7 @@ import {ActionsService} from "./actions/actions.service";
 import {MapDataObject} from "../models/MapDataObject"
 import {DataHandler} from "../models/DataHandler";
 import {MethodService} from "./method.service";
-import {Experiment, Method, ObjectType, Phase, Sample, Species} from "../types";
+import {AddedReaction, Experiment, Method, ObjectType, Phase, Sample, Species} from "../types";
 
 interface MapSettings {
     map_id: string;
@@ -356,5 +356,9 @@ export class MapOptionService {
 
     public getCollectionSize(): number{
         return this.dataHandler.size();
+    }
+
+    public getAddedReactions() : AddedReaction[]{
+        return this.getMapData().addedReactions;
     }
 }

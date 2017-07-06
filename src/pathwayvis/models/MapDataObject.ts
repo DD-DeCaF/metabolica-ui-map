@@ -1,7 +1,7 @@
 /**
  * Created by dandann on 06/06/2017.
  */
-import {MapData, SelectedItems, MapObject, ObjectType} from "../types";
+import {MapData, SelectedItems, MapObject, ObjectType, AddedReaction} from "../types";
 
 export class MapDataObject implements MapObject{
     public id: number;
@@ -83,5 +83,9 @@ export class MapDataObject implements MapObject{
 
     public setName(name: string): void{
         this.name = name;
+    }
+
+    public addBiggReaction(reaction: AddedReaction): void{
+        this.mapData.addedReactions.push(reaction)
     }
 }

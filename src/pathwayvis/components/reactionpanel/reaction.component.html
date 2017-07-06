@@ -1,0 +1,36 @@
+<md-content class="md-padding">
+	<md-autocomplete
+		md-no-cache="true"
+		md-selected-item="selectedItem"
+		md-search-text="ctrl.searchText"
+		md-items="item in ctrl.querySearch(ctrl.searchText)"
+		md-selected-item-change="ctrl.selectedItemChange(item)"
+		md-item-text="item.name"
+		md-min-length="1"
+		placeholder="Enter the reaction you want to add"
+		md-menu-class="autocomplete-custom-template"
+	>
+		<md-item-template>
+			<md-tooltip md-direction="bottom">{{item.name}}</md-tooltip>
+			<span class="item-title"> <b>Name:</b> {{item.name}}</span>
+			<span class="item-metadata" md-highlight-text="ctrl.searchText" md-highlight-flags="^i">{{item.bigg_id}}</span>
+
+		</md-item-template>
+	</md-autocomplete>
+
+	<section ng-if="ctrl.getAddedReactions().length > 0">
+		<md-subheader class="md-primary">Added reactions:</md-subheader>
+		<md-list>
+			<md-list-item ng-repeat="reaction in ctrl.getAddedReactions()">
+				<span class="md-caption">{{reaction.name}}</span>
+				<md-button class="md-icon-button md-secondary"
+						   ng-click="ctrl.onReactionRemoveClick(reaction.bigg_id)"
+				>
+					<md-icon md-font-icon="close">
+						close
+					</md-icon>
+				</md-button>
+			</md-list-item>
+		</md-list>
+	</section>
+</md-content>

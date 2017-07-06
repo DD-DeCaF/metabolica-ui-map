@@ -35,7 +35,8 @@ export class DataHandler{
             model: {},
             sections: {},
             info: {},
-            removedReactions: []
+            removedReactions: [],
+            addedReactions: [],
         };
 
         let obj = new MapDataObject(id, object_type, mapData, selected)

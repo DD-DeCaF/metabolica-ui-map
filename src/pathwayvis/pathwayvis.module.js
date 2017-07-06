@@ -20,6 +20,7 @@ import {LegendComponent} from './components/legend/legend.component';
 import {SettingsComponent} from './components/settings/settings.component';
 import {InfoComponent} from './components/info/info.component';
 import {CardControllerComponent} from  './components/datacardcontroller/cardcontroller.component'
+import {ReactionComponent} from  './components/reactionpanel/reaction.component'
 
 export const PathwayVisModule = angular.module('pathwayvis', [
 	require('angular-material-data-table')
@@ -44,6 +45,7 @@ export const PathwayVisModule = angular.module('pathwayvis', [
 	.component('pvSettings', SettingsComponent)
 	.component('pvInfo', InfoComponent)
 	.component('pvCardController', CardControllerComponent)
+	.component('pvReactionPanel', ReactionComponent)
 	.config(function ($mdIconProvider, $stateProvider, appNavigationProvider) {
 		$mdIconProvider.icon('donut_large', DONUT_LARGE, 24);
 

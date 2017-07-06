@@ -4,7 +4,7 @@
     </md-button>
 </section>
 <md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id="right">
-	<md-tabs class="md-accent" md-stretch-tabs="always" md-border-bottom flex layout-fill>
+	<md-tabs class="md-accent" md-stretch-tabs="never" md-border-bottom flex layout-fill>
 		<md-content>
 			<md-tab id="tab1">
 				<md-tab-label>
@@ -30,6 +30,15 @@
 				</md-tab-label>
 				<md-tab-body>
 					<pv-map-selector></pv-map-selector>
+				</md-tab-body>
+			</md-tab>
+
+			<md-tab id="add_reaction_tab">
+				<md-tab-label>
+					<md-icon md-font-icon="edit">edit</md-icon>
+				</md-tab-label>
+				<md-tab-body>
+					<pv-reaction-panel></pv-reaction-panel>
 				</md-tab-body>
 			</md-tab>
 
