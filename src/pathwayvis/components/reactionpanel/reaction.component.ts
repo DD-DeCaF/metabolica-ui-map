@@ -1,27 +1,26 @@
-/**
- * Created by Danny on 7/4/2017.
- */
-/**
- * Created by dandann on 03/07/2017.
- */
 import "./reaction.component.scss";
 import * as template from "./reaction.component.html";
 import * as angular from "angular";
 import {MapOptionService} from "../../services/mapoption.service";
 import {AddedReaction, BiggReaction} from "../../types";
-/**
- * Created by dandann on 15/03/2017.
- */
+import {WSService} from "../../services/ws";
 
 
 class ReactionComponentCtrl{
-    searchText: string;
+    public searchText: string;
+
+    private ws: WSService;
     private $http: angular.IHttpService;
     private mapOptions: MapOptionService;
-    constructor($http: angular.IHttpService, MapOptions: MapOptionService){
+    constructor($http: angular.IHttpService, MapOptions: MapOptionService, ws: WSService){
         this.$http = $http;
         this.mapOptions = MapOptions;
+        this.ws = ws;
     }
+
+
+
+
     public querySearch (query : string){
         let url = 'http://bigg.ucsd.edu/api/v2/search?query=' + query +'&search_type=reactions';
         return $.getJSON(url).then(function(response){
@@ -46,7 +45,7 @@ class ReactionComponentCtrl{
                             reaction.metanetx_id = metanetx['id'];
                         }
                     }
-                    self.mapOptions.getMapData().addedReactions.push(reaction);
+                    self.mapOptions.addReaction(reaction);
                 });
             this.searchText = "";
         }
@@ -69,15 +68,8 @@ class ReactionComponentCtrl{
     }
 
     public onReactionRemoveClick(bigg_id: string){
-        for(let i = 0; i < this.mapOptions.getMapData().addedReactions.length; i++) {
-            if(this.mapOptions.getMapData().addedReactions[i].bigg_id == bigg_id) {
-                console.log('removed: ', this.mapOptions.getMapData().addedReactions[i].metanetx_id);
-                this.mapOptions.getMapData().addedReactions.splice(i, 1);
-                break;
-            }
-        }
+        this.mapOptions.removeReaction(bigg_id);
     }
-
 }
 
 export const ReactionComponent = {

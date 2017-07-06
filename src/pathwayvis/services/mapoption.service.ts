@@ -25,7 +25,6 @@ export class MapOptionService {
     public shouldUpdateData: boolean;
     public models: string[];
     private apiService: APIService;
-    // private mapObjects: MapDataObject[];
     private dataHandler: DataHandler;
     public shouldLoadMap: boolean;
 
@@ -293,17 +292,19 @@ export class MapOptionService {
         this.selectedCardId = id;
     }
 
-    public actionHandler(action, id): any {
+    public actionHandler(action, id=null): any {
         let shared  = JSON.parse(JSON.stringify(this.getMapData()));
 
-        if (action.type === 'reaction:knockout:do'){
-            shared.removedReactions.push(id);
+        if(id){
+            if (action.type === 'reaction:knockout:do'){
+                shared.removedReactions.push(id);
 
-        }
-        if (action.type === 'reaction:knockout:undo'){
-            let index = shared.removedReactions.indexOf(id);
-            if(index > -1){
-                shared.removedReactions.splice(index, 1);
+            }
+            if (action.type === 'reaction:knockout:undo'){
+                let index = shared.removedReactions.indexOf(id);
+                if(index > -1){
+                    shared.removedReactions.splice(index, 1);
+                }
             }
         }
         return this.actions.callAction(action, {shared: shared})
@@ -360,5 +361,24 @@ export class MapOptionService {
 
     public getAddedReactions() : AddedReaction[]{
         return this.getMapData().addedReactions;
+    }
+
+    public addReaction(addedReaction: AddedReaction): void{
+        let action = this.actions.getAction('reaction:update');
+        this.getDataObject().mapData.addedReactions.push(addedReaction);
+        this.actionHandler(action);
+    }
+
+    public removeReaction(bigg_id: string): void{
+        let action = this.actions.getAction('reaction:update');
+        let mapData = this.getMapData();
+        for(let i = 0; i < mapData.addedReactions.length; i++) {
+            if(mapData.addedReactions[i].bigg_id == bigg_id) {
+                console.log('removed: ', mapData.addedReactions[i].metanetx_id);
+                mapData.addedReactions.splice(i, 1);
+                break;
+            }
+        }
+        this.actionHandler(action);
     }
 }
