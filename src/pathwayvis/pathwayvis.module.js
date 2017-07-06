@@ -8,7 +8,6 @@ import {MethodService} from './services/method.service';
 import {ExperimentService} from './services/experiment.service';
 import {PathwayVisComponent} from './pathwayvis.component'
 import {mapComponent} from './components/map/map.component';
-import {KnockoutComponent} from './components/knockout/knockout.component';
 import {MapSelectorComponent} from './components/mapselector/mapselector.component';
 import {DataCardComponent} from './components/datacard/datacard.component';
 import {ActionsService} from './services/actions/actions.service';
@@ -38,7 +37,6 @@ export const PathwayVisModule = angular.module('pathwayvis', [
 	.service('ExperimentService', ExperimentService)
 	.component('pathwayvis', PathwayVisComponent)
 	.component('pvMap', mapComponent)
-	.component('pvKnockout', KnockoutComponent)
 	.component('pvMapSelector', MapSelectorComponent)
 	.component('pvDataCard', DataCardComponent)
 	.component('pvLegend', LegendComponent)

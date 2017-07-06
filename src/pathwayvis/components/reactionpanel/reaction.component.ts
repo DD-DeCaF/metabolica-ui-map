@@ -3,19 +3,38 @@ import * as template from "./reaction.component.html";
 import * as angular from "angular";
 import {MapOptionService} from "../../services/mapoption.service";
 import {AddedReaction, BiggReaction} from "../../types";
-import {WSService} from "../../services/ws";
+import {ActionsService} from "../../services/actions/actions.service";
 
 
 class ReactionComponentCtrl{
     public searchText: string;
 
-    private ws: WSService;
     private $http: angular.IHttpService;
     private mapOptions: MapOptionService;
-    constructor($http: angular.IHttpService, MapOptions: MapOptionService, ws: WSService){
+    private $scope: angular.IScope;
+    private actions: ActionsService;
+    constructor($http: angular.IHttpService,
+                MapOptions: MapOptionService,
+                $scope: angular.IScope,
+                actions: ActionsService){
         this.$http = $http;
         this.mapOptions = MapOptions;
-        this.ws = ws;
+        this.$scope = $scope;
+        this.actions = actions;
+    }
+
+    public getRemovedReactions(): string[]{
+        return this.mapOptions.getRemovedReactions();
+    }
+
+    public onUndoClick(selectedReaction: string): void {
+        const undoKnockoutAction = this.actions.getAction('reaction:knockout:undo');
+        this.mapOptions.actionHandler(undoKnockoutAction, selectedReaction).then((response) => {
+            this.mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
+            this.mapOptions.setReactionData(response.fluxes);
+            this.mapOptions.setRemovedReactions(response['removed-reactions']);
+            this.$scope.$apply();
+        });
     }
 
     public querySearch (query : string){
@@ -54,6 +73,7 @@ class ReactionComponentCtrl{
     public onReactionRemoveClick(bigg_id: string){
         this.mapOptions.removeReaction(bigg_id);
     }
+
 }
 
 export const ReactionComponent = {
