@@ -1,25 +1,26 @@
-<md-content class="md-padding">
-	<md-autocomplete
-		md-no-cache="true"
-		md-selected-item="selectedItem"
-		md-search-text="ctrl.searchText"
-		md-items="item in ctrl.querySearch(ctrl.searchText)"
-		md-selected-item-change="ctrl.selectedItemChange(item)"
-		md-item-text="item.name"
-		md-min-length="1"
-		placeholder="Enter the reaction you want to add"
-		md-menu-class="autocomplete-custom-template"
-	>
-		<md-item-template>
-			<span class="item-title"> <b>Name:</b> {{item.name}}</span>
-			<span class="item-metadata" md-highlight-text="ctrl.searchText" md-highlight-flags="^i">{{item.bigg_id}}</span>
-		</md-item-template>
-	</md-autocomplete>
-
-	<section class='added_section'>
+<md-content class="tab-content">
+	<md-card>
+		<md-autocomplete
+			md-no-cache="true"
+			md-selected-item="selectedItem"
+			md-search-text="ctrl.searchText"
+			md-items="item in ctrl.querySearch(ctrl.searchText)"
+			md-selected-item-change="ctrl.selectedItemChange(item)"
+			md-item-text="item.name"
+			md-min-length="1"
+			placeholder="Enter the reaction you want to add"
+			md-menu-class="autocomplete-custom-template"
+		>
+			<md-item-template>
+				<span class="item-title"> <b>Name:</b> {{item.name}}</span>
+				<span class="item-metadata" md-highlight-text="ctrl.searchText" md-highlight-flags="^i">{{item.bigg_id}}</span>
+			</md-item-template>
+		</md-autocomplete>
+	</md-card>
+	<md-card class='added_section'>
 		<md-list>
 			<md-subheader class="md-primary">Added reactions:</md-subheader>
-			<md-list-item ng-hide="ctrl.getAddedReactions().length > 0" >You have no added reactions</md-list-item>
+			<md-list-item ng-hide="ctrl.getAddedReactions().length > 0" >No added reactions</md-list-item>
 			<md-list-item ng-repeat="reaction in ctrl.getAddedReactions()">
 				<span class="md-caption">{{reaction.name}}</span>
 				<md-button class="md-icon-button md-secondary"
@@ -31,12 +32,11 @@
 				</md-button>
 			</md-list-item>
 		</md-list>
-	</section>
-
-	<section>
+	</md-card>
+	<md-card>
 		<md-subheader class="md-primary">Removed reactions:</md-subheader>
 		<md-list>
-			<md-list-item ng-hide="ctrl.getRemovedReactions().length > 0">You have no knocked out reactions</md-list-item>
+			<md-list-item ng-hide="ctrl.getRemovedReactions().length > 0">No knocked out reactions</md-list-item>
 			<md-list-item ng-repeat="reaction in ctrl.getRemovedReactions()">
 				<span class="md-caption">{{reaction}}</span>
 				<md-button class="md-icon-button md-secondary"
@@ -48,5 +48,5 @@
 				</md-button>
 			</md-list-item>
 		</md-list>
-	</section>
+	</md-card>
 </md-content>
