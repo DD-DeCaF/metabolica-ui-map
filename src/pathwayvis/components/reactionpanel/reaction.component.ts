@@ -60,7 +60,7 @@ class ReactionComponentCtrl{
                             reaction.metanetx_id = metanetx['id'];
                         }
                     }
-                    self.mapOptions.addReaction(reaction);
+                    self.updateMapData(self.mapOptions.addReaction(reaction));
                 });
             this.searchText = "";
         }
@@ -71,7 +71,17 @@ class ReactionComponentCtrl{
     }
 
     public onReactionRemoveClick(bigg_id: string){
-        this.mapOptions.removeReaction(bigg_id);
+        this.updateMapData(this.mapOptions.removeReaction(bigg_id));
+    }
+
+    private updateMapData(promise): void{
+        promise.then((response)=>{
+            console.log(response);
+            this.mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
+            this.mapOptions.setReactionData(response.fluxes);
+            this.mapOptions.setRemovedReactions(response['removed-reactions']);
+            this.$scope.$apply();
+        })
     }
 
 }

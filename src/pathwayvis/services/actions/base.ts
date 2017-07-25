@@ -23,13 +23,12 @@ export abstract class ReactionAction extends Action {
         this.shared.addedReactions.forEach((item)=>{
             addedReactions.push(item.metanetx_id);
         });
-        console.log(addedReactions);
 
         const data = {
-            'to-return': ['fluxes', 'growth-rate', 'removed-reactions'],
+            'to-return': ['fluxes', 'growth-rate', 'removed-reactions', 'added-reactions'],
             'simulation-method': this.shared.method,
             'reactions-knockout': this.shared.removedReactions,
-            // 'reactions-add': addedReactions
+            'added-reactions': addedReactions
         };
 
         return $timeout(() => {

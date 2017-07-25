@@ -379,13 +379,13 @@ export class MapOptionService {
         return this.getMapData().addedReactions;
     }
 
-    public addReaction(addedReaction: AddedReaction): void{
+    public addReaction(addedReaction: AddedReaction): any{
         let action = this.actions.getAction('reaction:update');
         this.getDataObject().mapData.addedReactions.push(addedReaction);
-        this.actionHandler(action);
+        return this.actionHandler(action);
     }
 
-    public removeReaction(bigg_id: string): void{
+    public removeReaction(bigg_id: string): any{
         let action = this.actions.getAction('reaction:update');
         let mapData = this.getMapData();
         for(let i = 0; i < mapData.addedReactions.length; i++) {
@@ -395,6 +395,6 @@ export class MapOptionService {
                 break;
             }
         }
-        this.actionHandler(action);
+        return this.actionHandler(action);
     }
 }

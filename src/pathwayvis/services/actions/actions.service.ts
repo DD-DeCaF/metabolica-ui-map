@@ -91,5 +91,9 @@ class UndoKnockout extends Knockout {
 @registerAction
 class UpdateReaction extends ReactionAction implements Action{
     public type: string = 'reaction:update';
+
+    public canDisplay(context) {
+        return false;
+    }
 }
 
