@@ -48,12 +48,12 @@ export class MapOptionService {
         this.actions = actions;
         this.methodService = MethodService;
 
-        this.apiService.get('species').then((response: angular.IHttpPromiseCallbackArg<any>) => {
+        this.apiService.get('species/current').then((response: angular.IHttpPromiseCallbackArg<any>) => {
             let species = response.data['response'];
-            for(let item in species){
-                let obj = {'id' : species[item], 'name': item};
-                this.speciesList.push(obj)
-            }
+            Object.keys(species).forEach((key)=>{
+                let obj = {'id' : key, 'name': species[key]};
+                this.speciesList.push(obj);
+            });
 
             // Set selected species
             this.selectedSpecies = this.speciesList[0].id;
