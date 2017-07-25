@@ -8,11 +8,13 @@ import {Experiment} from "../types"
 import {APIService} from "./api";
 
 export class ExperimentService{
+    api: APIService;
 
     private experiments: Experiment[];
 
     constructor(api: APIService){
-        api.get('experiments').then((response: angular.IHttpPromiseCallbackArg<Experiment[]>) => {
+        this.api = api;
+        this.api.get('experiments').then((response: angular.IHttpPromiseCallbackArg<Experiment[]>) => {
             this.experiments = response.data['response'];
         });
     }
@@ -45,5 +47,12 @@ export class ExperimentService{
             });
         }
         return result;
+    }
+
+    public setExperiments(speciesCode: string) {
+        this.api.get('experiments/' + speciesCode)
+            .then((response: angular.IHttpPromiseCallbackArg<Experiment[]>) => {
+                this.experiments = response.data['response'];
+            })
     }
 }

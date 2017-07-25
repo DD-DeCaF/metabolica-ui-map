@@ -60,7 +60,7 @@ class CardControllerComponentCtrl{
     }
 
     public changeSpecies(): void{
-        this.mapOptions.setModelsFromSpecies(this.species);
+        this.mapOptions.speciesChanged(this.species);
     }
 
     public nextMapObject(): void{

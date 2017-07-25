@@ -13,6 +13,7 @@ import {MapDataObject} from "../models/MapDataObject"
 import {DataHandler} from "../models/DataHandler";
 import {MethodService} from "./method.service";
 import {AddedReaction, Experiment, Method, ObjectType, Phase, Sample, Species} from "../types";
+import {ExperimentService} from "./experiment.service";
 
 interface MapSettings {
     map_id: string;
@@ -21,6 +22,7 @@ interface MapSettings {
 }
 
 export class MapOptionService {
+    private experimentService: ExperimentService;
     private methodService: MethodService;
     public shouldUpdateData: boolean;
     public models: string[];
@@ -42,11 +44,13 @@ export class MapOptionService {
 
     constructor(api: APIService, ToastService: ToastService,
                 actions: ActionsService,
-                MethodService: MethodService) {
+                MethodService: MethodService,
+                ExperimentService: ExperimentService) {
         this.apiService = api;
         this.toastService = ToastService;
         this.actions = actions;
         this.methodService = MethodService;
+        this.experimentService = ExperimentService;
 
         this.apiService.get('species/current').then((response: angular.IHttpPromiseCallbackArg<any>) => {
             let species = response.data['response'];
@@ -76,6 +80,13 @@ export class MapOptionService {
 
         this.shouldLoadMap = false;
         this.shouldUpdateData = false;
+
+        this.setExperimentsFromSpecies();
+
+    }
+
+    private setExperimentsFromSpecies(speciesCode = this.selectedSpecies): void {
+        this.experimentService.setExperiments(speciesCode);
     }
 
     public getSelectedSpecies(): string{
@@ -223,6 +234,11 @@ export class MapOptionService {
             }, (error) => {
                 this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected sample.');
             });
+    }
+
+    public speciesChanged(species: string): void{
+        this.setModelsFromSpecies(species);
+        this.setExperimentsFromSpecies(species);
     }
 
     public setModelsFromSpecies(species: string): void{
