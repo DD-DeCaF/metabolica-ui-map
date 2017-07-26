@@ -37,6 +37,8 @@ export class PathwayVisComponentController {
 
         let item = this.$sharing.item('experiment');
         if(item){
+            this.mapOptions.addExpMapObject();
+            this.mapOptions.removeMapObject(0);
             this.mapOptions.setExperiment(item.id);
         }
 
