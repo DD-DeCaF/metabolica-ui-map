@@ -4,6 +4,7 @@ import * as angular from "angular";
 import {MapOptionService} from "../../services/mapoption.service";
 import {AddedReaction, BiggReaction} from "../../types";
 import {ActionsService} from "../../services/actions/actions.service";
+import "jquery";
 
 
 class ReactionComponentCtrl{
