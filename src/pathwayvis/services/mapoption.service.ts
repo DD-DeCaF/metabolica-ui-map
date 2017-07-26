@@ -390,7 +390,6 @@ export class MapOptionService {
         let mapData = this.getMapData();
         for(let i = 0; i < mapData.addedReactions.length; i++) {
             if(mapData.addedReactions[i].bigg_id == bigg_id) {
-                console.log('removed: ', mapData.addedReactions[i].metanetx_id);
                 mapData.addedReactions.splice(i, 1);
                 break;
             }

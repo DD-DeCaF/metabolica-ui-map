@@ -76,7 +76,6 @@ class ReactionComponentCtrl{
 
     private updateMapData(promise): void{
         promise.then((response)=>{
-            console.log(response);
             this.mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
             this.mapOptions.setReactionData(response.fluxes);
             this.mapOptions.setRemovedReactions(response['removed-reactions']);
