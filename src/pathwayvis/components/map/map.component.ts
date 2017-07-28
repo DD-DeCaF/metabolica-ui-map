@@ -1,4 +1,4 @@
-import * as escher from 'escher-vis';
+import * as escher from '@dd-decaf/escher';
 import * as d3_select from 'd3-selection';
 import * as d3 from 'd3';
 import * as _ from 'lodash';
