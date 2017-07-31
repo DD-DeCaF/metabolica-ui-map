@@ -12,40 +12,40 @@ export class PathwayVisComponentController {
   private $scope: angular.IScope;
   private mapOptions: MapOptionService;
 
-    constructor($scope: angular.IScope,
-                $sharing,
-                MapOptions: MapOptionService,
-    ) {
-        this.$sharing = $sharing;
-        this.$scope = $scope;
-        // Init shared scope
-        this.shared = <any> {
-            loading: 0,
-            map: {},
-            model: {},
-            sections: {},
-        };
+  constructor($scope: angular.IScope,
+    $sharing,
+    MapOptions: MapOptionService,
+  ) {
+    this.$sharing = $sharing;
+    this.$scope = $scope;
+    // Init shared scope
+    this.shared = <any>{
+      loading: 0,
+      map: {},
+      model: {},
+      sections: {},
+    };
 
     this.mapOptions = MapOptions;
 
     this.showInfo = false;
   }
 
-    public $onInit() {
-        this.mapOptions.init();
+  public $onInit() {
+    this.mapOptions.init();
 
-        let item = this.$sharing.item('experiment');
-        if (item) {
-            this.mapOptions.addExpMapObject();
-            this.mapOptions.removeMapObject(0);
-            this.mapOptions.setExperiment(item.id);
-        }
-
+    let item = this.$sharing.item('experiment');
+    if (item) {
+      this.mapOptions.addExpMapObject();
+      this.mapOptions.removeMapObject(0);
+      this.mapOptions.setExperiment(item.id);
     }
+
+  }
 }
 
 export const PathwayVisComponent: angular.IComponentOptions = {
-    controller: PathwayVisComponentController,
-    controllerAs: 'ctrl',
-    template: template.toString(),
+  controller: PathwayVisComponentController,
+  controllerAs: 'ctrl',
+  template: template.toString(),
 };

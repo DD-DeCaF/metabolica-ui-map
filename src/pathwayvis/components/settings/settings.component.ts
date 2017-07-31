@@ -4,40 +4,40 @@ import * as angular from 'angular';
 import { MapOptionService } from "../../services/mapoption.service";
 
 class SettingsComponentController {
-    private $interval: angular.IIntervalService;
-    private $mdSidenav: angular.material.ISidenavService;
+  private $interval: angular.IIntervalService;
+  private $mdSidenav: angular.material.ISidenavService;
 
-    public mapOptions: MapOptionService;
-    public animating: boolean = false;
+  public mapOptions: MapOptionService;
+  public animating: boolean = false;
 
-    constructor($mdSidenav: angular.material.ISidenavService,
-        MapOptions: MapOptionService,
-        $interval: angular.IIntervalService,
-    ) {
-        this.mapOptions = MapOptions;
-        this.$mdSidenav = $mdSidenav;
-        this.$interval = $interval;
-    }
+  constructor($mdSidenav: angular.material.ISidenavService,
+    MapOptions: MapOptionService,
+    $interval: angular.IIntervalService,
+  ) {
+    this.mapOptions = MapOptions;
+    this.$mdSidenav = $mdSidenav;
+    this.$interval = $interval;
+  }
 
-    public disableInfo(): boolean {
-        return !this.mapOptions.getMapInfo()['medium'];
-    }
+  public disableInfo(): boolean {
+    return !this.mapOptions.getMapInfo()['medium'];
+  }
 
-    public disableMapSelector(): boolean {
-        return !this.mapOptions.getModel();
-    }
+  public disableMapSelector(): boolean {
+    return !this.mapOptions.getModel();
+  }
 
-    public disableKnockedOutTab(): boolean {
-        return this.mapOptions.getRemovedReactions().length === 0;
-    }
+  public disableKnockedOutTab(): boolean {
+    return this.mapOptions.getRemovedReactions().length === 0;
+  }
 
-    public toggleRight(): void {
-        this.$mdSidenav('right').toggle();
-    }
+  public toggleRight(): void {
+    this.$mdSidenav('right').toggle();
+  }
 }
 
 export const SettingsComponent = {
-    controller: SettingsComponentController,
-    controllerAs: 'ctrl',
-    template: template.toString(),
+  controller: SettingsComponentController,
+  controllerAs: 'ctrl',
+  template: template.toString(),
 };
