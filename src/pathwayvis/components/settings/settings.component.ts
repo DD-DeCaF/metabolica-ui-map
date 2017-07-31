@@ -1,46 +1,39 @@
-/**
- * Created by dandann on 28/03/2017.
- */
-import * as template from './settings.component.html'
+import * as template from './settings.component.html';
 import './settings.component.scss';
 import * as angular from 'angular';
-import {MapOptionService} from "../../services/mapoption.service";
+import { MapOptionService } from "../../services/mapoption.service";
 
-class SettingsComponentController{
+class SettingsComponentController {
     private $interval: angular.IIntervalService;
     private $mdSidenav: angular.material.ISidenavService;
-    private animationPromis: any = null;
 
     public mapOptions: MapOptionService;
     public animating: boolean = false;
 
     constructor($mdSidenav: angular.material.ISidenavService,
-                MapOptions: MapOptionService,
-                $interval: angular.IIntervalService
-    ){
+        MapOptions: MapOptionService,
+        $interval: angular.IIntervalService,
+    ) {
         this.mapOptions = MapOptions;
         this.$mdSidenav = $mdSidenav;
         this.$interval = $interval;
     }
 
-    public disableInfo(): boolean{
+    public disableInfo(): boolean {
         return !this.mapOptions.getMapInfo()['medium'];
-
     }
 
-    public disableMapSelector(): boolean{
+    public disableMapSelector(): boolean {
         return !this.mapOptions.getModel();
     }
 
-    public disableKnockedOutTab(): boolean{
-        return this.mapOptions.getRemovedReactions().length <= 0;
+    public disableKnockedOutTab(): boolean {
+        return this.mapOptions.getRemovedReactions().length === 0;
     }
 
-    public toggleRight(): void{
-        this.$mdSidenav('right').toggle()
+    public toggleRight(): void {
+        this.$mdSidenav('right').toggle();
     }
-
-
 }
 
 export const SettingsComponent = {

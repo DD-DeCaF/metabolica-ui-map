@@ -54,7 +54,7 @@ export class APIService {
             method: method,
             data: data,
             url: api + '/' + reqDetails.path,
-            params: reqDetails.params
+            params: reqDetails.params,
         });
     }
 
@@ -75,8 +75,8 @@ export class APIService {
         });
 
         return {
-            'path': path,
-            'params': params
+            path: path,
+            params: params,
         };
     }
 }

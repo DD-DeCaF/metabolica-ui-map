@@ -1,11 +1,8 @@
-import * as template from './cardcontroller.component.html'
+import * as template from './cardcontroller.component.html';
 import {MapOptionService} from "../../services/mapoption.service";
 import {Species} from "../../types";
-/**
- * Created by dandann on 26/06/2017.
- */
 
-class CardControllerComponentCtrl{
+class CardControllerComponentCtrl {
     private $interval: angular.IIntervalService;
     private animationPromis: any = null;
 
@@ -16,7 +13,7 @@ class CardControllerComponentCtrl{
     constructor(MapOptions: MapOptionService,
                 $interval: angular.IIntervalService,
                 $mdSidenav: angular.material.ISidenavService,
-    ){
+    ) {
         this.mapOptions = MapOptions;
         this.$interval = $interval;
 
@@ -25,64 +22,63 @@ class CardControllerComponentCtrl{
         this.species = this.mapOptions.selectedSpecies;
     }
 
-    public speciesList(): Species[]{
+    public speciesList(): Species[] {
         return this.mapOptions.getSpeciesList();
     }
 
-    public getMapObjectsIds(): number[]{
+    public getMapObjectsIds(): number[] {
         return this.mapOptions.getMapObjectsIds();
     }
 
-    public addExpMapObject(): void{
+    public addExpMapObject(): void {
         this.mapOptions.addExpMapObject();
     }
 
-    public addRefMapObject(): void{
+    public addRefMapObject(): void {
         this.mapOptions.addRefMapObject();
     }
 
-    public playIcon(): string{
-        if(this.animationPromis){
+    public playIcon(): string {
+        if (this.animationPromis) {
             return 'pause';
         }
         return 'play_arrow';
     }
 
-    public toggleAnimation(): void{
-        if(this.animationPromis){
+    public toggleAnimation(): void {
+        if (this.animationPromis) {
             this.animating = false;
             this.$interval.cancel(this.animationPromis);
             this.animationPromis = null;
         } else {
             this.animating = true;
-            this.animationPromis = this.$interval(this.nextMapObject.bind(this), 500)
+            this.animationPromis = this.$interval(this.nextMapObject.bind(this), 500);
         }
     }
 
-    public changeSpecies(): void{
+    public changeSpecies(): void {
         this.mapOptions.speciesChanged(this.species);
     }
 
-    public nextMapObject(): void{
+    public nextMapObject(): void {
         this.mapOptions.nextMapObject();
     }
 
-    public previousMapObject(): void{
+    public previousMapObject(): void {
         this.mapOptions.previousMapObject();
     }
 
-    public disablePlayBtn(): boolean{
+    public disablePlayBtn(): boolean {
         return this.mapOptions.getCollectionSize() <= 1;
     }
 
-    public disableControls(): boolean{
+    public disableControls(): boolean {
         return this.disablePlayBtn() || this.animationPromis;
     }
 
-    public disableForAnimation(): boolean{
+    public disableForAnimation(): boolean {
         return !!this.animationPromis;
     }
-
 }
 
 export const CardControllerComponent = {

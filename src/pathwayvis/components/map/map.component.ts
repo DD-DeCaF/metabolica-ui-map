@@ -17,12 +17,7 @@ import {MapOptionService} from "../../services/mapoption.service";
 import {ObjectType} from "../../types";
 
 
-/**
- * Pathway map component
- */
 class MapComponentCtrl {
-    restore_knockouts: boolean;
-    resetKnockouts: boolean;
     public shared: types.Shared;
     public actions: ActionsService;
     public contextActions: types.Action[];
@@ -35,11 +30,10 @@ class MapComponentCtrl {
     private _ws: WSService;
     private $scope: angular.IScope;
     private toastService: ToastService;
-    private info: Object;
     private _q: any;
     private $window: angular.IWindowService;
 
-    /* @ngInject */
+    // TODO rename to toastSerivce
     constructor ($scope: angular.IScope,
                  api: APIService,
                  actions: ActionsService,
@@ -47,7 +41,7 @@ class MapComponentCtrl {
                  ToastService: ToastService,
                  $q: angular.IQService,
                  MapOptions: MapOptionService,
-                 $window: angular.IWindowService
+                 $window: angular.IWindowService,
     ) {
         this.$window = $window;
         this._api = api;
@@ -62,8 +56,8 @@ class MapComponentCtrl {
 
         $scope.$watch('ctrl._mapOptions.getMapSettings()', () => {
             let settings = this._mapOptions.getMapSettings();
-            if(settings.model_id && settings.map_id){
-                if(this._mapOptions.shouldUpdateData){
+            if (settings.model_id && settings.map_id) {
+                if (this._mapOptions.shouldUpdateData) {
                     this.updateAllMaps();
                     this._mapOptions.dataUpdated();
                 } else {
@@ -72,7 +66,7 @@ class MapComponentCtrl {
                 this._setMap(this._mapOptions.getSelectedMap());
 
                 let builder = this._builder;
-                if (builder){
+                if (builder) {
                     builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
                 }
             }
@@ -85,7 +79,7 @@ class MapComponentCtrl {
                 if (this._mapOptions.getReactionData()) {
                     this._loadData();
                 }
-                if (this._builder){
+                if (this._builder) {
                     this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
                 }
             }
@@ -106,15 +100,15 @@ class MapComponentCtrl {
             let reactionData = this._mapOptions.getReactionData();
             let model = this._mapOptions.getDataModelId();
             if (this._builder) {
-                if(model){
+                if (model) {
                     this._loadModel();
                 }
-                if(reactionData) {
+                if (reactionData) {
                     this._loadData();
                 } else {
-                    let type = this._mapOptions.getType();
-                    if( type == ObjectType.Reference){
-                        this._loadMap(type, this._mapOptions.getDataObject().selected, this._mapOptions.getSelectedId())
+                    const type = this._mapOptions.getType();
+                    if (type === ObjectType.Reference) {
+                        this._loadMap(type, this._mapOptions.getDataObject().selected, this._mapOptions.getSelectedId());
                         reactionData = this._mapOptions.getReactionData();
                     }
                     this._removeOpacity();
@@ -124,10 +118,10 @@ class MapComponentCtrl {
             }
         }, true);
 
-        $scope.$watch('ctrl._mapOptions.getCurrentSelectedItems()',() => {
+        $scope.$watch('ctrl._mapOptions.getCurrentSelectedItems()', () => {
             let selected = this._mapOptions.getCurrentSelectedItems();
             let type = this._mapOptions.getDataObject().type;
-            if(this._mapOptions.shouldLoadMap){
+            if (this._mapOptions.shouldLoadMap) {
                 if ((selected.method !== null) &&
                     (selected.phase !== null) &&
                     (selected.sample !== null) &&
@@ -137,7 +131,7 @@ class MapComponentCtrl {
             }
         }, true);
 
-        $scope.$on('$destroy', function handler() {
+        $scope.$on('$destroy', () => {
             ws.close();
         });
     }
@@ -145,7 +139,7 @@ class MapComponentCtrl {
     private _removeOpacity() {
         let noOpacity = {};
         let reactions = this._builder.map.cobra_model.reactions;
-        Object.keys(reactions).forEach(function(key){
+        Object.keys(reactions).forEach((key) => {
             noOpacity[key] = {'lower_bound': 0, 'upper_bound': 0};
         });
         this._builder.set_reaction_fva_data(noOpacity);
@@ -153,7 +147,7 @@ class MapComponentCtrl {
 
     private mapChanged(): void {
         let mapObject = this._mapOptions.getDataObject();
-        if(mapObject.isComplete()){
+        if (mapObject.isComplete()) {
             this._removeOpacity();
             this._builder.load_model(this._mapOptions.getDataModel());
             this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
@@ -176,29 +170,28 @@ class MapComponentCtrl {
                 this.shared.loading--;
             });
         }
-    };
+    }
 
-    private updateAllMaps(FVAonly: boolean = false){
-        let self = this;
+    private updateAllMaps(FVAonly: boolean = false) {
         let id_list = this._mapOptions.getMapObjectsIds();
-        id_list.forEach(function (id) {
-            let selectedItem = self._mapOptions.getDataObject(id).selected;
-            if (!FVAonly || (FVAonly && (selectedItem.method.id == 'fva' || selectedItem.method.id == 'pfba-fva'))) {
-                self._loadMap(self._mapOptions.getDataObject(id).type,
+        id_list.forEach((id) => {
+            let selectedItem = this._mapOptions.getDataObject(id).selected;
+            if (!FVAonly || (FVAonly && (selectedItem.method.id === 'fva' || selectedItem.method.id === 'pfba-fva'))) {
+                this._loadMap(this._mapOptions.getDataObject(id).type,
                     selectedItem,
                     id);
             }
-        })
+        });
     }
 
-    private updateFVAMaps(){
+    private updateFVAMaps() {
         this.updateAllMaps(true);
     }
 
-    private _loadMap(type: ObjectType, selectedItem: types.SelectedItems, id: number): void{
+    private _loadMap(type: ObjectType, selectedItem: types.SelectedItems, id: number): void {
         let settings = this._mapOptions.getMapSettings();
 
-        if(type == ObjectType.Experiment){
+        if (type === ObjectType.Experiment) {
             let sampleIds = null;
             if (selectedItem.sample) sampleIds = JSON.parse(JSON.stringify(selectedItem.sample.id));
 
@@ -213,12 +206,12 @@ class MapComponentCtrl {
                 'method': selectedItem.method.id,
                 'map': settings.map_id,
                 'withFluxes': true,
-                'modelId': settings.model_id
+                'modelId': settings.model_id,
             });
 
             const infoPromise = this._api.post('samples/info', {
                 'sampleIds': sampleIds,
-                'phaseId': phaseId
+                'phaseId': phaseId,
             });
 
             this.resetKnockouts = true;
@@ -234,17 +227,17 @@ class MapComponentCtrl {
             }, (error) => {
                 this.toastService.showErrorToast('Oops! Sorry, there was a problem with fetching the data.');
                 this.shared.loading--;
-            })
-        } else if (type == ObjectType.Reference){
-            if(settings.model_id){
+            });
+        } else if (type === ObjectType.Reference) {
+            if (settings.model_id) {
                 let url = 'models/' + settings.model_id;
                 let method = this._mapOptions.getDataObject(id).selected.method.id;
                 const modelPromise = this._api.postModel(url, {
-                    "message": {
+                    message: {
                         "to-return": ["fluxes", "model"],
                         "simulation-method": method,
-                        "map": settings.map_id
-                    }
+                        "map": settings.map_id,
+                    },
                 });
                 this.shared.loading++;
                 this._q.all([modelPromise]).then((response: any) => {
@@ -253,7 +246,7 @@ class MapComponentCtrl {
                     this._mapOptions.setReactionData(data.fluxes, id);
 
                     this.shared.loading--;
-                })
+                });
             }
         }
     }
@@ -263,7 +256,7 @@ class MapComponentCtrl {
      */
     public processActionClick(action, data) {
 
-        if (action.type === 'reaction:link'){
+        if (action.type === 'reaction:link') {
             this.$window.open('http://bigg.ucsd.edu/universal/reactions/' + data.bigg_id);
             return;
         }
@@ -296,14 +289,14 @@ class MapComponentCtrl {
                 { type: 'min', color: '#A841D0', size: 20 },
                 { type: 'Q1', color: '#868BB2', size: 20 },
                 { type: 'Q3', color: '#6DBFB0', size: 20 },
-                { type: 'max', color: '#54B151', size: 20 }
+                { type: 'max', color: '#54B151', size: 20 },
             ],
             reaction_no_data_color: '#CBCBCB',
             reaction_no_data_size: 10,
-            reaction_knockout: this._mapOptions.getRemovedReactions()
+            reaction_knockout: this._mapOptions.getRemovedReactions(),
         };
         this._builder = escher.Builder(this._mapOptions.getMap(), null, null, this._mapElement, settings);
-        if (this._mapOptions.getDataModelId() != null){
+        if (this._mapOptions.getDataModelId() != null) {
             this._loadModel();
         }
     }
@@ -322,9 +315,9 @@ class MapComponentCtrl {
         // Check removed and added reactions and genes from model
         const changes = model.notes.changes;
 
-        if (changes && this._mapOptions.getRemovedReactions().length == 0) {
+        if (changes && this._mapOptions.getRemovedReactions().length === 0) {
             // this.shared.removedReactions
-            let reactions = changes.removed.reactions.map(function (reaction: types.Reaction) {
+            let reactions = changes.removed.reactions.map((reaction: types.Reaction) => {
                 return reaction.id;
             });
             this._mapOptions.setRemovedReactions(reactions);
@@ -387,7 +380,7 @@ class MapComponentCtrl {
                 this.contextActions = this.actions.getList({
                     type: 'map:reaction',
                     shared: this._mapOptions.getMapData(),
-                    element: this.contextElement
+                    element: this.contextElement,
                 });
 
                 if (this.contextElement) {
@@ -412,7 +405,7 @@ class MapComponentCtrl {
         this.$scope.$apply();
     }
 
-    public showLegend(): boolean{
+    public showLegend(): boolean {
         return !!this._mapOptions.getReactionData();
     }
 }
@@ -422,6 +415,6 @@ export const mapComponent = {
     controllerAs: 'ctrl',
     template: template.toString(),
     bindings: {
-        shared: '='
-    }
+        shared: '=',
+    },
 };

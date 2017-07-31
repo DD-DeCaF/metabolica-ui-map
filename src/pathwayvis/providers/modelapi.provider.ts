@@ -1,7 +1,7 @@
 export class ModelAPIProvider {
-    host = 'https://api-staging.dd-decaf.eu';
+    private host = 'https://api-staging.dd-decaf.eu';
 
-    $get() {
+    public $get() {
         return this.host;
     }
 }

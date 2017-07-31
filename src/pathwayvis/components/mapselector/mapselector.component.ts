@@ -1,11 +1,6 @@
-import {APIService} from "../../services/api";
 import * as template from "./mapselector.component.html";
-import * as types from '../../types';
-import {MapOptionService} from "../../services/mapoption.service";
-import {MapService} from "../../services/map.service";
-/**
- * Created by dandann on 15/03/2017.
- */
+import { MapOptionService } from "../../services/mapoption.service";
+import { MapService } from "../../services/map.service";
 
 
 class MapSelectorComponentCtrl {
@@ -16,7 +11,8 @@ class MapSelectorComponentCtrl {
     private mapOptions: MapOptionService;
     private mapService: MapService;
 
-    constructor (MapService: MapService, $scope: angular.IScope, MapOptions: MapOptionService){
+    // TODO rename to mapService
+    constructor(MapService: MapService, $scope: angular.IScope, MapOptions: MapOptionService) {
         this.mapService = MapService;
         this.mapOptions = MapOptions;
 
@@ -29,24 +25,24 @@ class MapSelectorComponentCtrl {
         }, true);
     }
 
-    public setMap(map: string): void{
+    public setMap(map: string): void {
         this.mapOptions.setSelectedMap(map);
     }
 
-    public getModels(): string[]{
+    public getModels(): string[] {
         return this.mapOptions.getModels();
     }
 
-    public changeModel(): void{
+    public changeModel(): void {
         this.mapOptions.setModel(this.model);
     }
 
-    public setMapsFromModel(model): void{
-        if(model){
+    public setMapsFromModel(model): void {
+        // TODO flatten logic
+        if (model) {
             let map_id = this.mapOptions.getSelectedMap();
             this.maps = this.mapService.getMapsFromModel(model);
-            if (!this.mapService.usableMap(map_id, model))
-            {
+            if (!this.mapService.usableMap(map_id, model)) {
                 this.mapOptions.setSelectedMap(this.maps[0]);
             }
         }
@@ -59,4 +55,4 @@ export const MapSelectorComponent = {
     controllerAs: 'ctrl',
     template: template.toString(),
 
-}
+};
