@@ -37,15 +37,15 @@ export class MapOptionService {
   private actions: ActionsService;
 
   // TODO rename services to lowercase
-  constructor(api: APIService, ToastService: ToastService,
+  constructor(api: APIService, toastService: ToastService,
     actions: ActionsService,
-    MethodService: MethodService,
-    ExperimentService: ExperimentService) {
+    methodService: MethodService,
+    experimentService: ExperimentService) {
     this.apiService = api;
-    this.toastService = ToastService;
+    this.toastService = toastService;
     this.actions = actions;
-    this.methodService = MethodService;
-    this.experimentService = ExperimentService;
+    this.methodService = methodService;
+    this.experimentService = experimentService;
 
     this.apiService.get('species/current').then((response: angular.IHttpPromiseCallbackArg<any>) => {
       let species = response.data['response'];

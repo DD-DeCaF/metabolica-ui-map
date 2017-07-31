@@ -31,16 +31,16 @@ class DataCardComponentCtrl {
   private toastService;
   private experimentService: ExperimentService;
 
-  constructor(ToastService: ToastService,
-    MapOptions: MapOptionService,
-    MethodService: MethodService,
-    ExperimentService: ExperimentService) {
-    this.mapOptions = MapOptions;
-    this.toastService = ToastService;
-    this.methodService = MethodService;
-    this.experimentService = ExperimentService;
+  constructor(toastService: ToastService,
+    mapOptions: MapOptionService,
+    methodService: MethodService,
+    experimentService: ExperimentService) {
+    this.mapOptions = mapOptions;
+    this.toastService = toastService;
+    this.methodService = methodService;
+    this.experimentService = experimentService;
 
-    this.selected.method = MethodService.defaultMethod().id;
+    this.selected.method = methodService.defaultMethod().id;
 
     if (this.mapOptions.getExperiment()) {
       this.selected.experiment = this.mapOptions.getExperiment().id;

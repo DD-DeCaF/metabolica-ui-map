@@ -38,18 +38,18 @@ class MapComponentCtrl {
     api: APIService,
     actions: ActionsService,
     ws: WSService,
-    ToastService: ToastService,
+    toastService: ToastService,
     $q: angular.IQService,
-    MapOptions: MapOptionService,
+    mapOptions: MapOptionService,
     $window: angular.IWindowService,
   ) {
     this.$window = $window;
     this._api = api;
     this._ws = ws;
     this._mapElement = d3.select('.map-container');
-    this.toastService = ToastService;
+    this.toastService = toastService;
     this._q = $q;
-    this._mapOptions = MapOptions;
+    this._mapOptions = mapOptions;
 
     this.actions = actions;
     this.$scope = $scope;

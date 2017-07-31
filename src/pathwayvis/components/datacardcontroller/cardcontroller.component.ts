@@ -10,11 +10,11 @@ class CardControllerComponentCtrl {
   public animating: boolean = false;
   public species: string;
 
-  constructor(MapOptions: MapOptionService,
+  constructor(mapOptions: MapOptionService,
     $interval: angular.IIntervalService,
     $mdSidenav: angular.material.ISidenavService,
   ) {
-    this.mapOptions = MapOptions;
+    this.mapOptions = mapOptions;
     this.$interval = $interval;
 
     $mdSidenav('right').open();

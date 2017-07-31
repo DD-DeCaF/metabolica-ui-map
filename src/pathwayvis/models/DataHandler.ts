@@ -7,8 +7,8 @@ export class DataHandler {
   private dataObjects: MapDataObject[];
   private methodService: MethodService;
 
-  constructor(MethodService: MethodService) {
-    this.methodService = MethodService;
+  constructor(methodService: MethodService) {
+    this.methodService = methodService;
     this.dataObjects = [];
     this.ids = [];
   }
@@ -27,7 +27,7 @@ export class DataHandler {
       'method': this.methodService.defaultMethod(),
     };
 
-    let mapData = <any>{
+    let mapData = <any> {
       map: {},
       model: {},
       sections: {},

@@ -37,9 +37,9 @@ export class WSService {
   public onerror: (ev: ErrorEvent) => void = (event: ErrorEvent) => {/* no-empty*/};
 
   // TODO rename to lowercase toestService
-  constructor($q: angular.IQService, ToastService: ToastService, modelWS: ModelWSProvider) {
+  constructor($q: angular.IQService, toastService: ToastService, modelWS: ModelWSProvider) {
     this._q = $q;
-    this.toastService = ToastService;
+    this.toastService = toastService;
     this.modelWS = modelWS;
   }
 

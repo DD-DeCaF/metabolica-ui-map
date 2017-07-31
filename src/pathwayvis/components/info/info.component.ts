@@ -2,15 +2,11 @@ import './info.component.scss';
 import * as template from './info.component.html';
 import { MapOptionService } from "../../services/mapoption.service";
 
-/**
- * sidebar component
- */
 class InfoComponentCtrl {
   private _mapOptions: MapOptionService;
 
-  /* @ngInject */
-  constructor(MapOptions: MapOptionService) {
-    this._mapOptions = MapOptions;
+  constructor(mapOptions: MapOptionService) {
+    this._mapOptions = mapOptions;
   }
 
   public getGenotypeChanges(): string[] {

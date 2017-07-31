@@ -11,13 +11,12 @@ class MapSelectorComponentCtrl {
   private mapOptions: MapOptionService;
   private mapService: MapService;
 
-  // TODO rename to mapService
-  constructor(MapService: MapService, $scope: angular.IScope, MapOptions: MapOptionService) {
-    this.mapService = MapService;
-    this.mapOptions = MapOptions;
+  constructor(mapService: MapService, $scope: angular.IScope, mapOptions: MapOptionService) {
+    this.mapService = mapService;
+    this.mapOptions = mapOptions;
 
-    this._selectedMap = MapOptions.getSelectedMap();
-    this.allMaps = MapService.getAllMaps();
+    this._selectedMap = mapOptions.getSelectedMap();
+    this.allMaps = mapService.getAllMaps();
 
     $scope.$watch('ctrl.mapOptions.getModel()', () => {
       this.model = this.mapOptions.getModel();

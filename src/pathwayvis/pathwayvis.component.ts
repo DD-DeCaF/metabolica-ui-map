@@ -14,19 +14,19 @@ export class PathwayVisComponentController {
 
   constructor($scope: angular.IScope,
     $sharing,
-    MapOptions: MapOptionService,
+    mapOptions: MapOptionService,
   ) {
     this.$sharing = $sharing;
     this.$scope = $scope;
     // Init shared scope
-    this.shared = <any>{
+    this.shared = <any> {
       loading: 0,
       map: {},
       model: {},
       sections: {},
     };
 
-    this.mapOptions = MapOptions;
+    this.mapOptions = mapOptions;
 
     this.showInfo = false;
   }

@@ -20,11 +20,11 @@ class ReactionComponentCtrl {
   private $scope: angular.IScope;
   private actions: ActionsService;
   constructor($http: angular.IHttpService,
-    MapOptions: MapOptionService,
+    mapOptions: MapOptionService,
     $scope: angular.IScope,
     actions: ActionsService) {
     this.$http = $http;
-    this.mapOptions = MapOptions;
+    this.mapOptions = mapOptions;
     this.$scope = $scope;
     this.actions = actions;
   }

@@ -11,10 +11,10 @@ class SettingsComponentController {
   public animating: boolean = false;
 
   constructor($mdSidenav: angular.material.ISidenavService,
-    MapOptions: MapOptionService,
+    mapOptions: MapOptionService,
     $interval: angular.IIntervalService,
   ) {
-    this.mapOptions = MapOptions;
+    this.mapOptions = mapOptions;
     this.$mdSidenav = $mdSidenav;
     this.$interval = $interval;
   }
