@@ -18,7 +18,8 @@
     "build": "webpack",
     "start": "webpack-dev-server",
     "test": "./node_modules/.bin/karma start --browsers=ChromeHeadless",
-    "test-ui": "./node_modules/.bin/karma start --browsers=Chrome"
+    "test-ui": "./node_modules/.bin/karma start --browsers=Chrome",
+    "tslint": "./node_modules/.bin/tslint --project '.' --fix"
   },
   "devDependencies": {
     "@types/angular": "^1.6.7",

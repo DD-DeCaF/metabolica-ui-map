@@ -67,7 +67,7 @@ export class MapOptionService {
     this.dataHandler = new DataHandler(this.methodService);
     this.selectedCardId = this.dataHandler.addObject(ObjectType.Reference);
 
-    this.mapSettings = <any> {
+    this.mapSettings = <MapSettings> {
       map_id: 'Central metabolism',
       model_id: null,
       map: {},
@@ -144,12 +144,8 @@ export class MapOptionService {
     return null;
   }
 
-  public getMapInfo(): object {
-    let info = this.getDataObject().mapData.info;
-    if (info) {
-      return info;
-    }
-    return null;
+  public getMapInfo(): types.MapInfo {
+    return this.getDataObject().mapData.info;
   }
 
   public setMapInfo(info: object, id: number = this.selectedCardId) {
@@ -175,7 +171,7 @@ export class MapOptionService {
     }
   }
 
-
+  // @matyasfodor no check for undefined
   public setMethodId(method: Method): void {
     this.shouldLoadMap = true;
     this.getDataObject().selected.method = method;
@@ -304,9 +300,10 @@ export class MapOptionService {
   }
 
   public actionHandler(action, id = null): any {
+    // The logic of the actions is handled here
     // @matyasfodor figure out why is this needed?
     // Perhaps a deepcopy?
-    let shared = JSON.parse(JSON.stringify(this.getMapData()));
+    const shared = JSON.parse(JSON.stringify(this.getMapData()));
 
     if (id) {
       if (action.type === 'reaction:knockout:do') {
@@ -377,7 +374,7 @@ export class MapOptionService {
   }
 
   public addReaction(addedReaction: AddedReaction): any {
-    let action = this.actions.getAction('reaction:update');
+    const action = this.actions.getAction('reaction:update');
     this.getDataObject().mapData.addedReactions.push(addedReaction);
     return this.actionHandler(action);
   }

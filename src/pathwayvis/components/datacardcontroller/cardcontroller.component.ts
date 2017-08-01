@@ -4,7 +4,7 @@ import { Species } from "../../types";
 
 class CardControllerComponentCtrl {
   private $interval: angular.IIntervalService;
-  private animationPromis: any = null;
+  private animationPromise: any = null;
 
   public mapOptions: MapOptionService;
   public animating: boolean = false;
@@ -39,20 +39,17 @@ class CardControllerComponentCtrl {
   }
 
   public playIcon(): string {
-    if (this.animationPromis) {
-      return 'pause';
-    }
-    return 'play_arrow';
+    return this.animationPromise ? 'pause' : 'play_arrow';
   }
 
   public toggleAnimation(): void {
-    if (this.animationPromis) {
+    if (this.animationPromise) {
       this.animating = false;
-      this.$interval.cancel(this.animationPromis);
-      this.animationPromis = null;
+      this.$interval.cancel(this.animationPromise);
+      this.animationPromise = null;
     } else {
       this.animating = true;
-      this.animationPromis = this.$interval(this.nextMapObject.bind(this), 500);
+      this.animationPromise = this.$interval(this.nextMapObject.bind(this), 500);
     }
   }
 
@@ -73,11 +70,11 @@ class CardControllerComponentCtrl {
   }
 
   public disableControls(): boolean {
-    return this.disablePlayBtn() || this.animationPromis;
+    return this.disablePlayBtn() || this.animationPromise;
   }
 
   public disableForAnimation(): boolean {
-    return !!this.animationPromis;
+    return !!this.animationPromise;
   }
 }
 

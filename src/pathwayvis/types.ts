@@ -35,6 +35,23 @@ export interface Shared {
   loading?: number;
 }
 
+export interface Measurement {
+  name: string;
+  measurements: string[];
+  unit: number;
+}
+
+export interface Medium {
+  name: string;
+  concentration: number;
+}
+
+export interface MapInfo {
+  genotypeChanges?: string[];
+  measurements?: Measurement[];
+  medium?: Medium[];
+}
+
 export interface MapData {
   map?: Map;
   model?: Model;
@@ -42,7 +59,7 @@ export interface MapData {
   method?: string;
   removedReactions?: string[];
   addedReactions?: AddedReaction[];
-  info?: object;
+  info?: MapInfo;
   selected?: SelectedItems;
 }
 

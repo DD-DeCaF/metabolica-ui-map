@@ -1,62 +1,43 @@
 <md-card name="loadData" novalidate layout="column">
-	<md-toolbar ng-class="{'md-primary': ctrl.isActiveObject(), 'md-accent': !ctrl.isActiveObject()}"
-				ng-click="ctrl.setActiveObject()">
-		<div class="md-toolbar-tools" layout="row" layout-align="start center">
-			<span class="md-caption" ng-dblclick="ctrl.startEditing()" ng-hide="ctrl.editing">{{ctrl.getName()}}</span>
-			<form ng-submit="ctrl.stopEditing()">
-				<input ng-show="ctrl.editing" class="md-caption" ng-model="ctrl.name" ng-blur="ctrl.stopEditing()" show-focus="ctrl.editing">
-			</form>
-			<md-button class="md-icon-button"
-					   style="right: 0; margin-left: auto"
-					   ng-click="ctrl.remove()"
-					   ng-hide="ctrl.hideRemoveBtn()"
-			>
-				<md-icon md-font-icon="remove">remove_circle_outline</md-icon>
-			</md-button>
-		</div>
-	</md-toolbar>
-		<md-content layout="column" layout-padding ng-hide="!ctrl.isActiveObject() || ctrl.animating">
-			<md-input-container>
-				<label>Method</label>
-				<md-select name="method"
-						   ng-model="ctrl.selected.method"
-						   ng-change="ctrl.changeMethod()">
-					<md-option ng-repeat="method in ctrl.getMethods()" value="{{method.id}}">{{method.name}}</md-option>
-				</md-select>
-			</md-input-container>
+  <md-toolbar ng-class="{'md-primary': ctrl.isActiveObject(), 'md-accent': !ctrl.isActiveObject()}" ng-click="ctrl.setActiveObject()">
+    <div class="md-toolbar-tools" layout="row" layout-align="start center">
+      <span class="md-caption" ng-dblclick="ctrl.startEditing()" ng-hide="ctrl.editing">{{ctrl.getName()}}</span>
+      <form ng-submit="ctrl.stopEditing()">
+        <input ng-show="ctrl.editing" class="md-caption" ng-model="ctrl.name" ng-blur="ctrl.stopEditing()" show-focus="ctrl.editing">
+      </form>
+      <md-button class="md-icon-button" style="right: 0; margin-left: auto" ng-click="ctrl.remove()" ng-hide="ctrl.hideRemoveBtn()">
+        <md-icon md-font-icon="remove">remove_circle_outline</md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+  <md-content layout="column" layout-padding ng-hide="!ctrl.isActiveObject() || ctrl.animating">
+    <md-input-container>
+      <label>Method</label>
+      <md-select name="method" ng-model="ctrl.selected.method" ng-change="ctrl.changeMethod()">
+        <md-option ng-repeat="method in ctrl.getMethods()" value="{{method.id}}">{{method.name}}</md-option>
+      </md-select>
+    </md-input-container>
 
-			<!--<div ng-if="ctrl.isExp()">-->
-				<md-input-container ng-hide="ctrl.isRef()">
-					<label>Experiment</label>
-					<md-select name="experiment"
-							   ng-model="ctrl.selected.experiment"
-							   ng-change="ctrl.changeExperiment()"
-							   ng-disabled="!ctrl.getExperiments() || ctrl.mapOptions.experiments.length === 0"
-					>
-						<md-option ng-repeat="experiment in ctrl.getExperiments()" value="{{experiment.id}}">{{experiment.name}}</md-option>
-					</md-select>
-				</md-input-container>
+    <md-input-container ng-hide="ctrl.isRef()">
+      <label>Experiment</label>
+      <md-select name="experiment" ng-model="ctrl.selected.experiment" ng-change="ctrl.changeExperiment()" ng-disabled="!ctrl.getExperiments() || ctrl.mapOptions.experiments.length === 0">
+        <md-option ng-repeat="experiment in ctrl.getExperiments()" value="{{experiment.id}}">{{experiment.name}}</md-option>
+      </md-select>
+    </md-input-container>
 
-				<md-input-container ng-hide="ctrl.isRef()">
-					<label>Sample</label>
-					<md-select name="samples"
-							   ng-model="ctrl.selected.sample"
-							   ng-change="ctrl.changeSample()"
-							   ng-disabled="!ctrl.samples || ctrl.samples.length === 0">
-						<md-option ng-repeat="sample in ctrl.samples" value="{{sample.id}}">{{sample.name}}</md-option>
-					</md-select>
-				</md-input-container>
+    <md-input-container ng-hide="ctrl.isRef()">
+      <label>Sample</label>
+      <md-select name="samples" ng-model="ctrl.selected.sample" ng-change="ctrl.changeSample()" ng-disabled="!ctrl.samples || ctrl.samples.length === 0">
+        <md-option ng-repeat="sample in ctrl.samples" value="{{sample.id}}">{{sample.name}}</md-option>
+      </md-select>
+    </md-input-container>
 
 
-				<md-input-container ng-hide="ctrl.isRef()">
-					<label>Phase</label>
-					<md-select name="phase"
-							   ng-model="ctrl.selected.phase"
-							   ng-change="ctrl.changePhase()"
-							   ng-disabled="!ctrl.phases || ctrl.phases.length === 0">
-						<md-option ng-repeat="phase in ctrl.phases" value="{{phase.id}}">{{phase.name}}</md-option>
-					</md-select>
-				</md-input-container>
-			<!--</div>-->
-		</md-content>
+    <md-input-container ng-hide="ctrl.isRef()">
+      <label>Phase</label>
+      <md-select name="phase" ng-model="ctrl.selected.phase" ng-change="ctrl.changePhase()" ng-disabled="!ctrl.phases || ctrl.phases.length === 0">
+        <md-option ng-repeat="phase in ctrl.phases" value="{{phase.id}}">{{phase.name}}</md-option>
+      </md-select>
+    </md-input-container>
+  </md-content>
 </md-card>

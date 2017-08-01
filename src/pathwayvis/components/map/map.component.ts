@@ -23,6 +23,7 @@ class MapComponentCtrl {
   public contextActions: types.Action[];
   public contextElement: Object;
 
+  private resetKnockouts: boolean;
   private _mapOptions: MapOptionService;
   private _mapElement: d3.Selection<any>;
   private _builder: any;
@@ -33,7 +34,6 @@ class MapComponentCtrl {
   private _q: any;
   private $window: angular.IWindowService;
 
-  // TODO rename to toastSerivce
   constructor($scope: angular.IScope,
     api: APIService,
     actions: ActionsService,
@@ -193,6 +193,7 @@ class MapComponentCtrl {
 
     if (type === ObjectType.Experiment) {
       let sampleIds = null;
+      // @matyasfodor why?
       if (selectedItem.sample) sampleIds = JSON.parse(JSON.stringify(selectedItem.sample.id));
 
       let phaseId = null;

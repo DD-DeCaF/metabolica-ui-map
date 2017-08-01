@@ -53,9 +53,6 @@ export class ActionsService {
   }
 }
 
-/**
- * Knockout reaction
- */
 @registerAction
 // tslint:disable-next-line
 class Knockout extends ReactionAction implements Action {
@@ -70,9 +67,6 @@ class Knockout extends ReactionAction implements Action {
   }
 }
 
-/**
- * Undo knockout reaction
- */
 @registerAction
 // tslint:disable-next-line
 class UndoKnockout extends Knockout {
@@ -89,6 +83,7 @@ class UndoKnockout extends Knockout {
   }
 }
 
+// @matyasfodor This reaction is registered althoguh useless (it's never displayed)
 @registerAction
 // tslint:disable-next-line
 class UpdateReaction extends ReactionAction implements Action {

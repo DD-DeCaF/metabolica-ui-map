@@ -36,7 +36,7 @@ class ReactionComponentCtrl {
   public onUndoClick(selectedReaction: string): void {
     const undoKnockoutAction = this.actions.getAction('reaction:knockout:undo');
     this.mapOptions.actionHandler(undoKnockoutAction, selectedReaction)
-      .then(this.updateMapData);
+      .then(this.updateMapData.bind(this));
   }
 
   public querySearch(query: string) {
@@ -49,20 +49,20 @@ class ReactionComponentCtrl {
 
   public selectedItemChange(item: BiggReaction) {
     if (item) {
-      let url = `${BiggAPIBase}${item.model_bigg_id.toLowerCase()}/reactions/${item.bigg_id}`;
+      const url = `${BiggAPIBase}${item.model_bigg_id.toLowerCase()}/reactions/${item.bigg_id}`;
       $.getJSON(url)
         .then((response) => {
           let reaction = <AddedReaction> item;
-          reaction.reaction_string = response['reaction_string'];
+          reaction.reaction_string = response.reaction_string;
 
-          const db_links = response['database_links'];
+          const db_links = response.database_links;
           if (db_links) {
             const metanetx = db_links['MetaNetX (MNX) Equation'][0];
             if (metanetx) {
-              reaction.metanetx_id = metanetx['id'];
+              reaction.metanetx_id = metanetx.id;
             }
           }
-          this.mapOptions.addReaction(reaction).then(this.updateMapData);
+          this.mapOptions.addReaction(reaction).then(this.updateMapData.bind(this));
         });
       this.searchText = "";
     }
@@ -73,7 +73,7 @@ class ReactionComponentCtrl {
   }
 
   public onReactionRemoveClick(bigg_id: string) {
-    this.mapOptions.removeReaction(bigg_id).then(this.updateMapData);
+    this.mapOptions.removeReaction(bigg_id).then(this.updateMapData.bind(this));
   }
 
   private updateMapData(response) {

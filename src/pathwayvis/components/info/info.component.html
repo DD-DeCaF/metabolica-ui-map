@@ -1,40 +1,40 @@
 <md-content class="tab-content">
-	<md-card ng-show="ctrl.showGenotypeChanges()">
-		<md-subheader class="md-primary">Genotype changes</md-subheader>
-		<md-list layout-padding>
-			<md-list-item ng-repeat="change in ctrl.getGenotypeChanges()">
-								<span class="md-caption" id="genotype"> {{ change | limitTo : 30 }}...
-									<md-tooltip md-direction="right">{{ change }}</md-tooltip>
-								</span>
-			</md-list-item>
-		</md-list>
-	</md-card>
+  <md-card ng-show="ctrl.showGenotypeChanges()">
+    <md-subheader class="md-primary">Genotype changes</md-subheader>
+    <md-list layout-padding>
+      <md-list-item ng-repeat="change in ctrl.getGenotypeChanges()">
+        <span class="md-caption" id="genotype"> {{ change | limitTo : 30 }}...
+                  <md-tooltip md-direction="right">{{ change }}</md-tooltip>
+                </span>
+      </md-list-item>
+    </md-list>
+  </md-card>
 
-	<md-card>
-		<md-subheader class="md-primary">Measurements</md-subheader>
-		<md-table-container>
-			<table md-table>
-				<tbody md-body>
-					<tr md-row ng-repeat="change in ctrl.getMeasurements()">
-						<td md-cell>{{ change["name"] }}</td>
-						<td md-cell>{{ change["measurements"].join(', ') }} {{change["unit"]}}/gh<sup>-1</sup></td>
-					</tr>
-				</tbody>
-			</table>
-		</md-table-container>
-	</md-card>
+  <md-card>
+    <md-subheader class="md-primary">Measurements</md-subheader>
+    <md-table-container>
+      <table md-table>
+        <tbody md-body>
+          <tr md-row ng-repeat="change in ctrl.getMeasurements()">
+            <td md-cell>{{ change["name"] }}</td>
+            <td md-cell>{{ change["measurements"].join(', ') }} {{change["unit"]}}/gh<sup>-1</sup></td>
+          </tr>
+        </tbody>
+      </table>
+    </md-table-container>
+  </md-card>
 
-	<md-card>
-		<md-subheader class="md-primary">Medium</md-subheader>
-		<md-table-container>
-			<table md-table>
-				<tbody md-body>
-				<tr md-row ng-repeat="change in ctrl.getMedium()">
-					<td md-cell>{{ change["name"] }}</td>
-					<td md-cell>{{ change["concentration"] }}</td>
-				</tr>
-				</tbody>
-			</table>
-		</md-table-container>
-	</md-card>
+  <md-card>
+    <md-subheader class="md-primary">Medium</md-subheader>
+    <md-table-container>
+      <table md-table>
+        <tbody md-body>
+          <tr md-row ng-repeat="change in ctrl.getMedium()">
+            <td md-cell>{{ change["name"] }}</td>
+            <td md-cell>{{ change["concentration"] }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </md-table-container>
+  </md-card>
 </md-content>

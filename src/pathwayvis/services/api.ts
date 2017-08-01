@@ -53,11 +53,13 @@ export class APIService {
     return this._http({
       method: method,
       data: data,
-      url: api + '/' + reqDetails.path,
+      url: `${api}/${reqDetails.path}`,
       params: reqDetails.params,
     });
   }
 
+  // @matyasfodor Impossible to parse
+  // There's probably a library which does this
   private _parseUrlParams(path: string): string[] {
     return _.compact(_.map(path.split(/\W/), (param) => {
       if (!(new RegExp('^\\d+$').test(param)) && param && (new RegExp('(^|[^\\\\]):' + param + '(\\W|$)').test(path))) {
@@ -71,6 +73,7 @@ export class APIService {
 
     _.each(urlParamKeys, (key) => {
       path = path.replace(':' + key, params[key]);
+      // @matyasfodor This mutates the input
       delete params[key];
     });
 

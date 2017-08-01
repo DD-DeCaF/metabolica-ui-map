@@ -1,3 +1,4 @@
+import * as types from '../../types';
 import * as template from './settings.component.html';
 import './settings.component.scss';
 import * as angular from 'angular';
@@ -20,15 +21,12 @@ class SettingsComponentController {
   }
 
   public disableInfo(): boolean {
-    return !this.mapOptions.getMapInfo()['medium'];
+    const mapInfo: types.MapInfo = this.mapOptions.getMapInfo();
+    return !(mapInfo && mapInfo.medium);
   }
 
   public disableMapSelector(): boolean {
     return !this.mapOptions.getModel();
-  }
-
-  public disableKnockedOutTab(): boolean {
-    return this.mapOptions.getRemovedReactions().length === 0;
   }
 
   public toggleRight(): void {

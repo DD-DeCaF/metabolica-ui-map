@@ -1,4 +1,5 @@
 import angular from 'angular';
+import { AppModule } from 'metabolica';
 import { APIService } from './services/api';
 import { WSService } from './services/ws';
 import { ToastService } from './services/toastservice'
@@ -22,7 +23,10 @@ import { CardControllerComponent } from './components/datacardcontroller/cardcon
 import { ReactionComponent } from './components/reactionpanel/reaction.component'
 
 export const PathwayVisModule = angular.module('pathwayvis', [
-  require('angular-material-data-table')
+  require('angular-material-data-table'),
+  'ngMaterial',
+  'ui.router',
+  AppModule.name,
 ])
   .provider('decafAPI', DecafAPIProvider)
   .provider('modelAPI', ModelAPIProvider)

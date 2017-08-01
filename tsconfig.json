@@ -3,7 +3,7 @@
 		"module": "es6",
 		"target": "es5",
 		"moduleResolution": "node",
-		"lib": ["dom", "es2015", "es2016"],
+		"lib": ["es2017.object", "dom", "es2015", "es2016"],
 		"experimentalDecorators": true,
 		"sourceMap": true,
 		"emitDecoratorMetadata": true,
@@ -19,6 +19,7 @@
 	"angularCompilerOptions": {
 		"debug": false
 	},
+	"experimentalDecorators": true,
 	"compileOnSave": false,
 	"buildOnSave": false,
 	"atom": {

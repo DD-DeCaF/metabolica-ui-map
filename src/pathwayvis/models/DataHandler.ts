@@ -2,6 +2,7 @@ import { MapDataObject } from "./MapDataObject";
 import { MethodService } from "../services/method.service";
 import { ObjectType } from "../types";
 
+
 export class DataHandler {
   private ids: number[];
   private dataObjects: MapDataObject[];
@@ -56,25 +57,12 @@ export class DataHandler {
 
   public nextMapObject(selectedId: number): number {
     let index = this.ids.indexOf(selectedId) + 1;
-    let activeId = 0;
-    if (index > this.ids.length - 1) {
-      activeId = this.ids[0];
-    } else {
-      activeId = this.ids[index];
-    }
-
-    return activeId;
+    return this.ids[index % this.ids.length];
   }
 
   public previousMapObject(selectedId): number {
     let index = this.ids.indexOf(selectedId) - 1;
-    let activeId = 0;
-    if (index < 0) {
-      activeId = this.ids[this.ids.length - 1];
-    } else {
-      activeId = this.ids[index];
-    }
-    return activeId;
+    return this.ids[(this.ids.length + index) % this.ids.length];
   }
 
   public getObject(id: number): MapDataObject {
@@ -82,10 +70,9 @@ export class DataHandler {
   }
 
   public size(): number {
-    return this.dataObjects.length;
+    return this.ids.length;
   }
 
-  // There's no point in keeping this variable private then
   public getIds(): number[] {
     return this.ids;
   }
