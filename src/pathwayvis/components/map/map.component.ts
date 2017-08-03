@@ -175,6 +175,8 @@ class MapComponentCtrl {
   private updateAllMaps(FVAonly: boolean = false) {
     let id_list = this._mapOptions.getMapObjectsIds();
     id_list.forEach((id) => {
+    const ids = this._mapOptions.getMapObjectsIds();
+    ids.forEach((id) => {
       let selectedItem = this._mapOptions.getDataObject(id).selected;
       if (!FVAonly || (FVAonly && (selectedItem.method.id === 'fva' || selectedItem.method.id === 'pfba-fva'))) {
         this._loadMap(this._mapOptions.getDataObject(id).type,
@@ -189,66 +191,60 @@ class MapComponentCtrl {
   }
 
   private _loadMap(type: ObjectType, selectedItem: types.SelectedItems, id: number): void {
-    let settings = this._mapOptions.getMapSettings();
+    const settings = this._mapOptions.getMapSettings();
 
     if (type === ObjectType.Experiment) {
-      let sampleIds = null;
-      // @matyasfodor why?
-      if (selectedItem.sample) sampleIds = JSON.parse(JSON.stringify(selectedItem.sample.id));
-
-      let phaseId = null;
-      if (selectedItem.phase) phaseId = JSON.parse(JSON.stringify(selectedItem.phase.id));
+      const sampleIds = selectedItem.sample ? null : selectedItem.sample.id.slice();
+      const phaseId = selectedItem.phase ? selectedItem.phase.id : null;
 
       if (sampleIds === null || phaseId === null) return;
 
       const modelPromise = this._api.post('data-adjusted/model', {
-        'sampleIds': sampleIds,
-        'phaseId': phaseId,
-        'method': selectedItem.method.id,
-        'map': settings.map_id,
-        'withFluxes': true,
-        'modelId': settings.model_id,
+        sampleIds,
+        phaseId,
+        method: selectedItem.method.id,
+        map: settings.map_id,
+        withFluxes: true,
+        modelId: settings.model_id,
       });
 
       const infoPromise = this._api.post('samples/info', {
-        'sampleIds': sampleIds,
-        'phaseId': phaseId,
+        sampleIds,
+        phaseId,
       });
 
       this.resetKnockouts = true;
       this.shared.loading++;
-      this._q.all([modelPromise, infoPromise]).then((responses: any) => {
-        let modelResponse = responses[0].data['response'][JSON.stringify(selectedItem.phase.id)];
-        this._mapOptions.setDataModel(modelResponse.model, modelResponse['modelId'], id);
-        this._mapOptions.setReactionData(modelResponse.fluxes, id);
-        this._mapOptions.setMapInfo(responses[1].data['response'][JSON.stringify(selectedItem.phase.id)], id);
-        this._mapOptions.setMethodId(selectedItem.method);
+      this._q.all([modelPromise, infoPromise]).then(([modelResponse, infoResponse]: any) => {
+        const phase = modelResponse.data.response[phaseId.toString()];
+        this._mapOptions.setDataModel(phase.model, phase.modelId, id);
+        this._mapOptions.setReactionData(phase.fluxes, id);
+        this._mapOptions.setMapInfo(infoResponse.data.response[phaseId.toString()], id);
+        this._mapOptions.setMethod(selectedItem.method);
 
-        this.shared.loading--;
       }, (error) => {
         this.toastService.showErrorToast('Oops! Sorry, there was a problem with fetching the data.');
+      })
+      .then(() => {
         this.shared.loading--;
       });
     } else if (type === ObjectType.Reference) {
-      if (settings.model_id) {
-        let url = 'models/' + settings.model_id;
-        let method = this._mapOptions.getDataObject(id).selected.method.id;
-        const modelPromise = this._api.postModel(url, {
-          message: {
-            "to-return": ["fluxes", "model"],
-            "simulation-method": method,
-            "map": settings.map_id,
-          },
-        });
-        this.shared.loading++;
-        this._q.all([modelPromise]).then((response: any) => {
-          let data = response[0].data;
-          this._mapOptions.setDataModel(data.model, data.model.id, id);
-          this._mapOptions.setReactionData(data.fluxes, id);
+      if (!settings.model_id) return;
+      const url = `models/${settings.model_id}`;
+      const modelPromise = this._api.postModel(url, {
+        message: {
+          "to-return": ["fluxes", "model"],
+          "simulation-method": this._mapOptions.getDataObject(id).selected.method.id,
+          "map": settings.map_id,
+        },
+      });
+      this.shared.loading++;
+      modelPromise.then(({data}: any) => {
+        this._mapOptions.setDataModel(data.model, data.model.id, id);
+        this._mapOptions.setReactionData(data.fluxes, id);
 
-          this.shared.loading--;
-        });
-      }
+        this.shared.loading--;
+      });
     }
   }
 

@@ -6,20 +6,19 @@ export class ToastService {
   }
 
   public showWarnToast(text: string): void {
-    let toast = this.$mdToast.simple()
-      .textContent(text)
-      .action('close')
-      .position('bottom right')
-      .theme("warn-toast");
-    this.$mdToast.show(toast);
+    this._showToast('warn-toast', text);
   }
 
   public showErrorToast(text: string): void {
-    let toast = this.$mdToast.simple()
+    this._showToast('error-toast', text);
+  }
+
+  private _showToast(theme: string, text: string): void {
+    const toast = this.$mdToast.simple()
       .textContent(text)
       .action('close')
       .position('bottom right')
-      .theme("error-toast");
+      .theme(theme);
     this.$mdToast.show(toast);
   }
 }

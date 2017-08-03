@@ -22,10 +22,7 @@ export class MapDataObject implements MapObject {
   }
 
   public isComplete(): boolean {
-    if (this.mapData.map.reactionData && this.mapData.model) {
-      return true;
-    }
-    return false;
+    return !!(this.mapData.map.reactionData && this.mapData.model);
   }
 
   public compareSelectedItems(other: MapDataObject): boolean {
@@ -35,47 +32,19 @@ export class MapDataObject implements MapObject {
       this.selected.phase === other.selected.phase;
   }
 
+  private _experimentName(item: SelectedItems): string {
+    return [
+      item.method,
+      item.experiment,
+      item.sample,
+      item.phase].map(((prop) => prop ? prop.name : '-')).join('_');
+  }
+
   public getName(): string {
-    if (this.name) {
-      return this.name;
-    }
-
-    if (this.type === ObjectType.Reference) {
-      return 'Reference';
-    }
-
-    if (this.type === ObjectType.Experiment) {
-      let name = "";
-
-      if (this.selected.method) {
-        name += this.selected.method.name;
-      } else {
-        name += '_';
-      }
-      name += '-';
-
-      if (this.selected.experiment) {
-        name += this.selected.experiment.name;
-      } else {
-        name += '_';
-      }
-      name += '-';
-
-      if (this.selected.sample) {
-        name += this.selected.sample.name;
-      } else {
-        name += '_';
-      }
-      name += '-';
-
-      if (this.selected.phase) {
-        name += this.selected.phase.name;
-      } else {
-        name += '_';
-      }
-
-      return name;
-    }
+    return this.name ? this.name :
+      this.type === ObjectType.Reference ? 'Reference' :
+        this.type === ObjectType.Experiment ? this._experimentName(this.selected) :
+          undefined;
   }
 
   public setName(name: string): void {

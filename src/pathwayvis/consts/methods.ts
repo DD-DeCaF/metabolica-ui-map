@@ -10,13 +10,4 @@ export const methods: Method[] = [
   { id: 'room', name: 'ROOM' },
 ];
 
-export class MethodService {
-
-  public defaultMethod(): Method {
-    return methods[1];
-  }
-
-  public getMethod(id: string): Method {
-    return methods.find((m: Method) => id.localeCompare(m.id) === 0);
-  }
-}
+export const defaultMethod: Method = methods[1];

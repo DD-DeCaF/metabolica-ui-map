@@ -1,4 +1,4 @@
-export interface Map {
+export interface MetabolicMap {
   map: Object;
   settings: Object;
   reactionData: Object;
@@ -53,7 +53,7 @@ export interface MapInfo {
 }
 
 export interface MapData {
-  map?: Map;
+  map?: MetabolicMap;
   model?: Model;
   sections?: any;
   method?: string;
@@ -118,6 +118,12 @@ export enum ObjectType {
   Reference,
 }
 
+export interface Metabolite {
+  bigg_id: string;
+  compartment_bigg_id: string;
+  coef: number;
+}
+
 export interface BiggReaction {
   model_bigg_id: string;
   bigg_id: string;
@@ -128,4 +134,5 @@ export interface BiggReaction {
 export interface AddedReaction extends BiggReaction {
   metanetx_id: string;
   reaction_string: string;
+  metabolites: Metabolite[];
 }

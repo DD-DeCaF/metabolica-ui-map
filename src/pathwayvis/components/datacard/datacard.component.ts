@@ -3,56 +3,54 @@ import * as template from "./datacard.component.html";
 import * as angular from "angular";
 import { ToastService } from "../../services/toastservice";
 import { MapOptionService } from "../../services/mapoption.service";
-import { MethodService } from "../../services/method.service";
-import { Method, ObjectType, Phase, Sample } from "../../types";
+import { methods, defaultMethod } from "../../consts/methods";
+import { Method, ObjectType, Phase, Sample, Experiment } from "../../types";
 import { ExperimentService } from "../../services/experiment.service";
 
 
 interface SelectedIds {
-  experiment?: number;
-  sample?: string;
-  phase?: string;
-  method?: string;
+  experiment?: Experiment;
+  sample?: Sample;
+  phase?: Phase;
+  method?: Method;
 }
 
 class DataCardComponentCtrl {
   public editing: boolean = false;
   public name: string;
-  private methodService: MethodService;
   public hideSelection: boolean = false;
   public phases: types.Phase[];
   public selected: SelectedIds = {};
   public methodName: string;
+  public mapOptions: MapOptionService;
+  public methods: Method[];
 
   public animating: boolean;
   public id: number;
   public samples: types.Sample[];
-  private mapOptions: MapOptionService;
   private toastService;
   private experimentService: ExperimentService;
 
   constructor(toastService: ToastService,
     mapOptions: MapOptionService,
-    methodService: MethodService,
     experimentService: ExperimentService) {
     this.mapOptions = mapOptions;
     this.toastService = toastService;
-    this.methodService = methodService;
     this.experimentService = experimentService;
 
-    this.selected.method = methodService.defaultMethod().id;
+    this.selected.method = defaultMethod;
+    this.methods = methods;
 
     if (this.mapOptions.getExperiment()) {
-      this.selected.experiment = this.mapOptions.getExperiment().id;
+      this.selected.experiment = this.mapOptions.getExperiment();
       this.changeExperiment();
     }
-
     this.name = this.getName();
-
   }
 
   public startEditing(): void {
     this.editing = true;
+    this.name = this.getName();
   }
 
   public stopEditing(): void {
@@ -64,34 +62,20 @@ class DataCardComponentCtrl {
     return this.mapOptions.getDataObject(this.id).getName();
   }
 
-  public getMethods(): Method[] {
-    return this.methodService.methods;
-  }
-
-  public changeMethod(): void {
-    let method = this.methodService.getMethod(this.selected.method);
-    this.mapOptions.setMethodId(method);
-  }
-
-  public getMethodName(): string {
-    return this.methodService.getMethodName(this.selected.method);
+  public changeMethod(method: Method): void {
+    this.mapOptions.setMethod(method);
   }
 
   public getExperiments(): types.Experiment[] {
     return this.experimentService.getExperiments();
   }
 
-  public getExperimentName(): string {
-    return this.experimentService.getExperimentName(this.selected.experiment);
-  }
-
   public changeExperiment(): void {
     if (this.selected.experiment) {
-      this.mapOptions.getSamples(this.selected.experiment)
+      this.mapOptions.getSamples(this.selected.experiment.id)
         .then((response: angular.IHttpPromiseCallbackArg<types.Sample[]>) => {
           // need to set null properties first!
-          let experiment = this.experimentService.getExperiment(this.selected.experiment);
-          this.mapOptions.setExperiment(experiment);
+          this.mapOptions.setExperiment(this.selected.experiment);
           this.samples = response.data['response'];
           this.selected.sample = null;
           this.selected.phase = null;
@@ -99,83 +83,23 @@ class DataCardComponentCtrl {
     }
   }
 
-  public getSampleName(): string {
-    let result = "_";
-    if (this.samples && this.selected.sample) {
-      this.samples.some((item: types.Sample) => {
-        if (this.selected.sample.toString() === JSON.stringify(item.id)) {
-          result = item.name;
-          return true;
-        }
-      });
-    }
-    return result;
-  }
-
   public changeSample(): void {
-    let sampleId = this.selected.sample;
-    if (sampleId) {
-      this.mapOptions.getPhases(sampleId).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
-        let sample = this.getSample(sampleId);
-        this.mapOptions.setSample(sample);
-        this.phases = response.data['response'];
-        this.selected.phase = null;
-      }, (error) => {
-        this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected sample.');
-      });
-    }
-  }
-
-  private getSample(ids: string): Sample {
-    let result = null;
-    if (this.samples) {
-      this.samples.some((item: Sample) => {
-        let itemId = JSON.stringify(item.id);
-        if (ids === itemId) {
-          result = item;
-          return true;
-        }
-      });
-    }
-    return result;
-  }
-
-  public hideModelSelect(): boolean {
-    return !this.mapOptions.isMaster(this.id);
+    const sample = this.selected.sample;
+    this.mapOptions.getPhases(sample.id).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
+      this.phases = response.data['response'];
+      this.selected.phase = null;
+    }, (error) => {
+      this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected sample.');
+    });
   }
 
   public getPhaseName(): string {
-    let result = "_";
-    if (this.phases) {
-      this.phases.some((item: types.Phase) => {
-        if (this.selected.phase === item.id.toString()) {
-          result = item.name;
-          return true;
-        }
-      });
-    }
-    if (result.length > 10) {
-      result = result.substr(0, 10) + "...";
-    }
-    return result;
+    const phaseName = this.selected.phase.name;
+    return phaseName.length < 10 ? phaseName : `${phaseName.substr(0, 10)}...`;
   }
 
   public changePhase() {
-    let phase = this.getPhase();
-    this.mapOptions.setPhase(phase);
-  }
-
-  private getPhase(): Phase {
-    let result = null;
-    if (this.phases) {
-      this.phases.some((item: types.Phase) => {
-        if (this.selected.phase === item.id.toString()) {
-          result = item;
-          return true;
-        }
-      });
-    }
-    return result;
+    this.mapOptions.setPhase(this.selected.phase);
   }
 
   public isActiveObject(): boolean {
@@ -209,7 +133,6 @@ class DataCardComponentCtrl {
   public isRef(): boolean {
     return this.mapOptions.getType(this.id) === ObjectType.Reference;
   }
-
 }
 
 export const DataCardComponent = {

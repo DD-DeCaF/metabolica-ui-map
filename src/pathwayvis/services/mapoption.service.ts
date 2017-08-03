@@ -6,19 +6,17 @@ import * as angular from 'angular';
 import { ActionsService } from "./actions/actions.service";
 import { MapDataObject } from "../models/MapDataObject";
 import { DataHandler } from "../models/DataHandler";
-import { MethodService } from "./method.service";
 import { AddedReaction, Experiment, Method, ObjectType, Phase, Sample, Species } from "../types";
 import { ExperimentService } from "./experiment.service";
 
 interface MapSettings {
   map_id: string;
   model_id: string;
-  map: types.Map;
+  map: types.MetabolicMap;
 }
 
 export class MapOptionService {
   private experimentService: ExperimentService;
-  private methodService: MethodService;
   public shouldUpdateData: boolean;
   public models: string[];
   private apiService: APIService;
@@ -39,12 +37,10 @@ export class MapOptionService {
   // TODO rename services to lowercase
   constructor(api: APIService, toastService: ToastService,
     actions: ActionsService,
-    methodService: MethodService,
     experimentService: ExperimentService) {
     this.apiService = api;
     this.toastService = toastService;
     this.actions = actions;
-    this.methodService = methodService;
     this.experimentService = experimentService;
 
     this.apiService.get('species/current').then((response: angular.IHttpPromiseCallbackArg<any>) => {
@@ -64,7 +60,7 @@ export class MapOptionService {
   }
 
   public init(): void {
-    this.dataHandler = new DataHandler(this.methodService);
+    this.dataHandler = new DataHandler();
     this.selectedCardId = this.dataHandler.addObject(ObjectType.Reference);
 
     this.mapSettings = <MapSettings> {
@@ -77,7 +73,6 @@ export class MapOptionService {
     this.shouldUpdateData = false;
 
     this.setExperimentsFromSpecies();
-
   }
 
   private setExperimentsFromSpecies(speciesCode = this.selectedSpecies): void {
@@ -109,11 +104,8 @@ export class MapOptionService {
   }
 
   public getReactionData(): object {
-    let reactionData = this.getDataObject().mapData.map.reactionData;
-    if (reactionData) {
-      return reactionData;
-    }
-    return null;
+    const reactionData = this.getDataObject().mapData.map.reactionData;
+    return reactionData ? reactionData : null;
   }
 
   public setReactionData(data: object, id: number = this.selectedCardId) {
@@ -135,13 +127,9 @@ export class MapOptionService {
     }
   }
 
-
   public getDataModelId(): string {
-    let dataModelId = this.getDataObject().mapData.model.uid;
-    if (dataModelId) {
-      return dataModelId;
-    }
-    return null;
+    const dataModelId = this.getDataObject().mapData.model.uid;
+    return dataModelId ? dataModelId : null;
   }
 
   public getMapInfo(): types.MapInfo {
@@ -172,7 +160,7 @@ export class MapOptionService {
   }
 
   // @matyasfodor no check for undefined
-  public setMethodId(method: Method): void {
+  public setMethod(method: Method): void {
     this.shouldLoadMap = true;
     this.getDataObject().selected.method = method;
     this.getDataObject().mapData.method = method.id;
@@ -200,27 +188,25 @@ export class MapOptionService {
     return this.getDataObject().selected;
   }
 
-  public getSamples(experiment: number): angular.IPromise<Object> {
-    if (experiment) {
-      let promise = this.apiService.get('experiments/:experimentId/samples', {
-        experimentId: experiment,
-      });
-      return promise;
+  public getSamples(experimentId: number): angular.IPromise<Object> {
+    // Why check for experimentId here? It fails if it's 0
+    // Return value is not obvious.
+    if (experimentId) {
+      return this.apiService
+        .get('experiments/:experimentId/samples', { experimentId });
     }
   }
 
-  public getPhases(sample: string): angular.IPromise<Object> {
-    if (sample) {
-      return this.apiService.post('samples/phases', {
-        'sampleIds': JSON.parse(sample),
-      });
+  public getPhases(sampleIds: number[]): angular.IPromise<Object> {
+    // Check should not happen here
+    if (sampleIds) {
+      return this.apiService.post('samples/phases', { sampleIds });
     }
   }
 
   public setModelsFromSample(sample: string): void {
-    this.getModelOptions(sample).then(
-      (response: angular.IHttpPromiseCallbackArg<string[]>) => {
-        this.models = response.data['response'];
+    this.getModelOptions(sample).then((response: angular.IHttpPromiseCallbackArg<any>) => {
+        this.models = response.data.response;
         this.setModel(this.models[0]);
       }, (error) => {
         this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected sample.');
@@ -260,7 +246,7 @@ export class MapOptionService {
   }
 
   public getMapObjectsIds(): number[] {
-    return this.dataHandler.getIds();
+    return this.dataHandler.ids;
   }
 
   public isActiveObject(id: number) {
@@ -303,12 +289,11 @@ export class MapOptionService {
     // The logic of the actions is handled here
     // @matyasfodor figure out why is this needed?
     // Perhaps a deepcopy?
-    const shared = JSON.parse(JSON.stringify(this.getMapData()));
+    const shared = angular.copy(this.getMapData());
 
     if (id) {
       if (action.type === 'reaction:knockout:do') {
         shared.removedReactions.push(id);
-
       }
       if (action.type === 'reaction:knockout:undo') {
         let index = shared.removedReactions.indexOf(id);
@@ -318,10 +303,6 @@ export class MapOptionService {
       }
     }
     return this.actions.callAction(action, { shared: shared });
-  }
-
-  public isMaster(id: number): boolean {
-    return this.dataHandler.isMaster(id);
   }
 
   public dataUpdated(): void {
@@ -374,20 +355,14 @@ export class MapOptionService {
   }
 
   public addReaction(addedReaction: AddedReaction): any {
-    const action = this.actions.getAction('reaction:update');
     this.getDataObject().mapData.addedReactions.push(addedReaction);
-    return this.actionHandler(action);
+    return this.actionHandler(this.actions.getAction('reaction:update'));
   }
 
   public removeReaction(bigg_id: string): any {
-    let action = this.actions.getAction('reaction:update');
-    let mapData = this.getMapData();
-    for (let i = 0; i < mapData.addedReactions.length; i++) {
-      if (mapData.addedReactions[i].bigg_id === bigg_id) {
-        mapData.addedReactions.splice(i, 1);
-        break;
-      }
-    }
-    return this.actionHandler(action);
+    const mapData = this.getMapData();
+    const index = mapData.addedReactions.findIndex((r) => r.bigg_id === bigg_id);
+    mapData.addedReactions.splice(index, 1);
+    return this.actionHandler(this.actions.getAction('reaction:update'));
   }
 }

@@ -44,9 +44,8 @@ class CardControllerComponentCtrl {
 
   public toggleAnimation(): void {
     if (this.animationPromise) {
-      this.animating = false;
-      this.$interval.cancel(this.animationPromise);
-      this.animationPromise = null;
+      this.stopAnimation();
+
     } else {
       this.animating = true;
       this.animationPromise = this.$interval(this.nextMapObject.bind(this), 500);
@@ -57,14 +56,25 @@ class CardControllerComponentCtrl {
     this.mapOptions.speciesChanged(this.species);
   }
 
+  private stopAnimation(): void {
+    this.animating = false;
+    this.$interval.cancel(this.animationPromise);
+    this.animationPromise = null;
+  }
+
   public nextMapObject(): void {
-    this.mapOptions.nextMapObject();
+    if (this.disablePlayBtn()) {
+      this.stopAnimation();
+    } else {
+      this.mapOptions.nextMapObject();
+    }
   }
 
   public previousMapObject(): void {
     this.mapOptions.previousMapObject();
   }
 
+  // @matyasfodor find a better name
   public disablePlayBtn(): boolean {
     return this.mapOptions.getCollectionSize() <= 1;
   }

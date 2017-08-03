@@ -1,14 +1,11 @@
+import * as _ from 'lodash';
 import "./reaction.component.scss";
 import * as template from "./reaction.component.html";
 import * as angular from "angular";
 import { MapOptionService } from "../../services/mapoption.service";
-import { AddedReaction, BiggReaction } from "../../types";
+import { AddedReaction, BiggReaction, Metabolite } from "../../types";
 import { ActionsService } from "../../services/actions/actions.service";
 import "jquery";
-
-// @matyasfodor:
-// Fix indentation
-// Add linter
 
 const BiggAPIBase = 'http://bigg.ucsd.edu/api/v2/';
 
@@ -52,16 +49,20 @@ class ReactionComponentCtrl {
       const url = `${BiggAPIBase}${item.model_bigg_id.toLowerCase()}/reactions/${item.bigg_id}`;
       $.getJSON(url)
         .then((response) => {
-          let reaction = <AddedReaction> item;
-          reaction.reaction_string = response.reaction_string;
-
-          const db_links = response.database_links;
-          if (db_links) {
-            const metanetx = db_links['MetaNetX (MNX) Equation'][0];
-            if (metanetx) {
-              reaction.metanetx_id = metanetx.id;
-            }
-          }
+          const metanetx_id = <string> _.get(response, 'database_links.MetaNetX (MNX) Equation.0.id');
+          console.log('original metabolites: ', response.metabolites, 'response', response);
+          const metabolites: Metabolite[] = response.metabolites.map((m) => {
+            return <Metabolite> {
+              bigg_id: m.bigg_id,
+              compartment_bigg_id: m.compartment_bigg_id,
+              coef: m.stoichiometry,
+            };
+          });
+          const reaction = <AddedReaction> {...item,
+            reaction_string: <string> response.reaction_string,
+            metabolites,
+            metanetx_id,
+          };
           this.mapOptions.addReaction(reaction).then(this.updateMapData.bind(this));
         });
       this.searchText = "";

@@ -83,7 +83,6 @@ class UndoKnockout extends Knockout {
   }
 }
 
-// @matyasfodor This reaction is registered althoguh useless (it's never displayed)
 @registerAction
 // tslint:disable-next-line
 class UpdateReaction extends ReactionAction implements Action {
