@@ -96,6 +96,29 @@ class MapComponentCtrl {
       }
     }, true);
 
+    $scope.$watch('ctrl._mapOptions.getAddedReactions()', () => {
+      const addedReactions = this._mapOptions.getAddedReactions();
+      if (this._builder && addedReactions) {
+        // console.log('#### ', addedReactions);
+        addedReactions.forEach((reaction) => {
+          const metabolites = reaction.metabolites.filter((m) => {
+            return this._builder.options.cofactors.indexOf(m.bigg_id) === -1;
+          });
+          const cofactors = reaction.metabolites.filter((m) => {
+            return this._builder.options.cofactors.indexOf(m.bigg_id) > -1;
+          });
+          const metaboliteBiggIds: string[] = metabolites.map((m) => {
+            return `${m.bigg_id}_${m.compartment_bigg_id}`;
+          });
+          const nodes = Object.values(this._builder.map.nodes).filter((node) => {
+            return metaboliteBiggIds.findIndex((id) => { return node.bigg_id === id; }) > -1;
+          });
+          console.log('metabolites: ', metabolites, 'cofactors: ', cofactors, 'nodes', nodes, 'reaction', reaction.metanetx_id);
+          // this._builder.map.new_reaction_for_metabolite(reaction.bigg_id, nodes[0].node_id, 90);
+        });
+      }
+    }, true);
+
     $scope.$watch('ctrl._mapOptions.getReactionData()', () => {
       let reactionData = this._mapOptions.getReactionData();
       let model = this._mapOptions.getDataModelId();
@@ -173,8 +196,6 @@ class MapComponentCtrl {
   }
 
   private updateAllMaps(FVAonly: boolean = false) {
-    let id_list = this._mapOptions.getMapObjectsIds();
-    id_list.forEach((id) => {
     const ids = this._mapOptions.getMapObjectsIds();
     ids.forEach((id) => {
       let selectedItem = this._mapOptions.getDataObject(id).selected;
@@ -254,16 +275,15 @@ class MapComponentCtrl {
   public processActionClick(action, data) {
 
     if (action.type === 'reaction:link') {
-      this.$window.open('http://bigg.ucsd.edu/universal/reactions/' + data.bigg_id);
-      return;
+      this.$window.open(`http://bigg.ucsd.edu/universal/reactions/${data.bigg_id}`);
+    } else {
+      this._mapOptions.actionHandler(action, data.bigg_id).then((response) => {
+        this._mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
+        this._mapOptions.setReactionData(response.fluxes);
+        this._mapOptions.setRemovedReactions(response['removed-reactions']);
+        this.$scope.$apply();
+      });
     }
-
-    this._mapOptions.actionHandler(action, data.bigg_id).then((response) => {
-      this._mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
-      this._mapOptions.setReactionData(response.fluxes);
-      this._mapOptions.setRemovedReactions(response['removed-reactions']);
-      this.$scope.$apply();
-    });
   }
 
   /**

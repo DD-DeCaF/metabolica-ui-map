@@ -32,7 +32,7 @@ class ReactionComponentCtrl {
 
   public onUndoClick(selectedReaction: string): void {
     const undoKnockoutAction = this.actions.getAction('reaction:knockout:undo');
-    this.mapOptions.actionHandler(undoKnockoutAction, selectedReaction)
+    this.mapOptions.actionHandler(undoKnockoutAction, {id: selectedReaction})
       .then(this.updateMapData.bind(this));
   }
 
@@ -80,6 +80,7 @@ class ReactionComponentCtrl {
   private updateMapData(response) {
     this.mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
     this.mapOptions.setReactionData(response.fluxes);
+    this.mapOptions.setModel(response.model);
     this.mapOptions.setRemovedReactions(response['removed-reactions']);
     this.$scope.$apply();
   }

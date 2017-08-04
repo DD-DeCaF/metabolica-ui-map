@@ -17,18 +17,13 @@ export abstract class ReactionAction extends Action {
   public ws: WSService;
   public shared: MapData;
 
-  // @ngInject
   public callback(ws: WSService, $timeout: angular.ITimeoutService): any {
-    let addedReactions = [];
-    this.shared.addedReactions.forEach((item) => {
-      addedReactions.push(item.metanetx_id);
-    });
 
     const data = {
-      'to-return': ['fluxes', 'growth-rate', 'removed-reactions', 'added-reactions'],
+      'to-return': ['fluxes', 'growth-rate', 'removed-reactions', 'added-reactions', 'model'],
       'simulation-method': this.shared.method,
       'reactions-knockout': this.shared.removedReactions,
-      'added-reactions': addedReactions,
+      'reactions-add': this.shared.addedReactions.map((r) => r.metanetx_id),
     };
 
     return $timeout(() => {

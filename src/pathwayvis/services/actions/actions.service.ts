@@ -31,7 +31,7 @@ export class ActionsService {
    * @return {types.Action[]} List of actions
    */
   public getList(context): types.Action[] {
-    return _.filter(actionsList, (action: types.Action) => action.canDisplay(context));
+    return actionsList.filter((action: types.Action) => action.canDisplay(context));
   }
 
   /**
@@ -40,7 +40,7 @@ export class ActionsService {
    * @return {types.Action} Action
    */
   public getAction(type: string): types.Action {
-    return _.first(_.filter(actionsList, (action: types.Action) => action.type === type));
+    return _.first(actionsList.filter((action: types.Action) => action.type === type));
   }
 
   /**
@@ -86,6 +86,7 @@ class UndoKnockout extends Knockout {
 @registerAction
 // tslint:disable-next-line
 class UpdateReaction extends ReactionAction implements Action {
+  // matyasfodor - this one is called when reaction is added
   public type: string = 'reaction:update';
 
   public canDisplay(context) {

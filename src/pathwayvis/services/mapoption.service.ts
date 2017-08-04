@@ -18,7 +18,7 @@ interface MapSettings {
 export class MapOptionService {
   private experimentService: ExperimentService;
   public shouldUpdateData: boolean;
-  public models: string[];
+  public modelsIds: string[];
   private apiService: APIService;
   private dataHandler: DataHandler;
   public shouldLoadMap: boolean;
@@ -206,8 +206,8 @@ export class MapOptionService {
 
   public setModelsFromSample(sample: string): void {
     this.getModelOptions(sample).then((response: angular.IHttpPromiseCallbackArg<any>) => {
-        this.models = response.data.response;
-        this.setModel(this.models[0]);
+        this.modelsIds = response.data.response;
+        this.setModelId(this.modelsIds[0]);
       }, (error) => {
         this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected sample.');
       });
@@ -222,15 +222,15 @@ export class MapOptionService {
     if (species) {
       let url = 'model-options/' + species;
       this.apiService.getModel(url, {}).then((response: angular.IHttpPromiseCallbackArg<any>) => {
-        this.models = response.data;
+        this.modelsIds = response.data;
         this.shouldUpdateData = true;
-        this.mapSettings.model_id = this.models[0];
+        this.mapSettings.model_id = this.modelsIds[0];
       });
     }
   }
 
   public getModels(): string[] {
-    return this.models;
+    return this.modelsIds;
   }
 
   public getModelOptions(sample: string): angular.IPromise<Object> {
@@ -285,22 +285,19 @@ export class MapOptionService {
     this.selectedCardId = id;
   }
 
-  public actionHandler(action, id = null): any {
-    // The logic of the actions is handled here
-    // @matyasfodor figure out why is this needed?
-    // Perhaps a deepcopy?
+  public actionHandler(action, {id = null, reaction = null}: {id?: string, reaction?: AddedReaction}): any {
     const shared = angular.copy(this.getMapData());
 
-    if (id) {
-      if (action.type === 'reaction:knockout:do') {
-        shared.removedReactions.push(id);
+    // TODO write a nice, functional switch-case statement
+    if (action.type === 'reaction:knockout:do') {
+      if (id) shared.removedReactions.push(id);
+    } else if (action.type === 'reaction:knockout:undo') {
+      let index = shared.removedReactions.indexOf(id);
+      if (index > -1) {
+        shared.removedReactions.splice(index, 1);
       }
-      if (action.type === 'reaction:knockout:undo') {
-        let index = shared.removedReactions.indexOf(id);
-        if (index > -1) {
-          shared.removedReactions.splice(index, 1);
-        }
-      }
+    } else if (action.type === 'reaction:update') {
+      if (reaction) shared.addedReactions.push(reaction);
     }
     return this.actions.callAction(action, { shared: shared });
   }
@@ -317,7 +314,12 @@ export class MapOptionService {
     this.mapSettings.map.map = map;
   }
 
-  public setModel(modelId: string): void {
+  public setModel(model: types.Model, id: number = this.selectedCardId) {
+    this.shouldUpdateData = true;
+    this.getDataObject(id).mapData.model = model;
+  }
+
+  public setModelId(modelId: string): void {
     if (this.mapSettings.model_id) {
       this.shouldUpdateData = true;
     }
@@ -356,13 +358,14 @@ export class MapOptionService {
 
   public addReaction(addedReaction: AddedReaction): any {
     this.getDataObject().mapData.addedReactions.push(addedReaction);
-    return this.actionHandler(this.actions.getAction('reaction:update'));
+    return this.actionHandler(this.actions.getAction('reaction:update'), {reaction: addedReaction});
   }
 
   public removeReaction(bigg_id: string): any {
     const mapData = this.getMapData();
     const index = mapData.addedReactions.findIndex((r) => r.bigg_id === bigg_id);
     mapData.addedReactions.splice(index, 1);
-    return this.actionHandler(this.actions.getAction('reaction:update'));
+    // TODO add reaction here?
+    return this.actionHandler(this.actions.getAction('reaction:update'), {});
   }
 }

@@ -29,11 +29,11 @@ class MapSelectorComponentCtrl {
   }
 
   public getModels(): string[] {
-    return this.mapOptions.getModels();
+    return this.mapOptions.modelsIds;
   }
 
   public changeModel(): void {
-    this.mapOptions.setModel(this.model);
+    this.mapOptions.setModelId(this.model);
   }
 
   public setMapsFromModel(model): void {
