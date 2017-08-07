@@ -380,9 +380,10 @@ class MapComponentCtrl {
         const selection = this._builder.selection;
         const contextMenu = d3.select('.map-context-menu');
 
-        selection.selectAll('.reaction, .reaction-label')
+        d3.selectAll('.reaction, .reaction-label')
             .style('cursor', 'pointer')
             .on('contextmenu', (d) => {
+                const event = d3.event;
                 this.contextElement = d;
                 this.contextActions = this.actions.getList({
                     type: 'map:reaction',
@@ -391,8 +392,8 @@ class MapComponentCtrl {
                 });
 
                 if (this.contextElement) {
-                    this._renderContextMenu(contextMenu, selection);
-                    (<Event> d3_select.event).preventDefault();
+                    this._renderContextMenu(contextMenu, selection, (<MouseEvent> event));
+                    (<Event> event).preventDefault();
                 }
             });
 
@@ -404,10 +405,10 @@ class MapComponentCtrl {
     /**
      * Renders and positions context menu based on selected element
      */
-    private _renderContextMenu(contextMenu, selection): void {
+    private _renderContextMenu(contextMenu, selection, {pageX, pageY}): void {
         contextMenu.style('position', 'absolute')
-            .style('left', (<MouseEvent> d3_select.event).pageX + 'px')
-            .style('top', (<MouseEvent> d3_select.event).pageY + 'px')
+            .style('left', `${pageX}px`)
+            .style('top', `${pageY}px`)
             .style('visibility', 'visible');
         this.$scope.$apply();
     }
