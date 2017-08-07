@@ -18,9 +18,9 @@ export class MapService {
     return this.allMaps;
   }
 
-  public usableMap(map, model): boolean {
-    let maps = this.allMaps[model];
-    return (maps.indexOf(map) !== -1);
+  public usableMap(mapName: string, modelId: string): boolean {
+    const maps = this.allMaps[modelId];
+    return maps.indexOf(mapName) !== -1;
   }
 
   public getMapsFromModel(model): string[] {

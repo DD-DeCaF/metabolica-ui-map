@@ -26,7 +26,7 @@ class SettingsComponentController {
   }
 
   public disableMapSelector(): boolean {
-    return !this.mapOptions.getModel();
+    return !this.mapOptions.getModelId();
   }
 
   public toggleRight(): void {

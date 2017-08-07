@@ -85,6 +85,13 @@ class MapComponentCtrl {
       }
     }, true);
 
+    $scope.$watch('ctrl._mapOptions.getDataModelId()', (modelId) => {
+      if (modelId) {
+        console.log('Model changed');
+        this._loadModel();
+      }
+    });
+
     $scope.$watch('ctrl._mapOptions.getSelectedId()', () => {
       this.mapChanged();
     });
@@ -114,7 +121,7 @@ class MapComponentCtrl {
             return metaboliteBiggIds.findIndex((id) => { return node.bigg_id === id; }) > -1;
           });
           console.log('metabolites: ', metabolites, 'cofactors: ', cofactors, 'nodes', nodes, 'reaction', reaction.metanetx_id);
-          // this._builder.map.new_reaction_for_metabolite(reaction.bigg_id, nodes[0].node_id, 90);
+          this._builder.map.new_reaction_for_metabolite(reaction.metanetx_id, nodes[0].node_id, 90);
         });
       }
     }, true);
@@ -160,7 +167,7 @@ class MapComponentCtrl {
   }
 
   private _removeOpacity() {
-    let noOpacity = {};
+    const noOpacity = {};
     let reactions = this._builder.map.cobra_model.reactions;
     Object.keys(reactions).forEach((key) => {
       noOpacity[key] = { 'lower_bound': 0, 'upper_bound': 0 };

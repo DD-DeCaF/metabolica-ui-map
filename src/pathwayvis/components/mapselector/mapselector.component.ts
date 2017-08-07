@@ -19,8 +19,8 @@ class MapSelectorComponentCtrl {
     this.allMaps = mapService.getAllMaps();
 
     $scope.$watch('ctrl.mapOptions.getModel()', () => {
-      this.model = this.mapOptions.getModel();
-      this.setMapsFromModel(this.mapOptions.getModel());
+      this.model = this.mapOptions.getModelId();
+      this.setMapsFromModel(this.mapOptions.getModelId());
     }, true);
   }
 

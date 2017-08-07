@@ -16,6 +16,13 @@ class ReactionComponentCtrl {
   private mapOptions: MapOptionService;
   private $scope: angular.IScope;
   private actions: ActionsService;
+  private pkgen = (() => {
+    let counter = 0;
+    return () => {
+      return counter++;
+    };
+   })();
+
   constructor($http: angular.IHttpService,
     mapOptions: MapOptionService,
     $scope: angular.IScope,
@@ -32,6 +39,7 @@ class ReactionComponentCtrl {
 
   public onUndoClick(selectedReaction: string): void {
     const undoKnockoutAction = this.actions.getAction('reaction:knockout:undo');
+    // @matyasfodor - Does this even work? The response is not saved..
     this.mapOptions.actionHandler(undoKnockoutAction, {id: selectedReaction})
       .then(this.updateMapData.bind(this));
   }
@@ -63,7 +71,10 @@ class ReactionComponentCtrl {
             metabolites,
             metanetx_id,
           };
-          this.mapOptions.addReaction(reaction).then(this.updateMapData.bind(this));
+          this.mapOptions.addReaction(reaction).then(this.updateMapData.bind(this))
+          .then(() => {
+            this.mapOptions.getDataObject().mapData.addedReactions.push(reaction);
+          });
         });
       this.searchText = "";
     }
@@ -78,8 +89,10 @@ class ReactionComponentCtrl {
   }
 
   private updateMapData(response) {
+    // @matyasfodor move this to a central place -> mapOptions?
     this.mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
     this.mapOptions.setReactionData(response.fluxes);
+    this.mapOptions.setDataModel(response.model, `${response.model.id}_${this.pkgen()}`);
     this.mapOptions.setModel(response.model);
     this.mapOptions.setRemovedReactions(response['removed-reactions']);
     this.$scope.$apply();

@@ -53,7 +53,6 @@ export class MapOptionService {
       // Set selected species
       this.selectedSpecies = this.speciesList[0].id;
       this.setModelsFromSpecies(this.selectedSpecies);
-
     });
 
     this.init();
@@ -326,7 +325,7 @@ export class MapOptionService {
     this.mapSettings.model_id = modelId;
   }
 
-  public getModel(): string {
+  public getModelId(): string {
     return this.mapSettings.model_id;
   }
 
@@ -357,7 +356,6 @@ export class MapOptionService {
   }
 
   public addReaction(addedReaction: AddedReaction): any {
-    this.getDataObject().mapData.addedReactions.push(addedReaction);
     return this.actionHandler(this.actions.getAction('reaction:update'), {reaction: addedReaction});
   }
 
