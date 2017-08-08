@@ -222,7 +222,7 @@ class MapComponentCtrl {
     const settings = this._mapOptions.getMapSettings();
 
     if (type === ObjectType.Experiment) {
-      const sampleIds = selectedItem.sample ? null : selectedItem.sample.id.slice();
+      const sampleIds = selectedItem.sample ? selectedItem.sample.id.slice() : null;
       const phaseId = selectedItem.phase ? selectedItem.phase.id : null;
 
       if (sampleIds === null || phaseId === null) return;
