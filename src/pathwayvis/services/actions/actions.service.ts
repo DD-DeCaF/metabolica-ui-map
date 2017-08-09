@@ -86,7 +86,6 @@ class UndoKnockout extends Knockout {
 @registerAction
 // tslint:disable-next-line
 class UpdateReaction extends ReactionAction implements Action {
-  // matyasfodor - this one is called when reaction is added
   public type: string = 'reaction:update';
 
   public canDisplay(context) {
