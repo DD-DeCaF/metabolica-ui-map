@@ -39,7 +39,6 @@ class ReactionComponentCtrl {
 
   public onUndoClick(selectedReaction: string): void {
     const undoKnockoutAction = this.actions.getAction('reaction:knockout:undo');
-    // @matyasfodor - Does this even work? The response is not saved..
     this.mapOptions.actionHandler(undoKnockoutAction, {id: selectedReaction})
       .then(this.updateMapData.bind(this));
   }
@@ -58,7 +57,6 @@ class ReactionComponentCtrl {
       $.getJSON(url)
         .then((response) => {
           const metanetx_id = <string> _.get(response, 'database_links.MetaNetX (MNX) Equation.0.id');
-          console.log('original metabolites: ', response.metabolites, 'response', response);
           const metabolites: Metabolite[] = response.metabolites.map((m) => {
             return <Metabolite> {
               bigg_id: m.bigg_id,

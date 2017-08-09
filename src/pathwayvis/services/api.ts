@@ -58,7 +58,7 @@ export class APIService {
     });
   }
 
-  // @matyasfodor Impossible to parse
+  // @matyasfodor Impossible to understand this
   // There's probably a library which does this
   private _parseUrlParams(path: string): string[] {
     return _.compact(_.map(path.split(/\W/), (param) => {

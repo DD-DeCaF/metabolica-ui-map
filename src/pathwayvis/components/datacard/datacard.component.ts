@@ -67,16 +67,16 @@ class DataCardComponentCtrl {
   }
 
   public getExperiments(): types.Experiment[] {
-    return this.experimentService.getExperiments();
+    return this.experimentService.experiments;
   }
 
   public changeExperiment(): void {
     if (this.selected.experiment) {
       this.mapOptions.getSamples(this.selected.experiment.id)
-        .then((response: angular.IHttpPromiseCallbackArg<types.Sample[]>) => {
+        .then((response: types.CallbackEmbeddedResponse<types.Sample[]>) => {
           // need to set null properties first!
           this.mapOptions.setExperiment(this.selected.experiment);
-          this.samples = response.data['response'];
+          this.samples = response.data.response;
           this.selected.sample = null;
           this.selected.phase = null;
         });
@@ -86,8 +86,8 @@ class DataCardComponentCtrl {
   public changeSample(): void {
     const sample = this.selected.sample;
     this.mapOptions.setSample(sample);
-    this.mapOptions.getPhases(sample.id).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
-      this.phases = response.data['response'];
+    this.mapOptions.getPhases(sample.id).then((response: types.CallbackEmbeddedResponse<types.Phase[]>) => {
+      this.phases = response.data.response;
       this.selected.phase = null;
     }, (error) => {
       this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected sample.');

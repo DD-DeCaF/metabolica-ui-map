@@ -87,7 +87,6 @@ class MapComponentCtrl {
 
     $scope.$watch('ctrl._mapOptions.getDataModelId()', (modelId) => {
       if (modelId) {
-        console.log('Model changed');
         this._loadModel();
       }
     });
@@ -106,7 +105,6 @@ class MapComponentCtrl {
     $scope.$watch('ctrl._mapOptions.getAddedReactions()', () => {
       const addedReactions = this._mapOptions.getAddedReactions();
       if (this._builder && addedReactions) {
-        // console.log('#### ', addedReactions);
         addedReactions.forEach((reaction) => {
           const metabolites = reaction.metabolites.filter((m) => {
             return this._builder.options.cofactors.indexOf(m.bigg_id) === -1;
@@ -120,7 +118,6 @@ class MapComponentCtrl {
           const nodes = Object.values(this._builder.map.nodes).filter((node) => {
             return metaboliteBiggIds.findIndex((id) => { return node.bigg_id === id; }) > -1;
           });
-          console.log('metabolites: ', metabolites, 'cofactors: ', cofactors, 'nodes', nodes, 'reaction', reaction.metanetx_id);
           this._builder.map.new_reaction_for_metabolite(reaction.metanetx_id, nodes[0].node_id, 90);
         });
       }

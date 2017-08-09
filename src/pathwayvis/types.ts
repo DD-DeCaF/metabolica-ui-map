@@ -136,3 +136,9 @@ export interface AddedReaction extends BiggReaction {
   reaction_string: string;
   metabolites: Metabolite[];
 }
+
+export interface EmbeddedResponse<T> {
+  response: T;
+}
+
+export type CallbackEmbeddedResponse<T> = angular.IHttpPromiseCallbackArg<EmbeddedResponse<T>>;
