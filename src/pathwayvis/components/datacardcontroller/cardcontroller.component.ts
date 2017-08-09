@@ -75,7 +75,7 @@ class CardControllerComponentCtrl {
   }
 
   public disablePlayBtn(): boolean {
-    return this.mapOptions.getCollectionSize() > 1;
+    return this.mapOptions.getCollectionSize() < 2;
   }
 
   public disableControls(): boolean {
