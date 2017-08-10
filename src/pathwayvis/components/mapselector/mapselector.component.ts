@@ -18,7 +18,7 @@ class MapSelectorComponentCtrl {
     this._selectedMap = mapOptions.getSelectedMap();
     this.allMaps = mapService.allMaps;
 
-    $scope.$watch('ctrl.mapOptions.getModel()', () => {
+    $scope.$watch('ctrl.mapOptions.getModelId()', () => {
       this.model = this.mapOptions.getModelId();
       this.setMapsFromModel(this.mapOptions.getModelId());
     }, true);
@@ -48,10 +48,8 @@ class MapSelectorComponentCtrl {
   }
 }
 
-
 export const MapSelectorComponent = {
   controller: MapSelectorComponentCtrl,
   controllerAs: 'ctrl',
   template: template.toString(),
-
 };

@@ -104,22 +104,31 @@ class MapComponentCtrl {
 
     $scope.$watch('ctrl._mapOptions.getAddedReactions()', () => {
       const addedReactions = this._mapOptions.getAddedReactions();
+      const newlyAddedReactionEscherIds = [];
       if (this._builder && addedReactions) {
-        addedReactions.forEach((reaction) => {
-          const metabolites = reaction.metabolites.filter((m) => {
-            return this._builder.options.cofactors.indexOf(m.bigg_id) === -1;
+        // Only add rection if it doesn't have escherId. Perhaps checking if it's already on the map
+        // Is safer, but this is the easiest way to check.
+        addedReactions.filter((r) => !(r.escherProps && r.escherProps.id))
+          .forEach((reaction) => {
+            const metabolites = reaction.metabolites.filter((m) => {
+              return this._builder.options.cofactors.indexOf(m.bigg_id) === -1;
+            });
+            const cofactors = reaction.metabolites.filter((m) => {
+              return this._builder.options.cofactors.indexOf(m.bigg_id) > -1;
+            });
+            const metaboliteBiggIds: string[] = metabolites.map((m) => {
+              return `${m.bigg_id}_${m.compartment_bigg_id}`;
+            });
+            const nodes = Object.values(this._builder.map.nodes).filter((node) => {
+              return metaboliteBiggIds.findIndex((id) => { return node.bigg_id === id; }) > -1;
+            });
+            reaction.escherProps = this._builder.map.new_reaction_for_metabolite(reaction.metanetx_id, nodes[0].node_id, 90);
+            newlyAddedReactionEscherIds.push(reaction.escherProps.id);
           });
-          const cofactors = reaction.metabolites.filter((m) => {
-            return this._builder.options.cofactors.indexOf(m.bigg_id) > -1;
-          });
-          const metaboliteBiggIds: string[] = metabolites.map((m) => {
-            return `${m.bigg_id}_${m.compartment_bigg_id}`;
-          });
-          const nodes = Object.values(this._builder.map.nodes).filter((node) => {
-            return metaboliteBiggIds.findIndex((id) => { return node.bigg_id === id; }) > -1;
-          });
-          this._builder.map.new_reaction_for_metabolite(reaction.metanetx_id, nodes[0].node_id, 90);
-        });
+        const lastNewReactionId = newlyAddedReactionEscherIds.pop();
+        if (lastNewReactionId) {
+          this._builder.map.zoom_to_reaction(lastNewReactionId);
+        }
       }
     }, true);
 

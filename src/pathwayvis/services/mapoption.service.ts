@@ -349,7 +349,7 @@ export class MapOptionService {
   }
 
   public getAddedReactions(): AddedReaction[] {
-    return this.getMapData().addedReactions;
+    return this.getDataObject().mapData.addedReactions;
   }
 
   public addReaction(addedReaction: AddedReaction): any {

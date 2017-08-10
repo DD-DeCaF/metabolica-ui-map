@@ -21,7 +21,7 @@ class ReactionComponentCtrl {
     return () => {
       return counter++;
     };
-   })();
+  })();
 
   constructor($http: angular.IHttpService,
     mapOptions: MapOptionService,
@@ -39,7 +39,7 @@ class ReactionComponentCtrl {
 
   public onUndoClick(selectedReaction: string): void {
     const undoKnockoutAction = this.actions.getAction('reaction:knockout:undo');
-    this.mapOptions.actionHandler(undoKnockoutAction, {id: selectedReaction})
+    this.mapOptions.actionHandler(undoKnockoutAction, { id: selectedReaction })
       .then(this.updateMapData.bind(this));
   }
 
@@ -52,10 +52,11 @@ class ReactionComponentCtrl {
   }
 
   public selectedItemChange(item: BiggReaction) {
-    if (item) {
-      const url = `${BiggAPIBase}${item.model_bigg_id.toLowerCase()}/reactions/${item.bigg_id}`;
-      $.getJSON(url)
-        .then((response) => {
+    if (!item) return;
+    const url = `${BiggAPIBase}${item.model_bigg_id.toLowerCase()}/reactions/${item.bigg_id}`;
+    $.getJSON(url)
+      .then((response) => {
+        this.$scope.$apply(() => {
           const metanetx_id = <string> _.get(response, 'database_links.MetaNetX (MNX) Equation.0.id');
           const metabolites: Metabolite[] = response.metabolites.map((m) => {
             return <Metabolite> {
@@ -64,18 +65,19 @@ class ReactionComponentCtrl {
               coef: m.stoichiometry,
             };
           });
-          const reaction = <AddedReaction> {...item,
+          const reaction = <AddedReaction> {
+            ...item,
             reaction_string: <string> response.reaction_string,
             metabolites,
             metanetx_id,
           };
           this.mapOptions.addReaction(reaction).then(this.updateMapData.bind(this))
-          .then(() => {
-            this.mapOptions.getDataObject().mapData.addedReactions.push(reaction);
-          });
+            .then(() => {
+              this.mapOptions.getDataObject().mapData.addedReactions.push(reaction);
+            });
         });
-      this.searchText = "";
-    }
+      });
+    this.searchText = "";
   }
 
   public getAddedReactions(): BiggReaction[] {
@@ -88,12 +90,12 @@ class ReactionComponentCtrl {
 
   private updateMapData(response) {
     // @matyasfodor move this to a central place -> mapOptions?
-    this.mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
-    this.mapOptions.setReactionData(response.fluxes);
-    this.mapOptions.setDataModel(response.model, `${response.model.id}_${this.pkgen()}`);
-    this.mapOptions.setModel(response.model);
-    this.mapOptions.setRemovedReactions(response['removed-reactions']);
-    this.$scope.$apply();
+    this.$scope.$apply(() => {
+      this.mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
+      this.mapOptions.setReactionData(response.fluxes);
+      this.mapOptions.setDataModel(response.model, `${response.model.id}_${this.pkgen()}`);
+      this.mapOptions.setRemovedReactions(response['removed-reactions']);
+    });
   }
 }
 
