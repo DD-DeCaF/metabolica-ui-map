@@ -119,10 +119,22 @@ class MapComponentCtrl {
             const metaboliteBiggIds: string[] = metabolites.map((m) => {
               return `${m.bigg_id}_${m.compartment_bigg_id}`;
             });
-            const nodes = Object.values(this._builder.map.nodes).filter((node) => {
-              return metaboliteBiggIds.findIndex((id) => { return node.bigg_id === id; }) > -1;
+            const nodes = Object.values(this._builder.map.nodes).filter((n) => {
+              return metaboliteBiggIds.findIndex((id) => n.bigg_id === id) > -1;
             });
-            reaction.escherProps = this._builder.map.new_reaction_for_metabolite(reaction.metanetx_id, nodes[0].node_id, 90);
+            const [node] = nodes;
+            if (node) {
+              reaction.escherProps = this._builder.map.new_reaction_for_metabolite(
+                reaction.bigg_id,
+                node.node_id,
+                90);
+            } else {
+              reaction.escherProps = this._builder.map.new_reaction_from_scratch(
+                reaction.bigg_id,
+                // just came up with this
+                { x: 50, y: 200 },
+                90);
+            }
             newlyAddedReactionEscherIds.push(reaction.escherProps.id);
           });
         const lastNewReactionId = newlyAddedReactionEscherIds.pop();
@@ -290,7 +302,7 @@ class MapComponentCtrl {
     if (action.type === 'reaction:link') {
       this.$window.open(`http://bigg.ucsd.edu/universal/reactions/${data.bigg_id}`);
     } else {
-      this._mapOptions.actionHandler(action, data.bigg_id).then((response) => {
+      this._mapOptions.actionHandler(action, { id: data.bigg_id }).then((response) => {
         this._mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
         this._mapOptions.setReactionData(response.fluxes);
         this._mapOptions.setRemovedReactions(response['removed-reactions']);
@@ -304,8 +316,8 @@ class MapComponentCtrl {
    */
   private _initMap(): void {
     // Default map settings
-    let settings = {
-      menu: 'none',
+    const settings = {
+      menu: 'all',
       scroll_behavior: 'zoom',
       fill_screen: true,
       ignore_bootstrap: true,
@@ -326,9 +338,6 @@ class MapComponentCtrl {
       reaction_knockout: this._mapOptions.getRemovedReactions(),
     };
     this._builder = escher.Builder(this._mapOptions.getMap(), null, null, this._mapElement, settings);
-    if (this._mapOptions.getDataModelId() != null) {
-      this._loadModel();
-    }
   }
 
   /**

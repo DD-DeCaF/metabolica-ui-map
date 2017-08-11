@@ -23,7 +23,7 @@ export abstract class ReactionAction extends Action {
       'to-return': ['fluxes', 'growth-rate', 'removed-reactions', 'added-reactions', 'model'],
       'simulation-method': this.shared.method,
       'reactions-knockout': this.shared.removedReactions,
-      'reactions-add': this.shared.addedReactions.map((r) => ({id: r.metanetx_id, string: null})),
+      'reactions-add': this.shared.addedReactions.map((r) => ({id: r.bigg_id, string: r.reaction_string})),
     };
 
     return $timeout(() => {

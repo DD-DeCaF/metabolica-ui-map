@@ -67,7 +67,7 @@ class ReactionComponentCtrl {
           });
           const reaction = <AddedReaction> {
             ...item,
-            reaction_string: <string> response.reaction_string,
+            reaction_string: <string> response.reaction_string.replace("&#8652;", "<=>"),
             metabolites,
             metanetx_id,
           };
