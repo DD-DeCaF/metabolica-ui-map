@@ -354,12 +354,23 @@ class MapComponentCtrl {
     // Check removed and added reactions and genes from model
     const changes = model.notes.changes;
 
-    if (changes && this._mapOptions.getRemovedReactions().length === 0) {
-      // this.shared.removedReactions
-      let reactions = changes.removed.reactions.map((reaction: types.Reaction) => {
-        return reaction.id;
-      });
-      this._mapOptions.setRemovedReactions(reactions);
+    if (changes) {
+      // @matyasfodor why only when there are no removed reactions?
+      if (this._mapOptions.getRemovedReactions().length === 0) {
+        // this.shared.removedReactions
+        let reactions = changes.removed.reactions.map((reaction: types.Reaction) => {
+          return reaction.id;
+        });
+        this._mapOptions.setRemovedReactions(reactions);
+      }
+
+      if (changes.added.reactions) {
+        // TODO filter out adapter and DM reactions
+        const reactions = changes.added.reactions.filter((reaction) => {
+          return ! (reaction.id.startsWith('adapter') || reaction.id.startsWith('DM'));
+        });
+        this._mapOptions.setAddedReactions(reactions);
+      }
     }
 
     // Open WS connection for model if it is not opened

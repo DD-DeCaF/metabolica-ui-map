@@ -352,6 +352,10 @@ export class MapOptionService {
     return this.getDataObject().mapData.addedReactions;
   }
 
+  public setAddedReactions(reactions: AddedReaction[]): void {
+    this.getDataObject().mapData.addedReactions = reactions;
+  }
+
   public addReaction(addedReaction: AddedReaction): any {
     return this.actionHandler(this.actions.getAction('reaction:update'), {reaction: addedReaction});
   }
