@@ -5,11 +5,11 @@ import {ToastService} from './services/toastservice'
 import {MapOptionService} from './services/mapoption.service';
 import {MapService} from './services/map.service';
 import {MethodService} from './services/method.service';
+import {ExperimentService} from './services/experiment.service';
 import {PathwayVisComponent} from './pathwayvis.component'
 import {mapComponent} from './components/map/map.component';
-import {KnockoutComponent} from './components/knockout/knockout.component';
 import {MapSelectorComponent} from './components/mapselector/mapselector.component';
-import {MapLoaderComponent} from './components/maploader/maploader.component';
+import {DataCardComponent} from './components/datacard/datacard.component';
 import {ActionsService} from './services/actions/actions.service';
 import DONUT_LARGE from '../../img/icons/donut_large.svg';
 import {DecafAPIProvider} from './providers/decafapi.provider';
@@ -18,6 +18,8 @@ import {ModelWSProvider} from './providers/modelws.provider';
 import {LegendComponent} from './components/legend/legend.component';
 import {SettingsComponent} from './components/settings/settings.component';
 import {InfoComponent} from './components/info/info.component';
+import {CardControllerComponent} from  './components/datacardcontroller/cardcontroller.component'
+import {ReactionComponent} from  './components/reactionpanel/reaction.component'
 
 export const PathwayVisModule = angular.module('pathwayvis', [
 	require('angular-material-data-table')
@@ -32,14 +34,16 @@ export const PathwayVisModule = angular.module('pathwayvis', [
 	.service('MapService', MapService)
 	.service('MapOptions', MapOptionService)
 	.service('MethodService', MethodService)
+	.service('ExperimentService', ExperimentService)
 	.component('pathwayvis', PathwayVisComponent)
 	.component('pvMap', mapComponent)
-	.component('pvKnockout', KnockoutComponent)
 	.component('pvMapSelector', MapSelectorComponent)
-	.component('pvMaploader', MapLoaderComponent)
+	.component('pvDataCard', DataCardComponent)
 	.component('pvLegend', LegendComponent)
 	.component('pvSettings', SettingsComponent)
 	.component('pvInfo', InfoComponent)
+	.component('pvCardController', CardControllerComponent)
+	.component('pvReactionPanel', ReactionComponent)
 	.config(function ($mdIconProvider, $stateProvider, appNavigationProvider) {
 		$mdIconProvider.icon('donut_large', DONUT_LARGE, 24);
 
@@ -70,4 +74,14 @@ export const PathwayVisModule = angular.module('pathwayvis', [
 	.config(function ($mdThemingProvider) {
 		$mdThemingProvider.theme('warn-toast');
 		$mdThemingProvider.theme('error-toast');
-	});
+	})
+	.directive('showFocus', function($timeout) {
+	return function(scope, element, attrs) {
+		scope.$watch(attrs.showFocus,
+			function (newValue) {
+				$timeout(function() {
+					newValue && element[0].focus();
+				});
+			},true);
+	};
+});

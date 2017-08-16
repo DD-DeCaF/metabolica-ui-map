@@ -12,6 +12,8 @@ import {ActionsService} from "./actions/actions.service";
 import {MapDataObject} from "../models/MapDataObject"
 import {DataHandler} from "../models/DataHandler";
 import {MethodService} from "./method.service";
+import {AddedReaction, Experiment, Method, ObjectType, Phase, Sample, Species} from "../types";
+import {ExperimentService} from "./experiment.service";
 
 interface MapSettings {
     map_id: string;
@@ -20,11 +22,11 @@ interface MapSettings {
 }
 
 export class MapOptionService {
+    private experimentService: ExperimentService;
     private methodService: MethodService;
     public shouldUpdateData: boolean;
     public models: string[];
     private apiService: APIService;
-    // private mapObjects: MapDataObject[];
     private dataHandler: DataHandler;
     public shouldLoadMap: boolean;
 
@@ -32,20 +34,9 @@ export class MapOptionService {
 
     public mapSettings: MapSettings;
 
-    // private mapObjectsIds: number[];
+    private speciesList: Species[] = [];
 
-    // TODO: should get methods and default method from backend
-    // public methods: types.Method[] = [
-    //     {'id': 'fba', 'name': 'FBA'},
-    //     {'id': 'pfba', 'name': 'pFBA'},
-    //     {'id': 'fva', 'name': 'FVA'},
-    //     {'id': 'pfba-fva', 'name': 'pFBA-FVA'},
-    //     {'id': 'moma', 'name': 'MOMA'},
-    //     {'id': 'lmoma', 'name': 'lMOMA'},
-    //     {'id': 'room', 'name': 'ROOM'}
-    // ];
-
-    public experiments: types.Experiment[];
+    public selectedSpecies: string = "ECOLX";
 
     private toastService: ToastService;
     private actions: ActionsService;
@@ -53,16 +44,25 @@ export class MapOptionService {
 
     constructor(api: APIService, ToastService: ToastService,
                 actions: ActionsService,
-                MethodService: MethodService) {
+                MethodService: MethodService,
+                ExperimentService: ExperimentService) {
         this.apiService = api;
         this.toastService = ToastService;
         this.actions = actions;
         this.methodService = MethodService;
+        this.experimentService = ExperimentService;
 
-        // this.$scope = $scope;
+        this.apiService.get('species/current').then((response: angular.IHttpPromiseCallbackArg<any>) => {
+            let species = response.data['response'];
+            Object.keys(species).forEach((key)=>{
+                let obj = {'id' : key, 'name': species[key]};
+                this.speciesList.push(obj);
+            });
 
-        this.apiService.get('experiments').then((response: angular.IHttpPromiseCallbackArg<types.Experiment[]>) => {
-            this.experiments = response.data['response'];
+            // Set selected species
+            this.selectedSpecies = this.speciesList[0].id;
+            this.setModelsFromSpecies(this.selectedSpecies);
+
         });
 
         this.init();
@@ -70,7 +70,7 @@ export class MapOptionService {
 
     public init(): void{
         this.dataHandler = new DataHandler(this.methodService);
-        this.selectedCardId = this.dataHandler.addObject();
+        this.selectedCardId = this.dataHandler.addObject(ObjectType.Reference);
 
         this.mapSettings = <any>{
             map_id : 'Central metabolism',
@@ -81,10 +81,28 @@ export class MapOptionService {
         this.shouldLoadMap = false;
         this.shouldUpdateData = false;
 
+        this.setExperimentsFromSpecies();
+
+    }
+
+    private setExperimentsFromSpecies(speciesCode = this.selectedSpecies): void {
+        this.experimentService.setExperiments(speciesCode);
+    }
+
+    public getSelectedSpecies(): string{
+        return this.selectedSpecies;
+    }
+
+    public getSpeciesList(): Species[]{
+        return this.speciesList;
     }
 
     public getDataObject(id: number = this.selectedCardId): MapDataObject{
         return this.dataHandler.getObject(id);
+    }
+
+    public getType(id: number = this.selectedCardId): ObjectType{
+        return this.dataHandler.getObject(id).type;
     }
 
     public getSelectedId(): number{
@@ -163,26 +181,26 @@ export class MapOptionService {
     }
 
 
-    public setMethodId(method: string) : void {
+    public setMethodId(method: Method) : void {
         this.shouldLoadMap = true;
         this.getDataObject().selected.method = method;
-        this.getDataObject().mapData.method = method;
+        this.getDataObject().mapData.method = method.id;
     }
 
-    public setExperiment(experiment: number) : void {
+    public setExperiment(experiment: Experiment) : void {
         this.getDataObject().selected.sample = null;
         this.getDataObject().selected.phase = null;
         this.shouldLoadMap = true;
         this.getDataObject().selected.experiment = experiment;
     }
 
-    public setSample(sample: string) : void {
+    public setSample(sample: Sample) : void {
         this.getDataObject().selected.phase = null;
         this.shouldLoadMap = true;
         this.getDataObject().selected.sample = sample;
     }
 
-    public setPhase(phase: string) : void {
+    public setPhase(phase: Phase) : void {
         this.shouldLoadMap = true;
         this.getDataObject().selected.phase = phase;
     }
@@ -190,25 +208,6 @@ export class MapOptionService {
     public getCurrentSelectedItems() : types.SelectedItems {
         return this.getDataObject().selected;
     }
-
-    // public getMapObject(id: number): types.MapObject{
-    //     return this.mapObjects[id];
-    // }
-
-    // public getDeafultMethod(): string {
-    //     return this.methods[1].id;
-    // }
-
-    // public getMethodName(id: string): string{
-    //     let result = "_";
-    //     this.methods.some((item: types.Method) =>{
-    //         if(id.localeCompare(item.id) === 0){
-    //             result = item.name;
-    //             return true
-    //         }
-    //     });
-    //     return result;
-    // }
 
     public getSamples(experiment: number) : angular.IPromise<Object> {
         if(experiment){
@@ -237,6 +236,22 @@ export class MapOptionService {
             });
     }
 
+    public speciesChanged(species: string): void{
+        this.setModelsFromSpecies(species);
+        this.setExperimentsFromSpecies(species);
+    }
+
+    public setModelsFromSpecies(species: string): void{
+        if(species){
+            let url = 'model-options/' + species;
+            this.apiService.getModel(url, {}).then((response: angular.IHttpPromiseCallbackArg<any>) => {
+                this.models = response.data;
+                this.shouldUpdateData = true;
+                this.mapSettings.model_id = this.models[0];
+            });
+        }
+    }
+
     public getModels(): string[]{
         return this.models;
     }
@@ -249,25 +264,8 @@ export class MapOptionService {
         }
     }
 
-    public getExperiment(): number {
+    public getExperiment(): Experiment {
         return this.getDataObject().selected.experiment;
-    }
-
-    public getExperiments(): types.Experiment[]{
-        return this.experiments;
-    }
-
-    public getExperimentName(id: number): string{
-        let result = "_";
-        if(this.experiments){
-            this.experiments.some((item: types.Experiment) =>{
-                if(id == item.id){
-                    result = item.name;
-                    return true
-                }
-            });
-        }
-        return result;
     }
 
     public getMapObjectsIds(): number[] {
@@ -278,8 +276,16 @@ export class MapOptionService {
         return id == this.selectedCardId;
     }
 
-    public addMapObject(): void{
-        this.selectedCardId = this.dataHandler.addObject();
+    public addRefMapObject(): void{
+        this.selectedCardId = this.dataHandler.addObject(ObjectType.Reference);
+    }
+
+    public addExpMapObject(): void{
+        this.selectedCardId = this.dataHandler.addObject(ObjectType.Experiment);
+    }
+
+    public addMapObject(type:ObjectType=null): void{
+        this.selectedCardId = this.dataHandler.addObject(type);
     }
 
     public removeMapObject(id: number): void {
@@ -302,17 +308,19 @@ export class MapOptionService {
         this.selectedCardId = id;
     }
 
-    public actionHandler(action, id): any {
+    public actionHandler(action, id=null): any {
         let shared  = JSON.parse(JSON.stringify(this.getMapData()));
 
-        if (action.type === 'reaction:knockout:do'){
-            shared.removedReactions.push(id);
+        if(id){
+            if (action.type === 'reaction:knockout:do'){
+                shared.removedReactions.push(id);
 
-        }
-        if (action.type === 'reaction:knockout:undo'){
-            let index = shared.removedReactions.indexOf(id);
-            if(index > -1){
-                shared.removedReactions.splice(index, 1);
+            }
+            if (action.type === 'reaction:knockout:undo'){
+                let index = shared.removedReactions.indexOf(id);
+                if(index > -1){
+                    shared.removedReactions.splice(index, 1);
+                }
             }
         }
         return this.actions.callAction(action, {shared: shared})
@@ -365,5 +373,27 @@ export class MapOptionService {
 
     public getCollectionSize(): number{
         return this.dataHandler.size();
+    }
+
+    public getAddedReactions() : AddedReaction[]{
+        return this.getMapData().addedReactions;
+    }
+
+    public addReaction(addedReaction: AddedReaction): any{
+        let action = this.actions.getAction('reaction:update');
+        this.getDataObject().mapData.addedReactions.push(addedReaction);
+        return this.actionHandler(action);
+    }
+
+    public removeReaction(bigg_id: string): any{
+        let action = this.actions.getAction('reaction:update');
+        let mapData = this.getMapData();
+        for(let i = 0; i < mapData.addedReactions.length; i++) {
+            if(mapData.addedReactions[i].bigg_id == bigg_id) {
+                mapData.addedReactions.splice(i, 1);
+                break;
+            }
+        }
+        return this.actionHandler(action);
     }
 }

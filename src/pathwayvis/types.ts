@@ -37,11 +37,6 @@ export interface Reaction {
 
 export interface Shared {
     loading?: number;
-    map?: Map;
-    model?: Model;
-    sections?: any;
-    method?: string;
-    removedReactions?: string[];
 }
 
 export interface MapData {
@@ -50,6 +45,7 @@ export interface MapData {
     sections?: any;
     method?: string;
     removedReactions?: string[];
+    addedReactions?: AddedReaction[];
     info?: object;
     selected?: SelectedItems;
 }
@@ -61,10 +57,10 @@ export interface MapObject{
 }
 
 export interface SelectedItems {
-    experiment?: number;
-    sample?: string;
-    phase?: string;
-    method?: string;
+    experiment?: Experiment;
+    sample?: Sample;
+    phase?: Phase;
+    method?: Method;
     map?: string;
     model?: string;
 }
@@ -97,4 +93,26 @@ export interface Action {
     label: string;
     callback: any;
     canDisplay: any;
+}
+
+export interface Species{
+    id: string;
+    name: string;
+}
+
+export enum ObjectType {
+    Experiment,
+    Reference
+}
+
+export interface BiggReaction{
+    model_bigg_id: string;
+    bigg_id: string;
+    name: string;
+    organism: string;
+}
+
+export interface AddedReaction extends BiggReaction{
+    metanetx_id: string;
+    reaction_string: string
 }

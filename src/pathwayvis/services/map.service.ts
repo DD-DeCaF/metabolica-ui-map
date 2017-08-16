@@ -10,7 +10,7 @@ export class MapService {
     constructor(api: APIService){
         this.apiService = api;
 
-        this.apiService.request_model('maps', {}).then((response: angular.IHttpPromiseCallbackArg<any>) => {
+        this.apiService.getModel('maps', {}).then((response: angular.IHttpPromiseCallbackArg<any>) => {
             this.allMaps = response.data;
         });
     }

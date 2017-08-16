@@ -1,6 +1,6 @@
-<md-content>
-	<section ng-show="ctrl.showGenotypeChanges()">
-		<md-subheader class="md-accent">Genotype changes</md-subheader>
+<md-content class="tab-content">
+	<md-card ng-show="ctrl.showGenotypeChanges()">
+		<md-subheader class="md-primary">Genotype changes</md-subheader>
 		<md-list layout-padding>
 			<md-list-item ng-repeat="change in ctrl.getGenotypeChanges()">
 								<span class="md-caption" id="genotype"> {{ change | limitTo : 30 }}...
@@ -8,10 +8,10 @@
 								</span>
 			</md-list-item>
 		</md-list>
-	</section>
+	</md-card>
 
-	<section>
-		<md-subheader class="md-accent">Measurements</md-subheader>
+	<md-card>
+		<md-subheader class="md-primary">Measurements</md-subheader>
 		<md-table-container>
 			<table md-table>
 				<tbody md-body>
@@ -22,10 +22,10 @@
 				</tbody>
 			</table>
 		</md-table-container>
-	</section>
+	</md-card>
 
-	<section>
-		<md-subheader class="md-accent">Medium</md-subheader>
+	<md-card>
+		<md-subheader class="md-primary">Medium</md-subheader>
 		<md-table-container>
 			<table md-table>
 				<tbody md-body>
@@ -36,5 +36,5 @@
 				</tbody>
 			</table>
 		</md-table-container>
-	</section>
+	</md-card>
 </md-content>

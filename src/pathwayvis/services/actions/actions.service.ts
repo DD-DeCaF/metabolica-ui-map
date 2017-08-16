@@ -55,50 +55,14 @@ export class ActionsService {
 }
 
 /**
- * Link to bigg
- */
-
-@registerAction
-class LinkReaction implements Action {
-    public label = 'Open in BIGG reactions';
-    public type: string = 'reaction:link';
-
-    public canDisplay(context: any): boolean {
-        return context.type === 'map:reaction'
-    }
-
-    public callback(...args: any[]): void {
-        throw new Error("Method not implemented.");
-    }
-}
-
-/**
  * Knockout reaction
  */
 @registerAction
 class Knockout extends ReactionAction implements Action {
-    public ws: WSService;
     public label = 'Knockout';
     public type: string = 'reaction:knockout:do';
-    public shared: types.Shared;
+    public shared: types.MapData;
 
-    // @ngInject
-    public callback(ws: WSService, $timeout: angular.ITimeoutService): any {
-
-        const data = {
-            'to-return': ['fluxes', 'growth-rate', 'removed-reactions'],
-            'simulation-method': this.shared.method,
-            'reactions-knockout': this.shared.removedReactions
-        };
-
-        return $timeout(() => {
-            return ws.send(data).then((data) => {
-                return data;
-            }, (error) => {
-                // TODO: set error
-            });
-        }, 0, false);
-    }
 
     public canDisplay(context) {
         const isRemoved = !_.includes(context.shared.removedReactions, context.element.bigg_id);
@@ -120,6 +84,15 @@ class UndoKnockout extends Knockout {
             return context.type === 'map:reaction' && isRemoved;
         }
 
+        return false;
+    }
+}
+
+@registerAction
+class UpdateReaction extends ReactionAction implements Action{
+    public type: string = 'reaction:update';
+
+    public canDisplay(context) {
         return false;
     }
 }
