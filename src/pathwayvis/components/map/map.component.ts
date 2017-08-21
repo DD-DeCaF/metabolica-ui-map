@@ -368,6 +368,19 @@ class MapComponentCtrl {
         // TODO filter out adapter and DM reactions
         const reactions = changes.added.reactions.filter((reaction) => {
           return ! (reaction.id.startsWith('adapter') || reaction.id.startsWith('DM'));
+        })
+        .map((reaction) => {
+          return Object.assign({}, reaction, {
+            bigg_id: reaction.id,
+            metabolites: Object.entries(reaction.metabolites).map(([metabolite, coef]) => {
+              const [, bigg_id = '', compartment_bigg_id = ''] = /^(.*)_(\w+)$/.exec(metabolite) || [];
+              return <types.Metabolite> {
+                bigg_id,
+                compartment_bigg_id,
+                coef,
+              };
+            }),
+          });
         });
         this._mapOptions.setAddedReactions(reactions);
       }
