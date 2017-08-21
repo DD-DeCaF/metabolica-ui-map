@@ -14,7 +14,7 @@
       <md-subheader class="md-primary">Added reactions:</md-subheader>
       <md-list-item ng-hide="ctrl.getAddedReactions().length > 0">No added reactions</md-list-item>
       <md-list-item ng-repeat="reaction in ctrl.getAddedReactions()">
-        <span class="md-caption">{{ reaction.name }}</span>
+        <span class="md-caption">{{ reaction.name || reaction.id }}</span>
         <md-button class="md-icon-button md-secondary" ng-click="ctrl.onReactionRemoveClick(reaction.bigg_id)">
           <md-icon md-font-icon="close">
             close
