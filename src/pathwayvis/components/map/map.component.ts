@@ -367,7 +367,9 @@ class MapComponentCtrl {
       if (changes.added.reactions) {
         // TODO filter out adapter and DM reactions
         const reactions = changes.added.reactions.filter((reaction) => {
-          return ! (reaction.id.startsWith('adapter') || reaction.id.startsWith('DM'));
+          return !['adapter', 'DM', 'EX_'].some((str) => {
+            return reaction.id.startsWith(str);
+          });
         })
         .map((reaction) => {
           return Object.assign({}, reaction, {
