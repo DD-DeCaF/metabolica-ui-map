@@ -3,7 +3,7 @@
  */
 import * as template from './legend.component.html';
 import './legend.component.scss';
-import angular = require("angular");
+import * as angular from 'angular';
 
 class LegendComponentController{
 

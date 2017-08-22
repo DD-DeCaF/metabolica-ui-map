@@ -7,7 +7,7 @@ import * as types from '../types'
 import * as _ from 'lodash';
 import {APIService} from "./api";
 import {ToastService} from "./toastservice";
-import angular = require("angular");
+import * as angular from 'angular';
 import {ActionsService} from "./actions/actions.service";
 import {MapDataObject} from "../models/MapDataObject"
 import {DataHandler} from "../models/DataHandler";
