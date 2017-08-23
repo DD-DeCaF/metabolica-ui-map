@@ -142,7 +142,6 @@ export interface AddedReaction extends BiggReaction {
   metanetx_id: string;
   reaction_string: string;
   metabolites: Metabolite[];
-  escherProps?: ReactionEscherProps;
 }
 
 export interface EmbeddedResponse<T> {

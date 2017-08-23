@@ -106,9 +106,12 @@ class MapComponentCtrl {
       const addedReactions = this._mapOptions.getAddedReactions();
       const newlyAddedReactionEscherIds = [];
       if (this._builder && addedReactions) {
-        // Only add rection if it doesn't have escherId. Perhaps checking if it's already on the map
-        // Is safer, but this is the easiest way to check.
-        addedReactions.filter((r) => !(r.escherProps && r.escherProps.id))
+        // Check if reaction is already drawn on the map
+        addedReactions.filter((r) => {
+          return Object.values(this._builder.map.reactions)
+            .map((escherReaction) => escherReaction.bigg_id)
+            .indexOf(r.bigg_id) === -1;
+        })
           .forEach((reaction) => {
             const metabolites = reaction.metabolites.filter((m) => {
               return this._builder.options.cofactors.indexOf(m.bigg_id) === -1;
@@ -123,19 +126,20 @@ class MapComponentCtrl {
               return metaboliteBiggIds.findIndex((id) => n.bigg_id === id) > -1;
             });
             const [node] = nodes;
+            let escherProps;
             if (node) {
-              reaction.escherProps = this._builder.map.new_reaction_for_metabolite(
+              escherProps = this._builder.map.new_reaction_for_metabolite(
                 reaction.bigg_id,
                 node.node_id,
                 90);
             } else {
-              reaction.escherProps = this._builder.map.new_reaction_from_scratch(
+              escherProps = this._builder.map.new_reaction_from_scratch(
                 reaction.bigg_id,
                 // just came up with this
                 { x: 50, y: 200 },
                 90);
             }
-            newlyAddedReactionEscherIds.push(reaction.escherProps.id);
+            newlyAddedReactionEscherIds.push(escherProps.id);
           });
         const lastNewReactionId = newlyAddedReactionEscherIds.pop();
         if (lastNewReactionId) {
@@ -200,6 +204,9 @@ class MapComponentCtrl {
       this._builder.load_model(this._mapOptions.getDataModel());
       this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
       this._loadContextMenu();
+      // Reset zoom - if the zoom is set to a reaction,
+      // it might not be included in the other map
+      this._builder.map.zoom_extent_canvas();
     }
   }
 
