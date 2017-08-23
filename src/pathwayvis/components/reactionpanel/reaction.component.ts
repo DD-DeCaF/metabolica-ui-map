@@ -71,10 +71,7 @@ class ReactionComponentCtrl {
             metabolites,
             metanetx_id,
           };
-          this.mapOptions.addReaction(reaction).then(this.updateMapData.bind(this))
-            .then(() => {
-              this.mapOptions.getDataObject().mapData.addedReactions.push(reaction);
-            });
+          this.mapOptions.addReaction(reaction).then(this.updateMapData.bind(this));
         });
       });
     this.searchText = "";
