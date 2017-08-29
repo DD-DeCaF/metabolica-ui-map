@@ -1,4 +1,4 @@
-<md-content class="tab-content" layout="column">
+<md-content class="tab-content">
   <md-card>
     <md-input-container style="margin-left: 10px;">
       <label>Model</label>
@@ -7,9 +7,10 @@
       </md-select>
     </md-input-container>
   </md-card>
+
   <md-card>
+    <md-subheader class="md-primary">Maps</md-subheader>
     <md-list>
-      <md-subheader class="md-primary">Maps</md-subheader>
       <md-list-item ng-repeat="map in ctrl.maps" ng-click="ctrl.setMap(map)">
         {{map}}
       </md-list-item>

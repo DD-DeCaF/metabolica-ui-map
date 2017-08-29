@@ -73,15 +73,15 @@ class MapComponentCtrl {
     }, true);
 
     // Map watcher
-    $scope.$watch('ctrl._mapOptions.getMapId()', () => {
-      if (this._mapOptions.getMapId()) {
-        this._initMap();
-        if (this._mapOptions.getReactionData()) {
-          this._loadData();
-        }
-        if (this._builder) {
-          this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
-        }
+    $scope.$watch('ctrl._mapOptions.getMapId()', (mapId) => {
+      if (!mapId) return;
+      this._initMap();
+      if (this._mapOptions.getReactionData()) {
+        this._loadModel();
+        this._loadData();
+      }
+      if (this._builder) {
+        this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
       }
     }, true);
 
@@ -402,6 +402,8 @@ class MapComponentCtrl {
 
   }
 
+  // @matyasfodor Note: Do not use data -> vague definition.
+  // IIUC data here means flux.
   /**
    * Loads data to the map
    * TODO: handle metabolite and gene data
@@ -415,23 +417,16 @@ class MapComponentCtrl {
     if (selected.method.id === 'fva' || selected.method.id === 'pfba-fva') {
 
       // const fvaData = reactionData;
-      const fvaData = _.pickBy(reactionData, (data) => {
-        if (Math.abs((data.upper_bound + data.lower_bound) / 2) > Math.pow(10, -7)) return true;
-      });
+      const fvaData = _.pickBy(reactionData, (d) => Math.abs((d.upper_bound + d.lower_bound) / 2) > 1e-7);
 
-      reactionData = _.mapValues(fvaData, (data) => {
-        return (data.upper_bound + data.lower_bound) / 2;
-      });
+      reactionData = _.mapValues(fvaData, (d) => (d.upper_bound + d.lower_bound) / 2);
 
       this._builder.set_reaction_data(reactionData);
       this._builder.set_reaction_fva_data(fvaData);
 
     } else {
       // Remove zero values
-      reactionData = _.pickBy(reactionData, (value: number) => {
-        if (Math.abs(value) > Math.pow(10, -7)) return true;
-      });
-
+      reactionData = _.pickBy(reactionData, (value: number) => Math.abs(value) > 1e-7);
       this._builder.set_reaction_data(reactionData);
     }
     this._loadContextMenu();
