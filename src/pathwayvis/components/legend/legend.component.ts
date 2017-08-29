@@ -1,6 +1,6 @@
 import * as template from './legend.component.html';
+import * as angular from "angular";
 import './legend.component.scss';
-import * as angular from 'angular';
 
 
 export const LegendComponent: angular.IComponentOptions = {

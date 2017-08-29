@@ -1,7 +1,7 @@
 import * as types from '../../types';
 import * as template from './settings.component.html';
+import * as angular from "angular";
 import './settings.component.scss';
-import * as angular from 'angular';
 import { MapOptionService } from "../../services/mapoption.service";
 
 class SettingsComponentController {
