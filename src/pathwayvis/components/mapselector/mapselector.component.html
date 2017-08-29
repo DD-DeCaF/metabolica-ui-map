@@ -9,11 +9,13 @@
   </md-card>
 
   <md-card>
-    <md-subheader class="md-primary">Maps</md-subheader>
-    <md-list>
-      <md-list-item ng-repeat="map in ctrl.maps" ng-click="ctrl.setMap(map)">
-        {{map}}
-      </md-list-item>
-    </md-list>
+    <md-content>
+      <md-subheader class="md-primary">Maps</md-subheader>
+      <md-list>
+        <md-list-item ng-repeat="map in ctrl.maps" ng-click="ctrl.setMap(map)">
+          {{map}}
+        </md-list-item>
+      </md-list>
+    </md-content>
   </md-card>
 </md-content>
