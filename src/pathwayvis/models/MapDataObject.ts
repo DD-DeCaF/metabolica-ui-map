@@ -50,8 +50,4 @@ export class MapDataObject implements MapObject {
   public setName(name: string): void {
     this.name = name;
   }
-
-  public addBiggReaction(reaction: AddedReaction): void {
-    this.mapData.addedReactions.push(reaction);
-  }
 }
