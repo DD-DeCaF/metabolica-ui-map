@@ -1,5 +1,4 @@
 import * as escher from '@dd-decaf/escher';
-import * as d3_select from 'd3-selection';
 import * as d3 from 'd3';
 import * as _ from 'lodash';
 import "jquery-ui";
@@ -392,8 +391,8 @@ class MapComponentCtrl {
                 });
 
                 if (this.contextElement) {
-                    this._renderContextMenu(contextMenu, selection, (<MouseEvent> event));
-                    (<Event> event).preventDefault();
+                    this._renderContextMenu(contextMenu, selection);
+                    window.event.preventDefault();
                 }
             });
 
@@ -405,10 +404,10 @@ class MapComponentCtrl {
     /**
      * Renders and positions context menu based on selected element
      */
-    private _renderContextMenu(contextMenu, selection, {pageX, pageY}): void {
+    private _renderContextMenu(contextMenu, selection): void {
         contextMenu.style('position', 'absolute')
-            .style('left', `${pageX}px`)
-            .style('top', `${pageY}px`)
+            .style('left', `${(<MouseEvent> window.event).clientX}px`)
+            .style('top', `${(<MouseEvent> window.event).clientY}px`)
             .style('visibility', 'visible');
         this.$scope.$apply();
     }

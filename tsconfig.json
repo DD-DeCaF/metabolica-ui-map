@@ -1,5 +1,27 @@
 {
-  "compilerOptions": {
-	  "experimentalDecorators": true
-  }
+	"compilerOptions": {
+		"module": "es6",
+		"target": "es5",
+		"moduleResolution": "node",
+		"lib": ["dom", "es2015", "es2016"],
+		"experimentalDecorators": true,
+		"sourceMap": true,
+		"emitDecoratorMetadata": true,
+		"outDir": "dist",
+		"rootDir": ".",
+		"typeRoots": [
+			"node_modules/@types"
+		]
+	},
+	"exclude": [
+		"node_modules"
+	],
+	"angularCompilerOptions": {
+		"debug": false
+	},
+	"compileOnSave": false,
+	"buildOnSave": false,
+	"atom": {
+		"rewriteTsconfig": false
+	}
 }

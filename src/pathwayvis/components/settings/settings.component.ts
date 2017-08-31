@@ -3,7 +3,7 @@
  */
 import * as template from './settings.component.html'
 import './settings.component.scss';
-import angular = require("angular");
+import * as angular from 'angular';
 import {MapOptionService} from "../../services/mapoption.service";
 
 class SettingsComponentController{
