@@ -1,5 +1,5 @@
 import { WSService } from "../ws";
-import { MapData, Metabolite } from "../../types";
+import { MapData } from "../../types";
 /**
  * Abstract class for Action resources.
  */
@@ -25,12 +25,7 @@ export abstract class ReactionAction extends Action {
       'reactions-knockout': this.shared.removedReactions,
       'reactions-add': this.shared.addedReactions.map((r) => ({
         id: r.bigg_id,
-        metabolites: Object.assign({}, ...r.metabolites.map((metabolite: Metabolite) => {
-          return {
-            // TODO do this when it's received.
-            [`${metabolite.bigg_id}_${metabolite.compartment_bigg_id}`]: metabolite.coef,
-          };
-        })),
+        metabolites: r.metabolites,
       })),
     };
 

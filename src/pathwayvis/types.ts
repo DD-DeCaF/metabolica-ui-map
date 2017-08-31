@@ -118,12 +118,6 @@ export enum ObjectType {
   Reference,
 }
 
-export interface Metabolite {
-  bigg_id: string;
-  compartment_bigg_id: string;
-  coef: number;
-}
-
 export interface BiggReaction {
   model_bigg_id: string;
   bigg_id: string;
@@ -141,7 +135,7 @@ export interface ReactionEscherProps {
 export interface AddedReaction extends BiggReaction {
   metanetx_id: string;
   reaction_string: string;
-  metabolites: Metabolite[];
+  metabolites: Map<String, Number>;
 }
 
 export interface EmbeddedResponse<T> {

@@ -3,7 +3,7 @@ import "./reaction.component.scss";
 import * as template from "./reaction.component.html";
 import * as angular from "angular";
 import { MapOptionService } from "../../services/mapoption.service";
-import { AddedReaction, BiggReaction, Metabolite } from "../../types";
+import { AddedReaction, BiggReaction } from "../../types";
 import { ActionsService } from "../../services/actions/actions.service";
 import "jquery";
 
@@ -58,13 +58,11 @@ class ReactionComponentCtrl {
       .then((response) => {
         this.$scope.$apply(() => {
           const metanetx_id = <string> _.get(response, 'database_links.MetaNetX (MNX) Equation.0.id');
-          const metabolites: Metabolite[] = response.metabolites.map((m) => {
-            return <Metabolite> {
-              bigg_id: m.bigg_id,
-              compartment_bigg_id: m.compartment_bigg_id,
-              coef: m.stoichiometry,
+          const metabolites = Object.assign({}, ...response.metabolites.map((m) => {
+            return {
+              [`${m.bigg_id}_${m.compartment_bigg_id}`]: m.stoichiometry,
             };
-          });
+          }));
           const reaction = <AddedReaction> {
             ...item,
             reaction_string: <string> response.reaction_string.replace("&#8652;", "<=>"),

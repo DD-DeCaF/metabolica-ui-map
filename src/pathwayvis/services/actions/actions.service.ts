@@ -92,4 +92,3 @@ class UpdateReaction extends ReactionAction implements Action {
     return false;
   }
 }
-

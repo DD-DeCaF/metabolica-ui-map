@@ -113,17 +113,25 @@ class MapComponentCtrl {
             .indexOf(r.bigg_id) === -1;
         })
           .forEach((reaction) => {
-            const metabolites = reaction.metabolites.filter((m) => {
-              return this._builder.options.cofactors.indexOf(m.bigg_id) === -1;
-            });
-            const cofactors = reaction.metabolites.filter((m) => {
-              return this._builder.options.cofactors.indexOf(m.bigg_id) > -1;
-            });
-            const metaboliteBiggIds: string[] = metabolites.map((m) => {
-              return `${m.bigg_id}_${m.compartment_bigg_id}`;
-            });
+            // We store the metabolite bigg ids suffixed with compartment ids
+            // Cofactors are stored without the compartment id
+            // So if the metabolite looks like with 'h2o_(...)'
+            // Then it is a cofactor 'h2o'
+            const criteria = (m) => {
+              return !this._builder.options.cofactors.some((c) => {
+                return m.startsWith(`${c}_`);
+              });
+            };
+            // parition algorithm
+            const [metabolites, cofactors] = Object.entries(reaction.metabolites).reduce(
+              ([_mets, _cofs], [m]) => {
+                (criteria(m) ? _mets : _cofs).push(m);
+                return [_mets, _cofs];
+              },
+              [[], []],
+            );
             const nodes = Object.values(this._builder.map.nodes).filter((n) => {
-              return metaboliteBiggIds.findIndex((id) => n.bigg_id === id) > -1;
+              return metabolites.findIndex((id) => n.bigg_id === id) > -1;
             });
             const [node] = nodes;
             let escherProps;
@@ -381,14 +389,7 @@ class MapComponentCtrl {
         .map((reaction) => {
           return Object.assign({}, reaction, {
             bigg_id: reaction.id,
-            metabolites: Object.entries(reaction.metabolites).map(([metabolite, coef]) => {
-              const [, bigg_id = '', compartment_bigg_id = ''] = /^(.*)_(\w+)$/.exec(metabolite) || [];
-              return <types.Metabolite> {
-                bigg_id,
-                compartment_bigg_id,
-                coef,
-              };
-            }),
+            metabolites: reaction.metabolites,
           });
         });
         this._mapOptions.setAddedReactions(reactions);
