@@ -60,7 +60,6 @@ export class MapOptionService {
             });
 
             // Set selected species
-            this.selectedSpecies = this.speciesList[0].id;
             this.setModelsFromSpecies(this.selectedSpecies);
 
         });

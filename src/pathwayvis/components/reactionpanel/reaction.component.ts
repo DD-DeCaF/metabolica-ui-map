@@ -1,10 +1,10 @@
 import "./reaction.component.scss";
 import * as template from "./reaction.component.html";
 import * as angular from "angular";
-import {MapOptionService} from "../../services/mapoption.service";
-import {AddedReaction, BiggReaction} from "../../types";
-import {ActionsService} from "../../services/actions/actions.service";
-import "jquery";
+import { MapOptionService } from "../../services/mapoption.service";
+import { AddedReaction, BiggReaction } from "../../types";
+import { ActionsService } from "../../services/actions/actions.service";
+import * as $ from "jquery";
 
 
 class ReactionComponentCtrl{

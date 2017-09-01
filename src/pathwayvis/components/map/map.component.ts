@@ -1,8 +1,6 @@
 import * as escher from '@dd-decaf/escher';
 import * as d3 from 'd3';
 import * as _ from 'lodash';
-import "jquery-ui";
-import "jquery";
 
 import {APIService} from '../../services/api';
 import {WSService} from '../../services/ws';
