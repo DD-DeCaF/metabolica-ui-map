@@ -38,7 +38,7 @@ export class PathwayVisComponentController {
     if (item) {
       this.mapOptions.addExpMapObject();
       this.mapOptions.removeMapObject(0);
-      this.mapOptions.setExperiment(item.id);
+      this.mapOptions.setExperiment(item);
     }
 
   }
