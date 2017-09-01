@@ -1,48 +1,39 @@
-/**
- * Created by dandann on 28/03/2017.
- */
+import * as types from '../../types';
 import './info.component.scss';
 import * as template from './info.component.html';
-import {MapOptionService} from "../../services/mapoption.service";
+import { MapOptionService } from "../../services/mapoption.service";
 
-/**
- * sidebar component
- */
-class InfoComponentCtrl {
-    private _mapOptions: MapOptionService;
+export class InfoComponentCtrl {
+  private _mapOptions: MapOptionService;
 
-    /* @ngInject */
-    constructor (MapOptions: MapOptionService) {
-        this._mapOptions = MapOptions;
+  constructor(mapOptions: MapOptionService) {
+    this._mapOptions = mapOptions;
+  }
+
+  public getGenotypeChanges(): string[] {
+    return this._mapOptions.getMapInfo()['genotypeChanges'];
+  }
+
+  public showGenotypeChanges(): boolean {
+    let genotypeChanges = this.getGenotypeChanges();
+    if (genotypeChanges) {
+      return genotypeChanges.length > 0;
     }
+    return false;
+  }
 
-    public getGenotypeChanges(): string[]{
-        return this._mapOptions.getMapInfo()['genotypeChanges'];
-    }
+  public getMeasurements(): types.Measurement[] {
+    return this._mapOptions.getMapInfo().measurements;
+  }
 
-    public showGenotypeChanges(): boolean{
-        let genotypeChanges = this.getGenotypeChanges();
-        if(genotypeChanges){
-            return genotypeChanges.length > 0;
-        }
-        return false;
-    }
-
-    public getMeasurements(): object[]{
-        return this._mapOptions.getMapInfo()['measurements'];
-    }
-
-    public getMedium(): object[]{
-        return this._mapOptions.getMapInfo()['medium'];
-    }
+  public getMedium(): types.Medium[] {
+    const mapInfo: types.MapInfo = this._mapOptions.getMapInfo();
+    return mapInfo && mapInfo.medium;
+  }
 }
 
 export const InfoComponent = {
-    controller: InfoComponentCtrl,
-    controllerAs: 'ctrl',
-    template: template.toString(),
-    bindings: {
-        shared: '=',
-        project: '<project'
-    }
+  controller: InfoComponentCtrl,
+  controllerAs: 'ctrl',
+  template: template.toString(),
 };

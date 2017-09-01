@@ -4,6 +4,7 @@ import './views/pathwayvis.component.scss';
 import * as angular from "angular";
 import { MapOptionService } from "./services/mapoption.service";
 
+
 export class PathwayVisComponentController {
   public shared: types.Shared;
   public showInfo: any;
@@ -18,7 +19,7 @@ export class PathwayVisComponentController {
     this.$sharing = $sharing;
     this.$scope = $scope;
     // Init shared scope
-    this.shared = <any>{
+    this.shared = <any> {
       loading: 0,
       map: {},
       model: {},
@@ -33,17 +34,18 @@ export class PathwayVisComponentController {
   public $onInit() {
     this.mapOptions.init();
 
-    let item = <types.Experiment>this.$sharing.item('experiment');
+    let item = this.$sharing.item('experiment');
     if (item) {
       this.mapOptions.addExpMapObject();
       this.mapOptions.removeMapObject(0);
       this.mapOptions.setExperiment(item);
     }
+
   }
 }
 
 export const PathwayVisComponent: angular.IComponentOptions = {
   controller: PathwayVisComponentController,
   controllerAs: 'ctrl',
-  template: template.toString()
+  template: template.toString(),
 };

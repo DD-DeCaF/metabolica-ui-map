@@ -1,55 +1,48 @@
 // Import pathway map styling
 @import 'escher_builder.scss';
-
 pv-map {
-	.container{
-		margin: 0;
-		height: 85vh;
-		position: relative;
-	}
-    .map-container{
-		margin: 0;
-        width: 100%;
-		height: inherit;
-		position: absolute;
+    .container {
+        margin: 0;
+        height: 85vh;
+        position: relative;
     }
-
-	.spinner{
-		width: 100%;
-		height: 100%;
-		position: absolute;
-		background-color: #4F5151;
-		z-index: 10;
-		opacity: .5;
-		top: 0;
-		left: 0;
-	}
-
-	#map-progress{
-		top: 0;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		margin: auto;
-		position: absolute;
-	}
-
+    .map-container {
+        margin: 0;
+        width: 100%;
+        height: inherit;
+        position: absolute;
+    }
+    .spinner {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        background-color: #4F5151;
+        z-index: 10;
+        opacity: .5;
+        top: 0;
+        left: 0;
+    }
+    #map-progress {
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        position: absolute;
+    }
     .map-context-menu {
         background-color: #FFFFFF;
         z-index: 199;
         visibility: hidden;
         width: 200px;
-		position: absolute;
+        position: absolute;
     }
-
     .ko-sign {
         color: red;
         font-size: 40px;
     }
 }
 
-.context-menu{
-	width: 100%
+.context-menu {
+    width: 100%
 }
-
-
