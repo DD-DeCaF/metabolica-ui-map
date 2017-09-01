@@ -48,7 +48,6 @@ export class MapOptionService {
       this.speciesList = Object.entries(species).map(([id, name]) => ({ id, name }));
 
       // Set selected species
-      this.selectedSpecies = this.speciesList[0].id;
       this.setModelsFromSpecies(this.selectedSpecies);
     });
 
