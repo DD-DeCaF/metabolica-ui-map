@@ -5,8 +5,6 @@ import * as angular from "angular";
 import {MapOptionService} from "./services/mapoption.service";
 
 
-
-
 export class PathwayVisComponentController {
     public shared: types.Shared;
     public showInfo: any;
@@ -16,7 +14,7 @@ export class PathwayVisComponentController {
 
     constructor($scope: angular.IScope,
                 $sharing,
-                MapOptions: MapOptionService,
+                mapOptions: MapOptionService,
     ) {
         this.$sharing = $sharing;
         this.$scope = $scope;
@@ -28,7 +26,7 @@ export class PathwayVisComponentController {
             sections: {},
         };
 
-        this.mapOptions = MapOptions;
+        this.mapOptions = mapOptions;
 
         this.showInfo = false;
     }
