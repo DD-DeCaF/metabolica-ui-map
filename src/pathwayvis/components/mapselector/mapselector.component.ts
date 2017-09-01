@@ -1,62 +1,55 @@
-import {APIService} from "../../services/api";
 import * as template from "./mapselector.component.html";
-import * as types from '../../types';
-import {MapOptionService} from "../../services/mapoption.service";
-import {MapService} from "../../services/map.service";
-/**
- * Created by dandann on 15/03/2017.
- */
+import { MapOptionService } from "../../services/mapoption.service";
+import { MapService } from "../../services/map.service";
 
 
 class MapSelectorComponentCtrl {
-    public model: string;
-    public allMaps: any;
-    public maps: any;
-    private _selectedMap: any;
-    private mapOptions: MapOptionService;
-    private mapService: MapService;
+  public model: string;
+  public allMaps: any;
+  public maps: any;
+  private _selectedMap: any;
+  private mapOptions: MapOptionService;
+  private mapService: MapService;
 
-    constructor (MapService: MapService, $scope: angular.IScope, MapOptions: MapOptionService){
-        this.mapService = MapService;
-        this.mapOptions = MapOptions;
+  constructor(mapService: MapService, $scope: angular.IScope, mapOptions: MapOptionService) {
+    this.mapService = mapService;
+    this.mapOptions = mapOptions;
 
-        this._selectedMap = MapOptions.getSelectedMap();
-        this.allMaps = MapService.getAllMaps();
+    this._selectedMap = mapOptions.getSelectedMap();
+    this.allMaps = mapService.allMaps;
 
-        $scope.$watch('ctrl.mapOptions.getModel()', () => {
-            this.model = this.mapOptions.getModel();
-            this.setMapsFromModel(this.mapOptions.getModel());
-        }, true);
+    $scope.$watch('ctrl.mapOptions.getModelId()', (modelId: string) => {
+      this.model = modelId;
+      this.setMapsFromModel(modelId);
+    }, true);
+  }
+
+  public setMap(map: string): void {
+    this.mapOptions.setSelectedMap(map);
+  }
+
+  public getModels(): string[] {
+    return this.mapOptions.modelsIds;
+  }
+
+  public changeModel(): void {
+    this.mapOptions.setModelId(this.model);
+  }
+
+  public setMapsFromModel(model): void {
+    // TODO flatten logic
+    if (model) {
+      let map_id = this.mapOptions.getSelectedMap();
+      this.maps = this.mapService.getMapsFromModel(model);
+      if (!this.mapService.usableMap(map_id, model)) {
+        this.mapOptions.setSelectedMap(this.maps[0]);
+      }
     }
-
-    public setMap(map: string): void{
-        this.mapOptions.setSelectedMap(map);
-    }
-
-    public getModels(): string[]{
-        return this.mapOptions.getModels();
-    }
-
-    public changeModel(): void{
-        this.mapOptions.setModel(this.model);
-    }
-
-    public setMapsFromModel(model): void{
-        if(model){
-            let map_id = this.mapOptions.getSelectedMap();
-            this.maps = this.mapService.getMapsFromModel(model);
-            if (!this.mapService.usableMap(map_id, model))
-            {
-                this.mapOptions.setSelectedMap(this.maps[0]);
-            }
-        }
-    }
+  }
 }
-
 
 export const MapSelectorComponent = {
-    controller: MapSelectorComponentCtrl,
-    controllerAs: 'ctrl',
-    template: template.toString(),
-
-}
+  controller: MapSelectorComponentCtrl,
+  controllerAs: 'ctrl',
+  template: template.toString(),
+};

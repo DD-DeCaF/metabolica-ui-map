@@ -1,16 +1,16 @@
 <md-whiteframe class="map-context-menu md-whiteframe-4dp" layout="column" layout-align="center center" ng-cloak style="visibility: hidden">
-	<md-menu-content class="context-menu">
-		<md-menu-item ng-repeat="action in ctrl.contextActions">
-			<md-button ng-click="ctrl.processActionClick(action, ctrl.contextElement)">{{action.label}}</md-button>
-		</md-menu-item>
-	</md-menu-content>
+  <md-menu-content class="context-menu">
+    <md-menu-item ng-repeat="action in ctrl.contextActions">
+      <md-button ng-click="ctrl.processActionClick(action, ctrl.contextElement)">{{action.label}}</md-button>
+    </md-menu-item>
+  </md-menu-content>
 </md-whiteframe>
 <pv-legend ng-show="ctrl.showLegend()"></pv-legend>
 <div class="container" layout-fill layout="column" layout-align="center center">
-	<div class="spinner" ng-if="ctrl.shared.loading > 0">
-		<md-progress-circular id="map-progress" class="md-accent" md-diameter="85vh" layout-align="center center"></md-progress-circular>
-	</div>
-	<div class="map-container" layout-fill layout="column" layout-align="center center">
-		<span>Please load the map.</span>
-	</div>
+  <div class="spinner" ng-if="ctrl.shared.loading > 0">
+    <md-progress-circular id="map-progress" class="md-accent" md-diameter="85vh" layout-align="center center"></md-progress-circular>
+  </div>
+  <div class="map-container" layout-fill layout="column" layout-align="center center">
+    <span>Please load the map.</span>
+  </div>
 </div>

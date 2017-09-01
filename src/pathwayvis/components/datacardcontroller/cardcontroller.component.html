@@ -1,64 +1,48 @@
 <md-content class="tab-content">
-	<md-card layout="column">
-		<md-input-container flex>
-			<label>Species:</label>
-			<md-select name="species"
-					   ng-model="ctrl.species"
-					   ng-change="ctrl.changeSpecies()">
-				<md-option ng-repeat="species in ctrl.speciesList()" value="{{species.id}}">{{species.name}}</md-option>
-			</md-select>
-		</md-input-container>
-	</md-card>
-	<md-card>
-		<div class="playbar md-accent" layout="row" layout-align="space-around center">
-			<md-menu>
-				<md-button class="md-icon-button"
-						   ng-disabled="ctrl.disableForAnimation()"
-						   ng-mouseenter="$mdMenu.open()"
-				>
-					<md-icon md-font-icon="add">add</md-icon>
-				</md-button>
-				<md-menu-content ng-mouseleave="$mdMenu.close()">
-					<md-menu-item>
-						<md-button ng-click="ctrl.addRefMapObject()">
-							<md-icon md-font-icon="add">add</md-icon>
-							Reference
-						</md-button>
-					</md-menu-item>
-					<md-menu-item>
-						<md-button ng-click="ctrl.addExpMapObject()">
-							<md-icon md-font-icon="add">add</md-icon>
-							Data driven
-						</md-button>
-					</md-menu-item>
-				</md-menu-content>
-			</md-menu>
+  <md-card layout="column">
+    <md-input-container flex>
+      <label>Species:</label>
+      <md-select name="species" ng-model="ctrl.species" ng-change="ctrl.changeSpecies()">
+        <md-option ng-repeat="species in ctrl.speciesList()" value="{{species.id}}">{{species.name}}</md-option>
+      </md-select>
+    </md-input-container>
+  </md-card>
+  <md-card>
+    <div class="playbar md-accent" layout="row" layout-align="space-around center">
+      <md-menu>
+        <md-button class="md-icon-button" ng-disabled="ctrl.disableForAnimation()" ng-click="$mdMenu.open()">
+          <md-icon md-font-icon="add">add</md-icon>
+        </md-button>
+        <md-menu-content ng-mouseleave="$mdMenu.close()">
+          <md-menu-item>
+            <md-button ng-click="ctrl.addRefMapObject()">
+              <md-icon md-font-icon="add">add</md-icon>
+              Reference
+            </md-button>
+          </md-menu-item>
+          <md-menu-item>
+            <md-button ng-click="ctrl.addExpMapObject()">
+              <md-icon md-font-icon="add">add</md-icon>
+              Data driven
+            </md-button>
+          </md-menu-item>
+        </md-menu-content>
+      </md-menu>
 
+      <md-button class="md-icon-button" ng-click="ctrl.previousMapObject()" ng-disabled="ctrl.disableControls()">
+        <md-icon md-font-icon="skip_previous">navigate_before</md-icon>
+      </md-button>
+      <md-button class="md-icon-button" ng-click="ctrl.toggleAnimation()" ng-disabled="ctrl.disablePlayBtn()">
+        <md-icon md-font-icon="ctrl.playIcon()">{{ctrl.playIcon()}}</md-icon>
+      </md-button>
+      <md-button class="md-icon-button" ng-click="ctrl.nextMapObject()" ng-disabled="ctrl.disableControls()">
+        <md-icon md-font-icon="skip_next">navigate_next</md-icon>
+      </md-button>
+    </div>
+  </md-card>
 
-			<md-button class="md-icon-button"
-					   ng-click="ctrl.previousMapObject()"
-					   ng-disabled="ctrl.disableControls()"
-			>
-				<md-icon md-font-icon="skip_previous">navigate_before</md-icon>
-			</md-button>
-			<md-button class="md-icon-button"
-					   ng-click="ctrl.toggleAnimation()"
-					   ng-disabled="ctrl.disablePlayBtn()"
-			>
-				<md-icon md-font-icon="ctrl.playIcon()">{{ctrl.playIcon()}}</md-icon>
-			</md-button>
-			<md-button class="md-icon-button"
-					   ng-click="ctrl.nextMapObject()"
-					   ng-disabled="ctrl.disableControls()"
-			>
-				<md-icon md-font-icon="skip_next">navigate_next</md-icon>
-			</md-button>
-		</div>
-	</md-card>
-
-	<div ng-repeat="id in ctrl.getMapObjectsIds()">
-		<pv-data-card id="id" animating="ctrl.animating"></pv-data-card>
-	</div>
+  <div ng-repeat="id in ctrl.getMapObjectsIds()">
+    <!--The whole object could be passed down here-->
+    <pv-data-card id="id" animating="ctrl.animating"></pv-data-card>
+  </div>
 </md-content>
-
-

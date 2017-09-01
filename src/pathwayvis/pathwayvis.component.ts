@@ -6,6 +6,7 @@ import {MapOptionService} from "./services/mapoption.service";
 
 
 
+
 export class PathwayVisComponentController {
     public shared: types.Shared;
     public showInfo: any;
@@ -20,11 +21,11 @@ export class PathwayVisComponentController {
         this.$sharing = $sharing;
         this.$scope = $scope;
         // Init shared scope
-        this.shared = <any>{
+        this.shared = <any> {
             loading: 0,
             map: {},
             model: {},
-            sections: {}
+            sections: {},
         };
 
         this.mapOptions = MapOptions;
@@ -32,14 +33,14 @@ export class PathwayVisComponentController {
         this.showInfo = false;
     }
 
-    public $onInit(){
+    public $onInit() {
         this.mapOptions.init();
 
         let item = this.$sharing.item('experiment');
-        if(item){
+        if (item) {
             this.mapOptions.addExpMapObject();
             this.mapOptions.removeMapObject(0);
-            this.mapOptions.setExperiment(item.id);
+            this.mapOptions.setExperiment(item);
         }
 
     }

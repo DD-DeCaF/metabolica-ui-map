@@ -1,29 +1,24 @@
-/**
- * Created by dandann on 04/04/2017.
- */
+export class ToastService {
+  private $mdToast: ng.material.IToastService;
 
-export class ToastService{
-    private $mdToast: ng.material.IToastService;
+  constructor($mdToast: ng.material.IToastService) {
+    this.$mdToast = $mdToast;
+  }
 
-    constructor($mdToast: ng.material.IToastService){
-        this.$mdToast = $mdToast;
-    };
+  public showWarnToast(text: string): void {
+    this._showToast('warn-toast', text);
+  }
 
-    public showWarnToast(text: string): void {
-        let toast = this.$mdToast.simple()
-            .textContent(text)
-            .action('close')
-            .position('bottom right')
-            .theme("warn-toast");
-        this.$mdToast.show(toast);
-    }
+  public showErrorToast(text: string): void {
+    this._showToast('error-toast', text);
+  }
 
-    public showErrorToast(text: string): void {
-        let toast = this.$mdToast.simple()
-            .textContent(text)
-            .action('close')
-            .position('bottom right')
-            .theme("error-toast");
-        this.$mdToast.show(toast);
-    }
+  private _showToast(theme: string, text: string): void {
+    const toast = this.$mdToast.simple()
+      .textContent(text)
+      .action('close')
+      .position('bottom right')
+      .theme(theme);
+    this.$mdToast.show(toast);
+  }
 }

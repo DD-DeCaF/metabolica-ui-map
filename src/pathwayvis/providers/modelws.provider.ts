@@ -1,8 +1,8 @@
 export class ModelWSProvider {
-    host = 'wss://api-staging.dd-decaf.eu';
-    prefix = '/wsmodels';
+  private host = 'wss://api-staging.dd-decaf.eu';
+  private prefix = '/wsmodels';
 
-    $get() {
-        return this.host + this.prefix;
-    }
+  public $get() {
+    return `${this.host}${this.prefix}`;
+  }
 }

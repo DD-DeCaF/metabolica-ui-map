@@ -1,97 +1,69 @@
-/**
- * Created by dandann on 07/06/2017.
- */
-import {MapDataObject} from "./MapDataObject";
-import {MethodService} from "../services/method.service";
-import {ObjectType} from "../types";
+import { MapDataObject } from "./MapDataObject";
+import { defaultMethod } from "../consts/methods";
+import { ObjectType, SelectedItems, MapData } from "../types";
 
-export class DataHandler{
-    private ids: number[];
-    private dataObjects: MapDataObject[];
-    private methodService: MethodService;
 
-    constructor(MethodService: MethodService){
-        this.methodService = MethodService;
-        this.dataObjects = [];
-        this.ids = [];
+export class DataHandler {
+  public ids: number[];
+  private dataObjects: MapDataObject[];
+
+  constructor() {
+    this.dataObjects = [];
+    this.ids = [];
+  }
+
+  public addObject(type: ObjectType = null): number {
+    const id = this.dataObjects.length;
+
+    const object_type = type || ObjectType.Experiment;
+
+    const selected = <SelectedItems> {
+      mapId: 'Central metabolism',
+      modelId: null,
+      method: defaultMethod,
+    };
+
+    const mapData = <MapData> {
+      map: {},
+      model: {},
+      sections: {},
+      info: {},
+      removedReactions: [],
+      addedReactions: [],
+    };
+
+    const obj = new MapDataObject(id, object_type, mapData, selected);
+
+    this.ids.push(id);
+    this.dataObjects.push(obj);
+    return id;
+  }
+
+  public removeObject(selectedId: number, id: number): number {
+    const index = this.ids.indexOf(id);
+    this.ids.splice(index, 1);
+    this.dataObjects[id] = null;
+    if (selectedId === id) {
+      return this.nextMapObject(selectedId);
     }
+    return selectedId;
+  }
 
-    public addObject(type:ObjectType=null): number{
-        let id = this.dataObjects.length;
+  public nextMapObject(selectedId: number): number {
+    const index = this.ids.indexOf(selectedId) + 1;
+    return this.ids[index % this.ids.length];
+  }
 
-        let object_type = type;
-        if(!object_type){
-            object_type = ObjectType.Experiment;
-        }
+  public previousMapObject(selectedId): number {
+    const index = this.ids.indexOf(selectedId) - 1;
+    return this.ids[(this.ids.length + index) % this.ids.length];
+  }
 
-        let selected = {
-            'mapId' : 'Central metabolism',
-            'modelId' : null,
-            'method': this.methodService.defaultMethod()
-        };
+  public getObject(id: number): MapDataObject {
+    return this.dataObjects[id];
+  }
 
-        let mapData = <any>{
-            map: {},
-            model: {},
-            sections: {},
-            info: {},
-            removedReactions: [],
-            addedReactions: [],
-        };
-
-        let obj = new MapDataObject(id, object_type, mapData, selected)
-
-        this.ids.push(id);
-        this.dataObjects.push(obj);
-        return id;
-    }
-
-    public removeObject(selectedId: number, id: number): number {
-        let index = this.ids.indexOf(id);
-        this.ids.splice(index, 1);
-        this.dataObjects[id] = null;
-        if(selectedId == id){
-            return this.nextMapObject(selectedId);
-        }
-        return selectedId;
-
-    }
-
-    public nextMapObject(selectedId: number): number {
-        let index = this.ids.indexOf(selectedId) + 1;
-        let activeId = 0;
-        if(index > this.ids.length - 1){
-            activeId = this.ids[0];
-        } else {
-            activeId = this.ids[index];
-        }
-
-        return activeId;
-    }
-
-    public previousMapObject(selectedId): number {
-        let index = this.ids.indexOf(selectedId) - 1;
-        let activeId = 0;
-        if(index < 0){
-            activeId = this.ids[this.ids.length-1];
-        } else {
-            activeId = this.ids[index];
-        }
-        return activeId;
-    }
-
-    public getObject(id: number): MapDataObject{
-        return this.dataObjects[id];
-    }
-
-    public size(): number{
-        return this.dataObjects.length;
-    }
-
-    public getIds(): number[]{
-        return this.ids;
-    }
-    public isMaster(id: number): boolean {
-        return this.ids[0] == id;
-    }
+  public size(): number {
+    return this.ids.length;
+  }
 }
