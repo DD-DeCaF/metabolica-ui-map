@@ -47,5 +47,5 @@ export class PathwayVisComponentController {
 export const PathwayVisComponent: angular.IComponentOptions = {
     controller: PathwayVisComponentController,
     controllerAs: 'ctrl',
-    template: template.toString()
+    template: template.toString(),
 };
