@@ -40,6 +40,9 @@ class ReactionComponentCtrl {
   public querySearch(query: string) {
     const url = `${DecafBiggProxy}search?query=${query}&search_type=reactions`;
     // Get rid of jquery
+    // $http is configured to add Auth header to all requests.
+    // This triggers a preflight check, the client sends an options
+    // request, which cannot be handled by the bigg database.
     return $.getJSON(url).then((response) => response.results);
   }
 
@@ -64,7 +67,7 @@ class ReactionComponentCtrl {
           this.mapOptions.addReaction(reaction).then(this.updateMapData.bind(this));
         });
       });
-    this.searchText = "";
+    this.searchText = '';
   }
 
   public getAddedReactions(): BiggReaction[] {

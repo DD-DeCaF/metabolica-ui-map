@@ -54,10 +54,23 @@ class MapComponentCtrl {
     this.actions = actions;
     this.$scope = $scope;
 
+    // Hack for monkey patching $scope.$watch
+    this.$scope.$watch = ((originalWatchFn) => {
+      const scope = this.$scope;
+      // tslint:disable-next-line
+      return function(watchExpression, listener, objectEquality) {
+        // tslint:disable-next-line
+        const wrappedCB = function () {
+          console.log(watchExpression, arguments[0], arguments[1]);
+          listener.apply(null, arguments);
+        };
+        return originalWatchFn.apply(scope, [watchExpression, wrappedCB, objectEquality]);
+      };
+    })(this.$scope.$watch);
+
     // TODO @matyasfodor watch expressions consume too much memory
     // see https://docs.angularjs.org/api/ng/type/$rootScope.Scope#$watch
-    $scope.$watch('ctrl._mapOptions.getMapSettings()', () => {
-      let settings = this._mapOptions.getMapSettings();
+    $scope.$watch('ctrl._mapOptions.getMapSettings()', (settings: types.MapSettings) => {
       if (settings.model_id && settings.map_id) {
         if (this._mapOptions.shouldUpdateData) {
           this.updateAllMaps();
@@ -401,7 +414,7 @@ class MapComponentCtrl {
     }
 
     // Open WS connection for model if it is not opened
-    if (!this._ws.readyState) {
+    if (!this._ws.isReady()) {
       this._ws.connect(true, model.uid);
     }
 
