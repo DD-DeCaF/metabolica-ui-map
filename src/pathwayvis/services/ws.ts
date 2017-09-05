@@ -135,6 +135,10 @@ export class WSService {
     return false;
   }
 
+  public isReady(): number {
+    return this._ws && this.readyState;
+  }
+
   /**
    * Additional public API method to refresh the connection if still open
    * (close, re-open). For example, if the app suspects bad data / missed
