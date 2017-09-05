@@ -6,14 +6,9 @@ import { ToastService } from "./toastservice";
 import { ActionsService } from "./actions/actions.service";
 import { MapDataObject } from "../models/MapDataObject";
 import { DataHandler } from "../models/DataHandler";
-import { AddedReaction, Experiment, Method, ObjectType, Phase, Sample, Species } from "../types";
+// TODO @matyasfodor access these through types. (..)
+import { AddedReaction, Experiment, Method, ObjectType, Phase, Sample, Species, MapSettings } from "../types";
 import { ExperimentService } from "./experiment.service";
-
-interface MapSettings {
-  map_id: string;
-  model_id: string;
-  map: types.MetabolicMap;
-}
 
 export class MapOptionService {
   private experimentService: ExperimentService;
@@ -25,7 +20,7 @@ export class MapOptionService {
 
   public selectedCardId: number;
 
-  public mapSettings: MapSettings;
+  public mapSettings: types.MapSettings;
 
   private speciesList: Species[] = [];
 
@@ -331,7 +326,7 @@ export class MapOptionService {
     }
     return null;
   }
-  public getMapSettings(): MapSettings {
+  public getMapSettings(): types.MapSettings {
     return this.mapSettings;
   }
 
