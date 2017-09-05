@@ -52,6 +52,7 @@ export class ActionsService {
    * @param {Object} args Object with arguments that is applied to `this` in action class
    */
   public callAction(action: Action, args: Object): any {
+    this._shared.increment();
     return this.$injector.invoke(action.callback, args);
   }
 }
