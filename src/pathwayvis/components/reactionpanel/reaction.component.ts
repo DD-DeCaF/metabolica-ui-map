@@ -7,7 +7,7 @@ import { AddedReaction, BiggReaction } from "../../types";
 import { ActionsService } from "../../services/actions/actions.service";
 import * as $ from "jquery";
 
-const BiggAPIBase = 'http://bigg.ucsd.edu/api/v2/';
+const DecafBiggProxy = 'https://api-staging.dd-decaf.eu/bigg/';
 
 class ReactionComponentCtrl {
   public searchText: string;
@@ -44,16 +44,14 @@ class ReactionComponentCtrl {
   }
 
   public querySearch(query: string) {
-    // Use template string
-    // Use a constant for the API root
-    let url = `${BiggAPIBase}search?query=${query}&search_type=reactions`;
+    const url = `${DecafBiggProxy}search?query=${query}&search_type=reactions`;
     // Get rid of jquery
     return $.getJSON(url).then((response) => response.results);
   }
 
   public selectedItemChange(item: BiggReaction) {
     if (!item) return;
-    const url = `${BiggAPIBase}${item.model_bigg_id.toLowerCase()}/reactions/${item.bigg_id}`;
+    const url = `${DecafBiggProxy}${item.model_bigg_id.toLowerCase()}/reactions/${item.bigg_id}`;
     $.getJSON(url)
       .then((response) => {
         this.$scope.$apply(() => {
