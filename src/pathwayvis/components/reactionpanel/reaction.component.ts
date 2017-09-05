@@ -16,12 +16,6 @@ class ReactionComponentCtrl {
   private mapOptions: MapOptionService;
   private $scope: angular.IScope;
   private actions: ActionsService;
-  private pkgen = (() => {
-    let counter = 0;
-    return () => {
-      return counter++;
-    };
-  })();
 
   constructor($http: angular.IHttpService,
     mapOptions: MapOptionService,
@@ -86,7 +80,7 @@ class ReactionComponentCtrl {
     this.$scope.$apply(() => {
       this.mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
       this.mapOptions.setReactionData(response.fluxes);
-      this.mapOptions.setDataModel(response.model, `${response.model.id}_${this.pkgen()}`);
+      this.mapOptions.setDataModel(response.model, response.model.id);
       this.mapOptions.setRemovedReactions(response['removed-reactions']);
     });
   }
