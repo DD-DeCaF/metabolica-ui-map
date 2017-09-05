@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
 
 import { Action, ReactionAction } from './base';
+import { SharedService } from '../shared.service';
 
 import * as types from '../../types';
 
@@ -19,10 +20,12 @@ export function registerAction(ActionClass) {
 export class ActionsService {
   private $injector: angular.auto.IInjectorService;
   private _q: angular.IQService;
+  private _shared: SharedService;
 
-  constructor($injector: angular.auto.IInjectorService, $q: angular.IQService) {
+  constructor($injector: angular.auto.IInjectorService, $q: angular.IQService, shared: SharedService) {
     this.$injector = $injector;
     this._q = $q;
+    this._shared = shared;
   }
 
   /**
