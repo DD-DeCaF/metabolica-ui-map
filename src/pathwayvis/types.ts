@@ -63,6 +63,12 @@ export interface MapData {
   selected?: SelectedItems;
 }
 
+export interface MapSettings {
+  map_id: string;
+  model_id: string;
+  map: MetabolicMap;
+}
+
 export interface MapObject {
   id: number;
   mapData: MapData;
