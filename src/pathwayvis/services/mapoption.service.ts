@@ -7,7 +7,7 @@ import { ActionsService } from "./actions/actions.service";
 import { MapDataObject } from "../models/MapDataObject";
 import { DataHandler } from "../models/DataHandler";
 // TODO @matyasfodor access these through types. (..)
-import { AddedReaction, Experiment, Method, ObjectType, Phase, Sample, Species } from "../types";
+import { AddedReaction, Experiment, Method, ObjectType, Phase, Sample, Species, MapSettings } from "../types";
 import { ExperimentService } from "./experiment.service";
 
 export class MapOptionService {
