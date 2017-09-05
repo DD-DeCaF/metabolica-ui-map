@@ -1,5 +1,6 @@
 import * as escher from '@dd-decaf/escher';
 import * as d3 from 'd3';
+import {event as currentEvent} from 'd3';
 import * as _ from 'lodash';
 
 import { APIService } from '../../services/api';
@@ -13,7 +14,6 @@ import * as template from './views/map.component.html';
 import { ToastService } from "../../services/toastservice";
 import { MapOptionService } from "../../services/mapoption.service";
 import { ObjectType } from "../../types";
-
 
 class MapComponentCtrl {
   public shared: types.Shared;
@@ -438,7 +438,7 @@ class MapComponentCtrl {
     const selection = this._builder.selection;
     const contextMenu = d3.select('.map-context-menu');
 
-    selection.selectAll('.reaction, .reaction-label')
+    d3.selectAll('.reaction, .reaction-label')
       .style('cursor', 'pointer')
       .on('contextmenu', (d) => {
         this.contextElement = d;
@@ -450,7 +450,7 @@ class MapComponentCtrl {
 
         if (this.contextElement) {
           this._renderContextMenu(contextMenu, selection);
-          window.event.preventDefault();
+          (<MouseEvent> currentEvent).preventDefault();
         }
       });
 
@@ -464,8 +464,8 @@ class MapComponentCtrl {
      */
     private _renderContextMenu(contextMenu, selection): void {
         contextMenu.style('position', 'absolute')
-            .style('left', `${(<MouseEvent> window.event).clientX}px`)
-            .style('top', `${(<MouseEvent> window.event).clientY}px`)
+            .style('left', `${(<MouseEvent> currentEvent).clientX}px`)
+            .style('top', `${(<MouseEvent> currentEvent).clientY}px`)
             .style('visibility', 'visible');
         this.$scope.$apply();
     }
