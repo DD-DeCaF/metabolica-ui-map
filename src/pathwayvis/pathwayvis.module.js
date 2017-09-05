@@ -6,6 +6,7 @@ import { ToastService } from './services/toastservice'
 import { MapOptionService } from './services/mapoption.service';
 import { MapService } from './services/map.service';
 import { ExperimentService } from './services/experiment.service';
+import { SharedService } from './services/shared.service';
 import { PathwayVisComponent } from './pathwayvis.component'
 import { mapComponent } from './components/map/map.component';
 import { MapSelectorComponent } from './components/mapselector/mapselector.component';
@@ -37,6 +38,7 @@ export const PathwayVisModule = angular.module('pathwayvis', [
   .service('mapService', MapService)
   .service('mapOptions', MapOptionService)
   .service('experimentService', ExperimentService)
+  .service('shared', SharedService)
   .component('pathwayvis', PathwayVisComponent)
   .component('pvMap', mapComponent)
   .component('pvMapSelector', MapSelectorComponent)

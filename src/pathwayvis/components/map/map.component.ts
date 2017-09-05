@@ -6,6 +6,7 @@ import * as _ from 'lodash';
 import { APIService } from '../../services/api';
 import { WSService } from '../../services/ws';
 import { ActionsService } from '../../services/actions/actions.service';
+import { SharedService } from '../../services/shared.service';
 
 import * as types from '../../types';
 
@@ -16,7 +17,7 @@ import { MapOptionService } from "../../services/mapoption.service";
 import { ObjectType } from "../../types";
 
 class MapComponentCtrl {
-  public shared: types.Shared;
+  public shared: SharedService;
   public actions: ActionsService;
   public contextActions: types.Action[];
   public contextElement: Object;
@@ -40,6 +41,7 @@ class MapComponentCtrl {
     $q: angular.IQService,
     mapOptions: MapOptionService,
     $window: angular.IWindowService,
+    shared: SharedService,
   ) {
     this.$window = $window;
     this._api = api;
@@ -48,10 +50,12 @@ class MapComponentCtrl {
     this.toastService = toastService;
     this._q = $q;
     this._mapOptions = mapOptions;
-
+    this.shared = shared;
     this.actions = actions;
     this.$scope = $scope;
 
+    // TODO @matyasfodor watch expressions consume too much memory
+    // see https://docs.angularjs.org/api/ng/type/$rootScope.Scope#$watch
     $scope.$watch('ctrl._mapOptions.getMapSettings()', () => {
       let settings = this._mapOptions.getMapSettings();
       if (settings.model_id && settings.map_id) {
@@ -63,9 +67,8 @@ class MapComponentCtrl {
         }
         this._setMap(this._mapOptions.getSelectedMap());
 
-        let builder = this._builder;
-        if (builder) {
-          builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
+        if (this._builder) {
+          this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
         }
       }
     }, true);
@@ -176,8 +179,7 @@ class MapComponentCtrl {
       }
     }, true);
 
-    $scope.$watch('ctrl._mapOptions.getCurrentSelectedItems()', () => {
-      let selected = this._mapOptions.getCurrentSelectedItems();
+    $scope.$watch('ctrl._mapOptions.getCurrentSelectedItems()', (selected: types.SelectedItems) => {
       let type = this._mapOptions.getDataObject().type;
       if (this._mapOptions.shouldLoadMap) {
         if ((selected.method !== null) &&
@@ -217,20 +219,18 @@ class MapComponentCtrl {
   }
 
   private _setMap(map: string): void {
-    if (map) {
-      this.shared.loading++;
-      let settings = this._mapOptions.getMapSettings();
-      this._api.getModel('map', {
-        'model': settings.model_id,
-        'map': settings.map_id,
-      }).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
-        this._mapOptions.setMap(response.data);
-        this.shared.loading--;
-      }, (error) => {
-        this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected map.');
-        this.shared.loading--;
-      });
-    }
+    if (!map) return;
+    this.shared.increment();
+    const {model_id, map_id} = this._mapOptions.getMapSettings();
+    this._api.getModel('map', {
+      'model': model_id,
+      'map': map_id,
+    }).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
+      this._mapOptions.setMap(response.data);
+    }, () => {
+      this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected map.');
+    })
+    .then(() => { this.shared.decrement(); });
   }
 
   private updateAllMaps(FVAonly: boolean = false) {
@@ -273,7 +273,7 @@ class MapComponentCtrl {
       });
 
       this.resetKnockouts = true;
-      this.shared.loading++;
+      this.shared.increment();
       this._q.all([modelPromise, infoPromise]).then(([modelResponse, infoResponse]: any) => {
         const phase = modelResponse.data.response[phaseId.toString()];
         this._mapOptions.setDataModel(phase.model, phase.modelId, id);
@@ -285,24 +285,30 @@ class MapComponentCtrl {
         this.toastService.showErrorToast('Oops! Sorry, there was a problem with fetching the data.');
       })
       .then(() => {
-        this.shared.loading--;
+        this.shared.decrement();
       });
     } else if (type === ObjectType.Reference) {
       if (!settings.model_id) return;
+      const addedReactions = this._mapOptions.getAddedReactions();
       const url = `models/${settings.model_id}`;
       const modelPromise = this._api.postModel(url, {
         message: {
-          "to-return": ["fluxes", "model"],
-          "simulation-method": this._mapOptions.getDataObject(id).selected.method.id,
-          "map": settings.map_id,
+          'to-return': ['fluxes', 'model'],
+          'simulation-method': this._mapOptions.getDataObject(id).selected.method.id,
+          'map': settings.map_id,
+          'reactions-knockout': this._mapOptions.getRemovedReactions(),
+          'reactions-add': addedReactions.map((r) => ({
+            id: r.bigg_id,
+            metabolites: r.metabolites,
+          })),
         },
       });
-      this.shared.loading++;
+      this.shared.increment();
       modelPromise.then(({data}: any) => {
         this._mapOptions.setDataModel(data.model, data.model.id, id);
         this._mapOptions.setReactionData(data.fluxes, id);
 
-        this.shared.loading--;
+        this.shared.decrement();
       });
     }
   }
@@ -449,7 +455,7 @@ class MapComponentCtrl {
         });
 
         if (this.contextElement) {
-          this._renderContextMenu(contextMenu, selection);
+          this._renderContextMenu(contextMenu);
           (<MouseEvent> currentEvent).preventDefault();
         }
       });
@@ -462,7 +468,7 @@ class MapComponentCtrl {
     /**
      * Renders and positions context menu based on selected element
      */
-    private _renderContextMenu(contextMenu, selection): void {
+    private _renderContextMenu(contextMenu): void {
         contextMenu.style('position', 'absolute')
             .style('left', `${(<MouseEvent> currentEvent).clientX}px`)
             .style('top', `${(<MouseEvent> currentEvent).clientY}px`)
@@ -479,7 +485,4 @@ export const mapComponent = {
   controller: MapComponentCtrl,
   controllerAs: 'ctrl',
   template: template.toString(),
-  bindings: {
-    shared: '=',
-  },
 };

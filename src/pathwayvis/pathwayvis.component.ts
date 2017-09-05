@@ -18,16 +18,7 @@ export class PathwayVisComponentController {
     ) {
         this.$sharing = $sharing;
         this.$scope = $scope;
-        // Init shared scope
-        this.shared = <any> {
-            loading: 0,
-            map: {},
-            model: {},
-            sections: {},
-        };
-
         this.mapOptions = mapOptions;
-
         this.showInfo = false;
     }
 
