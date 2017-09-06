@@ -79,6 +79,7 @@ export const PathwayVisModule = angular.module('pathwayvis', [
     $mdThemingProvider.theme('warn-toast');
     $mdThemingProvider.theme('error-toast');
   })
+  // Should live somewhere else
   .directive('showFocus', function ($timeout) {
     return function (scope, element, attrs) {
       scope.$watch(attrs.showFocus,
