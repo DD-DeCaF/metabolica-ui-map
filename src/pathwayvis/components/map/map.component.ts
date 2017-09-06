@@ -61,7 +61,9 @@ class MapComponentCtrl {
       return function(watchExpression, listener, objectEquality) {
         // tslint:disable-next-line
         const wrappedCB = function () {
-          console.log(watchExpression, arguments[0], arguments[1]);
+          // TODO @matyasfodor move this to a cetnral place
+          // add cofnig option, disable it in prod (maybe even in dev by default)
+          // console.log(watchExpression, arguments[0], arguments[1]);
           listener.apply(null, arguments);
         };
         return originalWatchFn.apply(scope, [watchExpression, wrappedCB, objectEquality]);
