@@ -70,6 +70,8 @@ class MapComponentCtrl {
 
     // TODO @matyasfodor watch expressions consume too much memory
     // see https://docs.angularjs.org/api/ng/type/$rootScope.Scope#$watch
+    // TODO @matyasfodor this call sets the map even if a completely different setting is changed.
+    // which causes loading the map 3 times in some cases.
     $scope.$watch('ctrl._mapOptions.getMapSettings()', (settings: types.MapSettings) => {
       if (settings.model_id && settings.map_id) {
         if (this._mapOptions.shouldUpdateData) {
@@ -82,6 +84,7 @@ class MapComponentCtrl {
 
         if (this._builder) {
           this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
+          this._drawAddedReactions();
         }
       }
     }, true);
@@ -117,57 +120,7 @@ class MapComponentCtrl {
     }, true);
 
     $scope.$watch('ctrl._mapOptions.getAddedReactions()', () => {
-      const addedReactions = this._mapOptions.getAddedReactions();
-      const newlyAddedReactionEscherIds = [];
-      if (this._builder && addedReactions) {
-        // Check if reaction is already drawn on the map
-        addedReactions.filter((r) => {
-          return Object.values(this._builder.map.reactions)
-            .map((escherReaction) => escherReaction.bigg_id)
-            .indexOf(r.bigg_id) === -1;
-        })
-          .forEach((reaction) => {
-            // We store the metabolite bigg ids suffixed with compartment ids
-            // Cofactors are stored without the compartment id
-            // So if the metabolite looks like with 'h2o_(...)'
-            // Then it is a cofactor 'h2o'
-            const criteria = (m) => {
-              return !this._builder.options.cofactors.some((c) => {
-                return m.startsWith(`${c}_`);
-              });
-            };
-            // parition algorithm
-            const [metabolites, cofactors] = Object.entries(reaction.metabolites).reduce(
-              ([_mets, _cofs], [m]) => {
-                (criteria(m) ? _mets : _cofs).push(m);
-                return [_mets, _cofs];
-              },
-              [[], []],
-            );
-            const nodes = Object.values(this._builder.map.nodes).filter((n) => {
-              return metabolites.findIndex((id) => n.bigg_id === id) > -1;
-            });
-            const [node] = nodes;
-            let escherProps;
-            if (node) {
-              escherProps = this._builder.map.new_reaction_for_metabolite(
-                reaction.bigg_id,
-                node.node_id,
-                90);
-            } else {
-              escherProps = this._builder.map.new_reaction_from_scratch(
-                reaction.bigg_id,
-                // just came up with this
-                { x: 50, y: 200 },
-                90);
-            }
-            newlyAddedReactionEscherIds.push(escherProps.id);
-          });
-        const lastNewReactionId = newlyAddedReactionEscherIds.pop();
-        if (lastNewReactionId) {
-          this._builder.map.zoom_to_reaction(lastNewReactionId);
-        }
-      }
+      this._drawAddedReactions();
     }, true);
 
     $scope.$watch('ctrl._mapOptions.getReactionData()', () => {
@@ -260,6 +213,60 @@ class MapComponentCtrl {
 
   private updateFVAMaps() {
     this.updateAllMaps(true);
+  }
+
+  private _drawAddedReactions() {
+    const addedReactions = this._mapOptions.getAddedReactions();
+    const newlyAddedReactionEscherIds = [];
+    if (this._builder && addedReactions) {
+      // Check if reaction is already drawn on the map
+      addedReactions.filter((r) => {
+        return Object.values(this._builder.map.reactions)
+          .map((escherReaction) => escherReaction.bigg_id)
+          .indexOf(r.bigg_id) === -1;
+      })
+        .forEach((reaction) => {
+          // We store the metabolite bigg ids suffixed with compartment ids
+          // Cofactors are stored without the compartment id
+          // So if the metabolite looks like with 'h2o_(...)'
+          // Then it is a cofactor 'h2o'
+          const criteria = (m) => {
+            return !this._builder.options.cofactors.some((c) => {
+              return m.startsWith(`${c}_`);
+            });
+          };
+          // parition algorithm
+          const [metabolites, cofactors] = Object.entries(reaction.metabolites).reduce(
+            ([_mets, _cofs], [m]) => {
+              (criteria(m) ? _mets : _cofs).push(m);
+              return [_mets, _cofs];
+            },
+            [[], []],
+          );
+          const nodes = Object.values(this._builder.map.nodes).filter((n) => {
+            return metabolites.findIndex((id) => n.bigg_id === id) > -1;
+          });
+          const [node] = nodes;
+          let escherProps;
+          if (node) {
+            escherProps = this._builder.map.new_reaction_for_metabolite(
+              reaction.bigg_id,
+              node.node_id,
+              90);
+          } else {
+            escherProps = this._builder.map.new_reaction_from_scratch(
+              reaction.bigg_id,
+              // just came up with this
+              { x: 50, y: 200 },
+              90);
+          }
+          newlyAddedReactionEscherIds.push(escherProps.id);
+        });
+      const lastNewReactionId = newlyAddedReactionEscherIds.pop();
+      if (lastNewReactionId) {
+        this._builder.map.zoom_to_reaction(lastNewReactionId);
+      }
+    }
   }
 
   private _loadMap(type: ObjectType, selectedItem: types.SelectedItems, id: number): void {
