@@ -202,56 +202,11 @@ class MapComponentCtrl {
   }
 
   private _drawAddedReactions() {
-    const addedReactions = this._mapOptions.getAddedReactions();
+    let addedReactions = this._mapOptions.getAddedReactions()
+      .map((r) => (<any> r).bigg_id);
     const newlyAddedReactionEscherIds = [];
-    if (this._builder && addedReactions) {
-      // Check if reaction is already drawn on the map
-      addedReactions.filter((r) => {
-        return Object.values(this._builder.map.reactions)
-          .map((escherReaction) => escherReaction.bigg_id)
-          .indexOf(r.bigg_id) === -1;
-      })
-        .forEach((reaction) => {
-          // We store the metabolite bigg ids suffixed with compartment ids
-          // Cofactors are stored without the compartment id
-          // So if the metabolite looks like with 'h2o_(...)'
-          // Then it is a cofactor 'h2o'
-          const criteria = (m) => {
-            return !this._builder.options.cofactors.some((c) => {
-              return m.startsWith(`${c}_`);
-            });
-          };
-          // parition algorithm
-          const [metabolites, cofactors] = Object.entries(reaction.metabolites).reduce(
-            ([_mets, _cofs], [m]) => {
-              (criteria(m) ? _mets : _cofs).push(m);
-              return [_mets, _cofs];
-            },
-            [[], []],
-          );
-          const nodes = Object.values(this._builder.map.nodes).filter((n) => {
-            return metabolites.findIndex((id) => n.bigg_id === id) > -1;
-          });
-          const [node] = nodes;
-          let escherProps;
-          if (node) {
-            escherProps = this._builder.map.new_reaction_for_metabolite(
-              reaction.bigg_id,
-              node.node_id,
-              90);
-          } else {
-            escherProps = this._builder.map.new_reaction_from_scratch(
-              reaction.bigg_id,
-              // just came up with this
-              { x: 50, y: 200 },
-              90);
-          }
-          newlyAddedReactionEscherIds.push(escherProps.id);
-        });
-      const lastNewReactionId = newlyAddedReactionEscherIds.pop();
-      if (lastNewReactionId) {
-        this._builder.map.zoom_to_reaction(lastNewReactionId);
-      }
+    if (this._builder) {
+      this._builder.set_added_reactions(addedReactions);
     }
   }
 
@@ -361,6 +316,7 @@ class MapComponentCtrl {
       reaction_no_data_color: '#CBCBCB',
       reaction_no_data_size: 10,
       reaction_knockout: this._mapOptions.getRemovedReactions(),
+      enable_keys: false,
     };
     this._builder = escher.Builder(this._mapOptions.getMap(), null, null, this._mapElement, settings);
   }
