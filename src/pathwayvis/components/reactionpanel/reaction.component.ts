@@ -6,6 +6,8 @@ import { MapOptionService } from "../../services/mapoption.service";
 import { AddedReaction, BiggReaction } from "../../types";
 import { ActionsService } from "../../services/actions/actions.service";
 import * as $ from "jquery";
+import PHHB from './fakeBiggReactions/PHHB.json';
+import TRPHYDRO4 from './fakeBiggReactions/TRPHYDRO4.json';
 
 const DecafBiggProxy = 'https://api-staging.dd-decaf.eu/bigg/';
 
@@ -43,14 +45,23 @@ class ReactionComponentCtrl {
     // $http is configured to add Auth header to all requests.
     // This triggers a preflight check, the client sends an options
     // request, which cannot be handled by the bigg database.
-    return $.getJSON(url).then((response) => response.results);
+
+    // return $.getJSON(url).then((response) => response.results);
+    return $.getJSON(url).then((response) => {
+      return [PHHB, TRPHYDRO4, ...response.results];
+    });
   }
 
   public selectedItemChange(item: BiggReaction) {
     if (!item) return;
-    const url = `${DecafBiggProxy}${item.model_bigg_id.toLowerCase()}/reactions/${item.bigg_id}`;
-    $.getJSON(url)
-      .then((response) => {
+    let promise;
+    if ((<any> item).fake) {
+      promise = Promise.resolve(item);
+    } else {
+      const url = `${DecafBiggProxy}${item.model_bigg_id.toLowerCase()}/reactions/${item.bigg_id}`;
+      promise = $.getJSON(url);
+    }
+    promise.then((response) => {
         this.$scope.$apply(() => {
           const metanetx_id = <string> _.get(response, 'database_links.MetaNetX (MNX) Equation.0.id');
           const metabolites = Object.assign({}, ...response.metabolites.map((m) => {
