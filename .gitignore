@@ -239,7 +239,7 @@ typings
 ## Custom
 app.db
 .env
-
+.watchmanconfig
 
 
 ## Direnv
