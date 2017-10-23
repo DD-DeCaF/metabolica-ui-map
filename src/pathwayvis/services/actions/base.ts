@@ -16,7 +16,6 @@ export abstract class Action {
  * Abstract class for Reaction actions with predefined context type
  */
 export abstract class ReactionAction extends Action {
-  public ws: WSService;
   public shared: MapData;
 
   public callback(ws: WSService, $timeout: angular.ITimeoutService, shared: SharedService): any {
@@ -32,7 +31,7 @@ export abstract class ReactionAction extends Action {
     };
 
     return $timeout(() => {
-      return ws.send(data).then((response) => {
+      return ws.send(this.shared.model.id, data).then((response) => {
         shared.decrement();
         return response;
       });

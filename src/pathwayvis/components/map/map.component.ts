@@ -144,7 +144,7 @@ class MapComponentCtrl {
     }, true);
 
     $scope.$on('$destroy', () => {
-      ws.close();
+      ws.close(this._mapOptions.getDataModelId());
     });
   }
 
@@ -407,10 +407,9 @@ class MapComponentCtrl {
     }
 
     // Open WS connection for model if it is not opened
-    if (!this._ws.isReady()) {
-      this._ws.connect(true, model.uid);
+    if (!this._ws.isActive(model.uid)) {
+      this._ws.connect(model.uid, true);
     }
-
   }
 
   // @matyasfodor Note: Do not use data -> vague definition.
