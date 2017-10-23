@@ -477,7 +477,7 @@ class MapComponentCtrl {
      * Renders and positions context menu based on selected element
      */
     private _renderContextMenu(contextMenu): void {
-        contextMenu.style('position', 'absolute')
+        contextMenu.style('position', 'fixed')
             .style('left', `${(<MouseEvent> currentEvent).clientX}px`)
             .style('top', `${(<MouseEvent> currentEvent).clientY}px`)
             .style('visibility', 'visible');
