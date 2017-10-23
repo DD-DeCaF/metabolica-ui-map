@@ -204,7 +204,7 @@ class MapComponentCtrl {
   private _drawAddedReactions() {
     const addedReactions = this._mapOptions.getAddedReactions();
     if (this._builder && addedReactions.length) {
-      this._builder.set_added_reactions(addedReactions);
+      this._builder.set_added_reactions(addedReactions.map((reaction) => reaction.bigg_id));
     }
   }
 
