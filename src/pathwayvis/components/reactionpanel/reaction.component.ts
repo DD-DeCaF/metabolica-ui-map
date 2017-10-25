@@ -8,6 +8,7 @@ import { ActionsService } from "../../services/actions/actions.service";
 import * as $ from "jquery";
 import PHHB from './fakeBiggReactions/PHHB.json';
 import TRPHYDRO4 from './fakeBiggReactions/TRPHYDRO4.json';
+import DM_melatn_c from './fakeBiggReactions/DM_melatn_c.json';
 
 const DecafBiggProxy = 'https://api-staging.dd-decaf.eu/bigg/';
 
@@ -48,7 +49,7 @@ class ReactionComponentCtrl {
 
     // return $.getJSON(url).then((response) => response.results);
     return $.getJSON(url).then((response) => {
-      return [PHHB, TRPHYDRO4, ...response.results];
+      return [PHHB, TRPHYDRO4, DM_melatn_c, ...response.results];
     });
   }
 
