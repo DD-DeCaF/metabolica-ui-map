@@ -95,7 +95,7 @@ class ReactionComponentCtrl {
     this.$scope.$apply(() => {
       this.mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
       this.mapOptions.setReactionData(response.fluxes);
-      this.mapOptions.setDataModel(response.model, response.model.id);
+      this.mapOptions.setDataModel(response.model);
       this.mapOptions.setRemovedReactions(response['removed-reactions']);
     });
   }

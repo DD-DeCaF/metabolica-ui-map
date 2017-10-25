@@ -104,15 +104,15 @@ export class MapOptionService {
     return this.getDataObject().mapData.model;
   }
 
+// TODO @matyasfodor make distinciton between uid and id.
   public setDataModel(model: types.Model,
-    modelId: string,
+    modelId?: string,
     objectId: number = this.selectedCardId): void {
 
+    // Save the original uid, if the new uid is not provided, re-use it
+    const uid = this.getDataObject(objectId).mapData.model.uid;
     this.getDataObject(objectId).mapData.model = model;
-
-    if (modelId) {
-      this.getDataObject(objectId).mapData.model.uid = modelId;
-    }
+    this.getDataObject(objectId).mapData.model.uid = modelId || uid;
   }
 
   public getDataModelId(): string {
