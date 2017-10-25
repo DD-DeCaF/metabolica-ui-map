@@ -49,7 +49,7 @@ class ReactionComponentCtrl {
 
     // return $.getJSON(url).then((response) => response.results);
     return $.getJSON(url).then((response) => {
-      return [PHHB, TRPHYDRO4, DM_melatn_c, ...response.results];
+      return [...response.results, PHHB, TRPHYDRO4, DM_melatn_c];
     });
   }
 
