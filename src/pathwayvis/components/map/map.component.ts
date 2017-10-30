@@ -109,6 +109,48 @@ class MapComponentCtrl {
       this._drawAddedReactions();
     }, true);
 
+    $scope.$watch('ctrl._mapOptions.getDataModel().uid', (modelUid: string) => {
+      if (!modelUid) return;
+      // Open WS connection for model if it is not opened
+      if (!this._ws.isActive(modelUid)) {
+        this._ws.connect(modelUid, true);
+      }
+    });
+
+    $scope.$watch('ctrl._mapOptions.getDataModel().notes.changes', (changes: any) => {
+      if (!changes) {
+        return;
+      }
+      this._loadModel();
+      // Empty previously removed reactions
+      if (this.resetKnockouts) this._mapOptions.setRemovedReactions([]);
+      this.resetKnockouts = false;
+      // @matyasfodor why only when there are no removed reactions?
+      if (this._mapOptions.getRemovedReactions().length === 0) {
+        // this.shared.removedReactions
+        let reactions = changes.removed.reactions.map((reaction: types.Reaction) => {
+          return reaction.id;
+        });
+        this._mapOptions.setRemovedReactions(reactions);
+      }
+
+      if (changes.added.reactions) {
+        // TODO filter out adapter and DM reactions
+        const reactions = changes.added.reactions.filter((reaction) => {
+          return !['adapter', 'DM', 'EX_'].some((str) => {
+            return reaction.id.startsWith(str);
+          });
+        })
+        .map((reaction) => {
+          return Object.assign({}, reaction, {
+            bigg_id: reaction.id,
+            metabolites: reaction.metabolites,
+          });
+        });
+        this._mapOptions.setAddedReactions(reactions);
+      }
+    });
+
     $scope.$watch('ctrl._mapOptions.getReactionData()', () => {
       let reactionData = this._mapOptions.getReactionData();
       let model = this._mapOptions.getDataModelId();
@@ -203,7 +245,7 @@ class MapComponentCtrl {
 
   private _drawAddedReactions() {
     const addedReactions = this._mapOptions.getAddedReactions();
-    if (this._builder && addedReactions.length) {
+    if (this._builder) {
       this._builder.set_added_reactions(addedReactions.map((reaction) => reaction.bigg_id));
     }
   }
@@ -325,44 +367,6 @@ class MapComponentCtrl {
     let model = this._mapOptions.getDataModel();
     // Load model data
     this._builder.load_model(model);
-
-    // Empty previously removed reactions
-    if (this.resetKnockouts) this._mapOptions.setRemovedReactions([]);
-    this.resetKnockouts = false;
-    // Check removed and added reactions and genes from model
-    const changes = model.notes.changes;
-
-    if (changes) {
-      // @matyasfodor why only when there are no removed reactions?
-      if (this._mapOptions.getRemovedReactions().length === 0) {
-        // this.shared.removedReactions
-        let reactions = changes.removed.reactions.map((reaction: types.Reaction) => {
-          return reaction.id;
-        });
-        this._mapOptions.setRemovedReactions(reactions);
-      }
-
-      if (changes.added.reactions) {
-        // TODO filter out adapter and DM reactions
-        const reactions = changes.added.reactions.filter((reaction) => {
-          return !['adapter', 'DM', 'EX_'].some((str) => {
-            return reaction.id.startsWith(str);
-          });
-        })
-        .map((reaction) => {
-          return Object.assign({}, reaction, {
-            bigg_id: reaction.id,
-            metabolites: reaction.metabolites,
-          });
-        });
-        this._mapOptions.setAddedReactions(reactions);
-      }
-    }
-
-    // Open WS connection for model if it is not opened
-    if (!this._ws.isActive(model.uid)) {
-      this._ws.connect(model.uid, true);
-    }
   }
 
   // @matyasfodor Note: Do not use data -> vague definition.
