@@ -8,7 +8,7 @@ export class MapService {
   constructor(api: APIService) {
     this.apiService = api;
 
-    this.apiService.getModel('maps', {}).then((response: angular.IHttpPromiseCallbackArg<any>) => {
+    this.apiService.getModelMaps('maps').then((response: angular.IHttpPromiseCallbackArg<any>) => {
       this.allMaps = response.data;
     });
   }
@@ -23,7 +23,7 @@ export class MapService {
   }
 
   public getDefaultMap(model): string {
-    let defaultMap = 'Central metabolism';
+    const defaultMap = 'Central metabolism';
     if (this.allMaps) {
       if (this.allMaps[model].includes(defaultMap)) {
         return defaultMap;

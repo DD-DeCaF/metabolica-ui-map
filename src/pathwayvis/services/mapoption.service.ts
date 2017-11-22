@@ -10,6 +10,8 @@ import { DataHandler } from "../models/DataHandler";
 import { AddedReaction, Experiment, Method, ObjectType, Phase, Sample, Species, MapSettings } from "../types";
 import { ExperimentService } from "./experiment.service";
 
+import { applyPatch } from 'fast-json-patch';
+
 export class MapOptionService {
   private experimentService: ExperimentService;
   public shouldUpdateData: boolean;
@@ -28,15 +30,20 @@ export class MapOptionService {
 
   private toastService: ToastService;
   private actions: ActionsService;
+  private _$q: angular.IQService;
 
   // TODO rename services to lowercase
-  constructor(api: APIService, toastService: ToastService,
+  constructor(
+    api: APIService, toastService: ToastService,
     actions: ActionsService,
-    experimentService: ExperimentService) {
+    experimentService: ExperimentService,
+    $q: angular.IQService,
+  ) {
     this.apiService = api;
     this.toastService = toastService;
     this.actions = actions;
     this.experimentService = experimentService;
+    this._$q = $q;
     this.init();
   }
 
@@ -209,7 +216,7 @@ export class MapOptionService {
   public setModelsFromSpecies(species: string): void {
     if (species) {
       let url = 'model-options/' + species;
-      this.apiService.getModel(url, {}).then((response: angular.IHttpPromiseCallbackArg<any>) => {
+      this.apiService.getModelMaps(url, {}).then((response: angular.IHttpPromiseCallbackArg<any>) => {
         this.modelsIds = response.data;
         this.shouldUpdateData = true;
         this.mapSettings.model_id = this.modelsIds[0];
@@ -287,7 +294,17 @@ export class MapOptionService {
     } else if (action.type === 'reaction:update') {
       if (reaction) shared.addedReactions.push(reaction);
     }
-    return this.actions.callAction(action, { shared: shared });
+    // TODO @matyasfodor this should be moved out from the monlith, and merged with model service
+    return this._$q.all([
+      this.apiService.getModel(shared.model.id),
+      this.actions.callAction(action, { shared }),
+    ]).then((responses) => {
+      const [{data: wildtypeModel}, response] = responses;
+      return {
+        ...response,
+        model: applyPatch(wildtypeModel, response.model).newDocument,
+      };
+    });
   }
 
   public dataUpdated(): void {
