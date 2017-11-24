@@ -1,12 +1,25 @@
 export class SharedService {
   private loading: number = 0;
 
-  public increment(): void {
+  public increment(message?): void {
     this.loading++;
+    if (message) {
+      console.debug(`increment ${message}`);
+    }
   }
 
-  public decrement(): void {
+  public async(promise, message?): void {
+    this.increment(message);
+    promise.finally(() => {
+      this.decrement(message);
+    });
+  }
+
+  public decrement(message?): void {
     this.loading--;
+    if (message) {
+      console.log(`decrement ${message}`);
+    }
   }
 
   public getLoading(): number {

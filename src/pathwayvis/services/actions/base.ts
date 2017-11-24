@@ -32,7 +32,7 @@ export abstract class ReactionAction extends Action {
 
     return $timeout(() => {
       return ws.send(this.shared.model.uid, data).then((response) => {
-        shared.decrement();
+        shared.decrement('action');
         return response;
       });
     }, 0, false);

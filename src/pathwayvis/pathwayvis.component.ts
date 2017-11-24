@@ -15,6 +15,7 @@ export class PathwayVisComponentController {
     constructor($scope: angular.IScope,
                 $sharing,
                 mapOptions: MapOptionService,
+                $q: angular.IQService,
     ) {
         this.$sharing = $sharing;
         this.$scope = $scope;
@@ -31,7 +32,10 @@ export class PathwayVisComponentController {
             this.mapOptions.removeMapObject(0);
             this.mapOptions.setExperiment(item);
         }
-
+        item = this.$sharing.item('pathwayPrediction');
+        if (item) {
+            this.mapOptions.setSharedPathway(item);
+        }
     }
 }
 
