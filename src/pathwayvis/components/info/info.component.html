@@ -12,7 +12,7 @@
     </md-content>
   </md-card>
 
-  <md-card>
+  <md-card ng-show="ctrl.getMeasurements()">
     <md-content>
       <md-subheader class="md-primary">Measurements</md-subheader>
       <md-table-container>
@@ -36,7 +36,6 @@
           <tbody md-body>
             <tr md-row ng-repeat="change in ctrl.getMedium()">
               <td md-cell>{{ change["name"] }}</td>
-              <td md-cell>{{ change["concentration"] }}</td>
             </tr>
           </tbody>
         </table>

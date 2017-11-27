@@ -295,6 +295,7 @@ class MapComponentCtrl {
     } else if (type === ObjectType.Reference) {
       if (!settings.model_id) return;
       const addedReactions = this._mapOptions.getAddedReactions();
+      const infoPromise = this._api.getWildTypeInfo(settings.model_id);
       const modelPromise = this._modelService.get(settings.model_id, {
         message: {
           'to-return': ['fluxes', 'model'],
@@ -313,6 +314,9 @@ class MapComponentCtrl {
         this._mapOptions.setReactionData(data.fluxes, id);
 
         this.shared.decrement();
+      });
+      infoPromise.then((data: any) => {
+        this._mapOptions.setMapInfo(data.data, id);
       });
     }
   }
