@@ -314,6 +314,9 @@ class MapComponentCtrl {
 
         this.shared.decrement();
       });
+      this._api.getWildTypeInfo(settings.model_id).then(({data: mapInfo}: any) => {
+        this._mapOptions.setMapInfo(mapInfo.data, id);
+      });
     }
   }
 
