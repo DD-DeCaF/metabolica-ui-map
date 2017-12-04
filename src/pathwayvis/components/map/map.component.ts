@@ -332,6 +332,7 @@ class MapComponentCtrl {
         this._mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
         this._mapOptions.setReactionData(response.fluxes);
         this._mapOptions.setRemovedReactions(response['removed-reactions']);
+        this.$scope.$apply();
       });
     }
   }
@@ -410,41 +411,26 @@ class MapComponentCtrl {
   private _loadContextMenu(): void {
     const selection = this._builder.selection;
     const contextMenu = d3.select('.map-context-menu');
-    let contextVisible = false;
-
-    const hideMenu = () => {
-      contextMenu.style('visibility', 'hidden');
-      contextVisible = false;
-    };
 
     d3.selectAll('.reaction, .reaction-label')
       .style('cursor', 'pointer')
-      .on('mouseover', (d) => {
-        if (!contextVisible) {
-          this.contextElement = d;
-          this.contextActions = this.actions.getList({
-            type: 'map:reaction',
-            shared: this._mapOptions.getMapData(),
-            element: this.contextElement,
-          });
-          if (this.contextElement) {
-            this._renderContextMenu(contextMenu);
-            (<MouseEvent> currentEvent).preventDefault();
-          }
-          contextVisible = true;
-        }
-      }).on('mouseout', () => {
-        const event = (<MouseEvent> currentEvent);
-        if (event.type === 'mouseout') {
-          const target = (<any> event.relatedTarget);
-          if (!(target.classList.contains('map-context-menu') || target.classList.contains('context-menu'))) {
-            hideMenu();
-          }
+      .on('contextmenu', (d) => {
+        this.contextElement = d;
+        this.contextActions = this.actions.getList({
+          type: 'map:reaction',
+          shared: this._mapOptions.getMapData(),
+          element: this.contextElement,
+        });
+
+        if (this.contextElement) {
+          this._renderContextMenu(contextMenu);
+          (<MouseEvent> currentEvent).preventDefault();
         }
       });
 
-    d3.selectAll('.map-context-menu').on('mouseleave', hideMenu);
-    d3.select(document).on('click', hideMenu);
+    d3.select(document).on('click', () => {
+      contextMenu.style('visibility', 'hidden');
+    });
   }
 
     /**
@@ -452,8 +438,8 @@ class MapComponentCtrl {
      */
     private _renderContextMenu(contextMenu): void {
         contextMenu.style('position', 'fixed')
-            .style('left', `${(<MouseEvent> currentEvent).clientX - 9}px`)
-            .style('top', `${(<MouseEvent> currentEvent).clientY + 1}px`)
+            .style('left', `${(<MouseEvent> currentEvent).clientX}px`)
+            .style('top', `${(<MouseEvent> currentEvent).clientY}px`)
             .style('visibility', 'visible');
         this.$scope.$apply();
     }
