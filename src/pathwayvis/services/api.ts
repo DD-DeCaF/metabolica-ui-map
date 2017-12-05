@@ -26,20 +26,16 @@ export class APIService {
     return this._request('POST', path, data, parameters, this.api);
   }
 
-  public getModelMaps(path, parameters: Object = {}): angular.IPromise<Object> {
+  public getModel(path: string, parameters: Object = {}): angular.IPromise<Object> {
     return this._request('GET', path, undefined, parameters, this.model);
   }
 
-  public getModel(modelId: string, parameters: Object = {}): angular.IHttpPromise<Object> {
-    return this._request('GET', `v1/models/${modelId}`, undefined, parameters, this.model, true);
-  }
-
   public getWildTypeInfo(modelId: string, parameters: Object = {}): angular.IHttpPromise<Object> {
-    return this._request('GET', `v1/model-info/${modelId}`, undefined, parameters, this.model, true);
+    return this._request('GET', `v1/model-info/${modelId}`, undefined, parameters, this.model);
   }
 
-  public postModel(modelId: string, data: Object, parameters: Object = {}): angular.IHttpPromise<Object> {
-    return this._request('POST', `v1/models/${modelId}`, data, parameters, this.model);
+  public postModel(path: string, data: Object, parameters: Object = {}): angular.IPromise<Object> {
+    return this._request('POST', path, data, parameters, this.model);
   }
 
   public put(path: string, data: Object, parameters: Object = {}): angular.IPromise<Object> {
@@ -54,7 +50,7 @@ export class APIService {
     return this._request('DELETE', path, data, parameters, this.api);
   }
 
-  private _request(method: string, path: string, data: Object, params: Object, api, cache: Boolean = false): angular.IHttpPromise<any> {
+  private _request(method: string, path: string, data: Object, params: Object, api): angular.IHttpPromise<any> {
 
     const reqDetails = this._handleParams(path, params);
 
@@ -63,7 +59,6 @@ export class APIService {
       data: data,
       url: `${api}/${reqDetails.path}`,
       params: reqDetails.params,
-      cache,
     });
   }
 

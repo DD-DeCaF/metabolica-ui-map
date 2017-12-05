@@ -14,7 +14,6 @@ import './views/map.component.scss';
 import * as template from './views/map.component.html';
 import { ToastService } from "../../services/toastservice";
 import { MapOptionService } from "../../services/mapoption.service";
-import { ModelService } from '../../services/model.service';
 import { ObjectType } from "../../types";
 
 class MapComponentCtrl {
@@ -33,7 +32,6 @@ class MapComponentCtrl {
   private toastService: ToastService;
   private _q: any;
   private $window: angular.IWindowService;
-  private _modelService: ModelService;
 
   constructor($scope: angular.IScope,
     api: APIService,
@@ -44,7 +42,6 @@ class MapComponentCtrl {
     mapOptions: MapOptionService,
     $window: angular.IWindowService,
     shared: SharedService,
-    modelService: ModelService,
   ) {
     this.$window = $window;
     this._api = api;
@@ -56,7 +53,6 @@ class MapComponentCtrl {
     this.shared = shared;
     this.actions = actions;
     this.$scope = $scope;
-    this._modelService = modelService;
 
     // TODO @matyasfodor watch expressions consume too much memory
     // see https://docs.angularjs.org/api/ng/type/$rootScope.Scope#$watch
@@ -220,7 +216,7 @@ class MapComponentCtrl {
     if (!map) return;
     this.shared.increment();
     const {model_id, map_id} = this._mapOptions.getMapSettings();
-    this._api.getModelMaps('map', {
+    this._api.getModel('map', {
       'model': model_id,
       'map': map_id,
     }).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
@@ -295,7 +291,8 @@ class MapComponentCtrl {
     } else if (type === ObjectType.Reference) {
       if (!settings.model_id) return;
       const addedReactions = this._mapOptions.getAddedReactions();
-      const modelPromise = this._modelService.get(settings.model_id, {
+      const url = `models/${settings.model_id}`;
+      const modelPromise = this._api.postModel(url, {
         message: {
           'to-return': ['fluxes', 'model'],
           'simulation-method': this._mapOptions.getDataObject(id).selected.method.id,
@@ -308,7 +305,7 @@ class MapComponentCtrl {
         },
       });
       this.shared.increment();
-      modelPromise.then((data: any) => {
+      modelPromise.then(({data}: any) => {
         this._mapOptions.setDataModel(data.model, data.model.id, id);
         this._mapOptions.setReactionData(data.fluxes, id);
 

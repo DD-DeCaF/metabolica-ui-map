@@ -91,10 +91,13 @@ class ReactionComponentCtrl {
   }
 
   private updateMapData(response) {
-    this.mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
-    this.mapOptions.setReactionData(response.fluxes);
-    this.mapOptions.setDataModel(response.model);
-    this.mapOptions.setRemovedReactions(response['removed-reactions']);
+    // @matyasfodor move this to a central place -> mapOptions?
+    this.$scope.$apply(() => {
+      this.mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
+      this.mapOptions.setReactionData(response.fluxes);
+      this.mapOptions.setDataModel(response.model);
+      this.mapOptions.setRemovedReactions(response['removed-reactions']);
+    });
   }
 }
 
