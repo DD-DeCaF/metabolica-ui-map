@@ -42,7 +42,7 @@ export class MapDataObject implements MapObject {
 
   public getName(): string {
     return this.name ? this.name :
-      this.type === ObjectType.Reference ? 'Reference' :
+      this.type === ObjectType.Reference ? 'Wild type' :
         this.type === ObjectType.Experiment ? this._experimentName(this.selected) :
           undefined;
   }

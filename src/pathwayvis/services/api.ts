@@ -30,6 +30,10 @@ export class APIService {
     return this._request('GET', path, undefined, parameters, this.model);
   }
 
+  public getWildTypeInfo(modelId: string, parameters: Object = {}): angular.IHttpPromise<Object> {
+    return this._request('GET', `v1/model-info/${modelId}`, undefined, parameters, this.model);
+  }
+
   public postModel(path: string, data: Object, parameters: Object = {}): angular.IPromise<Object> {
     return this._request('POST', path, data, parameters, this.model);
   }

@@ -19,39 +19,30 @@ export class WSService {
 
   public reconnectInterval: number = 1000;
   public timeoutInterval: number = 10000;
-  public readyState: number;
 
   private _forcedClose: boolean = false;
   private _timedOut: boolean = false;
-  private _ws: WebSocket;
+  private _websockets: Map<string, WebSocket>;
   private _url: string;
   private _callbacks: Callback[] = [];
   private _q: angular.IQService;
   private toastService: ToastService;
   private modelWS: ModelWSProvider;
 
-  public onopen: (ev: Event) => void = (event: Event) => {/* no-empty*/};
-  public onclose: (ev: CloseEvent) => void = (event: CloseEvent) => {/* no-empty*/};
-  public onconnecting: () => void = () => {/* no-empty*/};
-  public onmessage: (ev: MessageEvent) => void = (event: MessageEvent) => {/* no-empty*/};
-  public onerror: (ev: ErrorEvent) => void = (event: ErrorEvent) => {/* no-empty*/};
-
-  // TODO rename to lowercase toestService
+  // TODO rename to lowercase toastService
   constructor($q: angular.IQService, toastService: ToastService, modelWS: ModelWSProvider) {
     this._q = $q;
     this.toastService = toastService;
     this.modelWS = modelWS;
+    this._websockets = new Map();
   }
 
-  public connect(reconnectAttempt: boolean, path: string) {
-    this.readyState = WebSocket.CONNECTING;
-
+  public connect(path: string, reconnectAttempt: boolean) {
     this._url = this.modelWS + '/' + path;
 
-    this._ws = new WebSocket(this._url);
-    this.onconnecting();
-
-    const localWs = this._ws;
+    if (this._websockets.has(path)) return;
+    const localWs = new WebSocket(this._url);
+    this._websockets[path] = localWs;
 
     let timeout = setTimeout(() => {
       this._timedOut = true;
@@ -59,34 +50,23 @@ export class WSService {
       this._timedOut = false;
     }, this.timeoutInterval);
 
-    this._ws.onopen = (event: Event) => {
+    localWs.onopen = (event: Event) => {
       clearTimeout(timeout);
-      this.readyState = WebSocket.OPEN;
       reconnectAttempt = false;
-
-      this._processRequests();
-      this.onopen(event);
+      this._processRequests(localWs);
     };
 
-    this._ws.onclose = (event: CloseEvent) => {
+    localWs.onclose = (event: CloseEvent) => {
       clearTimeout(timeout);
-      this._ws = null;
-      if (this._forcedClose) {
-        this.readyState = WebSocket.CLOSED;
-        this.onclose(event);
-      } else {
-        this.readyState = WebSocket.CONNECTING;
-        this.onconnecting();
-        if (!reconnectAttempt && !this._timedOut) {
-          this.onclose(event);
-        }
+      this._websockets.delete(path);
+      if (!this._forcedClose) {
         setTimeout(() => {
-          this.connect(true, path);
+          this.connect(path, true);
         }, this.reconnectInterval);
       }
     };
 
-    this._ws.onmessage = (event) => {
+    localWs.onmessage = (event) => {
       const result = JSON.parse(event.data);
       const requestId = result['request-id'];
       const callback = _.find(this._callbacks, 'id', requestId);
@@ -95,14 +75,18 @@ export class WSService {
       return callback.deffered.resolve(result);
     };
 
-    this._ws.onerror = (event: ErrorEvent) => {
+    localWs.onerror = (event: ErrorEvent) => {
       this.toastService.showErrorToast('Oops! WebSocket error. Try again');
       this._callbacks = [];
-      this.onerror(event);
     };
   }
 
-  public send(data: any): angular.IPromise<any> {
+  public send(path: string, data: any): angular.IPromise<any> {
+    const connection = this._websockets[path];
+    if (!connection) {
+      console.debug(`Attempted to send data to non-existent connection ${path}`);
+      return;
+    }
     const requestId = this._generateID();
 
     _.assign(data, {
@@ -117,8 +101,8 @@ export class WSService {
 
     this._callbacks.push(callback);
 
-    if (this._ws && this._ws.readyState === WebSocket.OPEN) {
-      this._processRequests();
+    if (connection && connection.readyState === WebSocket.OPEN) {
+      this._processRequests(connection);
       return callback.deffered.promise;
     }
   }
@@ -126,13 +110,19 @@ export class WSService {
   /**
    * Returns boolean, whether websocket was FORCEFULLY closed.
    */
-  public close(): boolean {
-    if (this._ws) {
+  public close(path: string): boolean {
+    const connection = this._websockets[path];
+    if (connection) {
       this._forcedClose = true;
-      this._ws.close();
+      connection.close();
       return true;
     }
     return false;
+  }
+
+  public isActive(path: string): boolean {
+    const connection = this._websockets[path];
+    return connection && [WebSocket.OPEN, WebSocket.CONNECTING].includes(connection.readyState);
   }
 
   /**
@@ -142,21 +132,22 @@ export class WSService {
    *
    * Returns boolean, whether websocket was closed.
    */
-  public refresh(): boolean {
-    if (this._ws) {
-      this._ws.close();
+  public refresh(path: string): boolean {
+    const connection = this._websockets[path];
+    if (connection) {
+      connection.close();
       return true;
     }
     return false;
   }
 
-  private _processRequests(): void {
+  private _processRequests(connection: WebSocket): void {
     if (!this._callbacks.length) {
       return;
     }
 
     for (let request of this._callbacks) {
-      this._ws.send(request.data);
+      connection.send(request.data);
     }
   }
 

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "src/index.js",
   "dependencies": {
-    "@dd-decaf/escher": "^1.6.14",
+    "@dd-decaf/escher": "^1.6.16",
     "angular": "^1.6.2",
     "angular-fixed-table-header": "github:daniel-nagy/fixed-table-header",
     "angular-material-data-table": "^0.10.10",

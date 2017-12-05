@@ -56,8 +56,9 @@ class MapComponentCtrl {
 
     // TODO @matyasfodor watch expressions consume too much memory
     // see https://docs.angularjs.org/api/ng/type/$rootScope.Scope#$watch
-    $scope.$watch('ctrl._mapOptions.getMapSettings()', () => {
-      let settings = this._mapOptions.getMapSettings();
+    // TODO @matyasfodor this call sets the map even if a completely different setting is changed.
+    // which causes loading the map 3 times in some cases.
+    $scope.$watch('ctrl._mapOptions.getMapSettings()', (settings: types.MapSettings) => {
       if (settings.model_id && settings.map_id) {
         if (this._mapOptions.shouldUpdateData) {
           this.updateAllMaps();
@@ -69,6 +70,7 @@ class MapComponentCtrl {
 
         if (this._builder) {
           this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
+          this._drawAddedReactions();
         }
       }
     }, true);
@@ -104,58 +106,50 @@ class MapComponentCtrl {
     }, true);
 
     $scope.$watch('ctrl._mapOptions.getAddedReactions()', () => {
-      const addedReactions = this._mapOptions.getAddedReactions();
-      const newlyAddedReactionEscherIds = [];
-      if (this._builder && addedReactions) {
-        // Check if reaction is already drawn on the map
-        addedReactions.filter((r) => {
-          return Object.values(this._builder.map.reactions)
-            .map((escherReaction) => escherReaction.bigg_id)
-            .indexOf(r.bigg_id) === -1;
-        })
-          .forEach((reaction) => {
-            // We store the metabolite bigg ids suffixed with compartment ids
-            // Cofactors are stored without the compartment id
-            // So if the metabolite looks like with 'h2o_(...)'
-            // Then it is a cofactor 'h2o'
-            const criteria = (m) => {
-              return !this._builder.options.cofactors.some((c) => {
-                return m.startsWith(`${c}_`);
-              });
-            };
-            // parition algorithm
-            const [metabolites, cofactors] = Object.entries(reaction.metabolites).reduce(
-              ([_mets, _cofs], [m]) => {
-                (criteria(m) ? _mets : _cofs).push(m);
-                return [_mets, _cofs];
-              },
-              [[], []],
-            );
-            const nodes = Object.values(this._builder.map.nodes).filter((n) => {
-              return metabolites.findIndex((id) => n.bigg_id === id) > -1;
-            });
-            const [node] = nodes;
-            let escherProps;
-            if (node) {
-              escherProps = this._builder.map.new_reaction_for_metabolite(
-                reaction.bigg_id,
-                node.node_id,
-                90);
-            } else {
-              escherProps = this._builder.map.new_reaction_from_scratch(
-                reaction.bigg_id,
-                // just came up with this
-                { x: 50, y: 200 },
-                90);
-            }
-            newlyAddedReactionEscherIds.push(escherProps.id);
-          });
-        const lastNewReactionId = newlyAddedReactionEscherIds.pop();
-        if (lastNewReactionId) {
-          this._builder.map.zoom_to_reaction(lastNewReactionId);
-        }
-      }
+      this._drawAddedReactions();
     }, true);
+
+    $scope.$watch('ctrl._mapOptions.getDataModel().uid', (modelUid: string) => {
+      if (!modelUid) return;
+      // Open WS connection for model if it is not opened
+      if (!this._ws.isActive(modelUid)) {
+        this._ws.connect(modelUid, true);
+      }
+    });
+
+    $scope.$watch('ctrl._mapOptions.getDataModel().notes.changes', (changes: any) => {
+      if (!changes) {
+        return;
+      }
+      this._loadModel();
+      // Empty previously removed reactions
+      if (this.resetKnockouts) this._mapOptions.setRemovedReactions([]);
+      this.resetKnockouts = false;
+      // @matyasfodor why only when there are no removed reactions?
+      if (this._mapOptions.getRemovedReactions().length === 0) {
+        // this.shared.removedReactions
+        let reactions = changes.removed.reactions.map((reaction: types.Reaction) => {
+          return reaction.id;
+        });
+        this._mapOptions.setRemovedReactions(reactions);
+      }
+
+      if (changes.added.reactions) {
+        // TODO filter out adapter and DM reactions
+        const reactions = changes.added.reactions.filter((reaction) => {
+          return !['adapter', 'DM', 'EX_'].some((str) => {
+            return reaction.id.startsWith(str);
+          });
+        })
+        .map((reaction) => {
+          return Object.assign({}, reaction, {
+            bigg_id: reaction.id,
+            metabolites: reaction.metabolites,
+          });
+        });
+        this._mapOptions.setAddedReactions(reactions);
+      }
+    });
 
     $scope.$watch('ctrl._mapOptions.getReactionData()', () => {
       let reactionData = this._mapOptions.getReactionData();
@@ -192,7 +186,7 @@ class MapComponentCtrl {
     }, true);
 
     $scope.$on('$destroy', () => {
-      ws.close();
+      ws.close(this._mapOptions.getDataModelId());
     });
   }
 
@@ -247,6 +241,13 @@ class MapComponentCtrl {
 
   private updateFVAMaps() {
     this.updateAllMaps(true);
+  }
+
+  private _drawAddedReactions() {
+    const addedReactions = this._mapOptions.getAddedReactions();
+    if (this._builder) {
+      this._builder.set_added_reactions(addedReactions.map((reaction) => reaction.bigg_id));
+    }
   }
 
   private _loadMap(type: ObjectType, selectedItem: types.SelectedItems, id: number): void {
@@ -310,6 +311,9 @@ class MapComponentCtrl {
 
         this.shared.decrement();
       });
+      this._api.getWildTypeInfo(settings.model_id).then(({data: mapInfo}: any) => {
+        this._mapOptions.setMapInfo(mapInfo, id);
+      });
     }
   }
 
@@ -366,45 +370,6 @@ class MapComponentCtrl {
     let model = this._mapOptions.getDataModel();
     // Load model data
     this._builder.load_model(model);
-
-    // Empty previously removed reactions
-    if (this.resetKnockouts) this._mapOptions.setRemovedReactions([]);
-    this.resetKnockouts = false;
-    // Check removed and added reactions and genes from model
-    const changes = model.notes.changes;
-
-    if (changes) {
-      // @matyasfodor why only when there are no removed reactions?
-      if (this._mapOptions.getRemovedReactions().length === 0) {
-        // this.shared.removedReactions
-        let reactions = changes.removed.reactions.map((reaction: types.Reaction) => {
-          return reaction.id;
-        });
-        this._mapOptions.setRemovedReactions(reactions);
-      }
-
-      if (changes.added.reactions) {
-        // TODO filter out adapter and DM reactions
-        const reactions = changes.added.reactions.filter((reaction) => {
-          return !['adapter', 'DM', 'EX_'].some((str) => {
-            return reaction.id.startsWith(str);
-          });
-        })
-        .map((reaction) => {
-          return Object.assign({}, reaction, {
-            bigg_id: reaction.id,
-            metabolites: reaction.metabolites,
-          });
-        });
-        this._mapOptions.setAddedReactions(reactions);
-      }
-    }
-
-    // Open WS connection for model if it is not opened
-    if (!this._ws.readyState) {
-      this._ws.connect(true, model.uid);
-    }
-
   }
 
   // @matyasfodor Note: Do not use data -> vague definition.
@@ -469,7 +434,7 @@ class MapComponentCtrl {
      * Renders and positions context menu based on selected element
      */
     private _renderContextMenu(contextMenu): void {
-        contextMenu.style('position', 'absolute')
+        contextMenu.style('position', 'fixed')
             .style('left', `${(<MouseEvent> currentEvent).clientX}px`)
             .style('top', `${(<MouseEvent> currentEvent).clientY}px`)
             .style('visibility', 'visible');

@@ -37,7 +37,10 @@ export class MapOptionService {
     this.toastService = toastService;
     this.actions = actions;
     this.experimentService = experimentService;
+    this.init();
+  }
 
+  public init(): void {
     this.apiService.get('species/current').then((response: types.CallbackEmbeddedResponse<any>) => {
       const species = response.data.response;
       this.speciesList = Object.entries(species).map(([id, name]) => ({ id, name }));
@@ -45,15 +48,10 @@ export class MapOptionService {
       // Set selected species
       this.setModelsFromSpecies(this.selectedSpecies);
     });
-
-    this.init();
-  }
-
-  public init(): void {
     this.dataHandler = new DataHandler();
     this.selectedCardId = this.dataHandler.addObject(ObjectType.Reference);
 
-    this.mapSettings = <MapSettings> {
+    this.mapSettings = <types.MapSettings> {
       map_id: 'Central metabolism',
       model_id: null,
       map: {},
@@ -106,15 +104,15 @@ export class MapOptionService {
     return this.getDataObject().mapData.model;
   }
 
+// TODO @matyasfodor make distinciton between uid and id.
   public setDataModel(model: types.Model,
-    modelId: string,
+    modelId?: string,
     objectId: number = this.selectedCardId): void {
 
+    // Save the original uid, if the new uid is not provided, re-use it
+    const uid = this.getDataObject(objectId).mapData.model.uid;
     this.getDataObject(objectId).mapData.model = model;
-
-    if (modelId) {
-      this.getDataObject(objectId).mapData.model.uid = modelId;
-    }
+    this.getDataObject(objectId).mapData.model.uid = modelId || uid;
   }
 
   public getDataModelId(): string {
