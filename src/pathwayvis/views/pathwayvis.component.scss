@@ -1,27 +1,4 @@
-.floating-menu{
-  z-index: 10;
-  position: absolute;
-  right: 0;
-}
-
 pathwayvis {
-    display: flex;
+  display: flex;
   flex: 1;
-}
-
-md-toast.md-warn-toast-theme {
-  .md-toast-content {
-    background-color: orange;
-  }
-}
-
-md-toast.md-error-toast-theme {
-  .md-toast-content {
-    background-color: red;
-  }
-}
-
-.tab-content{
-  background-color: white;
-  height: 100%;
 }
