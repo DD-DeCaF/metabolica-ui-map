@@ -15,20 +15,30 @@ pv-map {
     .spinner {
         width: 100%;
         height: 100%;
-        position: absolute;
-        background-color: #4F5151;
+        background-color: rgba(160, 160, 160, 0.7);
         z-index: 10;
-        opacity: .5;
-        top: 0;
-        left: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
     }
-    #map-progress {
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        margin: auto;
-        position: absolute;
+    .map-progress {
+        display: flex;
+        flex-flow: column;
+        align-items: center;
+        opacity: 0.9;
+
+        md-progress-circular {
+            path {
+                stroke: rgb(96,125,139);
+            }
+            color: rgb(96,125,139);
+            margin-bottom: 70px;
+        }
+
+        .map-progress-text {
+            color: black;
+            opacity: 1;
+        }
     }
     .map-context-menu {
         background-color: #FFFFFF;
