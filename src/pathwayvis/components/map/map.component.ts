@@ -32,6 +32,7 @@ class MapComponentCtrl {
   private toastService: ToastService;
   private _q: any;
   private $window: angular.IWindowService;
+  private pathwayAdded = false;
 
   constructor($scope: angular.IScope,
     api: APIService,
@@ -199,11 +200,29 @@ class MapComponentCtrl {
     this._builder.set_reaction_fva_data(noOpacity);
   }
 
+  /**
+   * addPathway
+   * this method adds the pathway shared form the pathway predictor
+   */
+  private addPathway(item, model) {
+    const modelId = (<any> item.param.model_id);
+    this._mapOptions.getMapData().model = Object.assign({}, model, {
+      id: modelId,
+      uid: modelId,
+      metabolites: [...model.metabolites, ...item.model.metabolites],
+      reactions: [...model.reactions, ...item.model.reactions],
+    });
+    this._builder.load_model(this._mapOptions.getMapData().model);
+
+    const reactions = item.model.reactions.map(({id, metabolites}) => ({id, metabolites}));
+    this._builder.add_pathway(reactions);
+  }
+
   private mapChanged(): void {
     let mapObject = this._mapOptions.getDataObject();
     if (mapObject.isComplete()) {
       this._removeOpacity();
-      this._builder.load_model(this._mapOptions.getDataModel());
+      this._loadModel();
       this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
       this._loadContextMenu();
       // Reset zoom - if the zoom is set to a reaction,
@@ -214,17 +233,15 @@ class MapComponentCtrl {
 
   private _setMap(map: string): void {
     if (!map) return;
-    this.shared.increment();
     const {model_id, map_id} = this._mapOptions.getMapSettings();
-    this._api.getModel('map', {
+    this.shared.async(this._api.getModel('map', {
       'model': model_id,
       'map': map_id,
     }).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
       this._mapOptions.setMap(response.data);
     }, () => {
       this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected map.');
-    })
-    .then(() => { this.shared.decrement(); });
+    }), 'setMap');
   }
 
   private updateAllMaps(FVAonly: boolean = false) {
@@ -274,20 +291,17 @@ class MapComponentCtrl {
       });
 
       this.resetKnockouts = true;
-      this.shared.increment();
-      this._q.all([modelPromise, infoPromise]).then(([modelResponse, infoResponse]: any) => {
-        const phase = modelResponse.data.response[phaseId.toString()];
-        this._mapOptions.setDataModel(phase.model, phase.modelId, id);
-        this._mapOptions.setReactionData(phase.fluxes, id);
-        this._mapOptions.setMapInfo(infoResponse.data.response[phaseId.toString()], id);
-        this._mapOptions.setMethod(selectedItem.method);
+      this.shared.async(this._q.all([modelPromise, infoPromise])
+        .then(([modelResponse, infoResponse]: any) => {
+          const phase = modelResponse.data.response[phaseId.toString()];
+          this._mapOptions.setDataModel(phase.model, phase.modelId, id);
+          this._mapOptions.setReactionData(phase.fluxes, id);
+          this._mapOptions.setMapInfo(infoResponse.data.response[phaseId.toString()], id);
+          this._mapOptions.setMethod(selectedItem.method);
 
-      }, (error) => {
-        this.toastService.showErrorToast('Oops! Sorry, there was a problem with fetching the data.');
-      })
-      .then(() => {
-        this.shared.decrement();
-      });
+        }, (error) => {
+          this.toastService.showErrorToast('Oops! Sorry, there was a problem with fetching the data.');
+        }), 'Experiment');
     } else if (type === ObjectType.Reference) {
       if (!settings.model_id) return;
       const addedReactions = this._mapOptions.getAddedReactions();
@@ -304,13 +318,10 @@ class MapComponentCtrl {
           })),
         },
       });
-      this.shared.increment();
-      modelPromise.then(({data}: any) => {
+      this.shared.async(modelPromise.then(({data}: any) => {
         this._mapOptions.setDataModel(data.model, data.model.id, id);
         this._mapOptions.setReactionData(data.fluxes, id);
-
-        this.shared.decrement();
-      });
+      }), 'Reference');
       this._api.getWildTypeInfo(settings.model_id).then(({data: mapInfo}: any) => {
         this._mapOptions.setMapInfo(mapInfo, id);
       });
@@ -329,7 +340,6 @@ class MapComponentCtrl {
         this._mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
         this._mapOptions.setReactionData(response.fluxes);
         this._mapOptions.setRemovedReactions(response['removed-reactions']);
-        this.$scope.$apply();
       });
     }
   }
@@ -367,9 +377,14 @@ class MapComponentCtrl {
    * Loads model to the map
    */
   private _loadModel(): void {
-    let model = this._mapOptions.getDataModel();
-    // Load model data
-    this._builder.load_model(model);
+    const sharedPathway = this._mapOptions.getSharedPathway();
+    if (!this.pathwayAdded && sharedPathway) {
+      // Adds the model as well
+      this.addPathway(sharedPathway, this._mapOptions.getDataModel());
+      this.pathwayAdded = true;
+    } else {
+      this._builder.load_model(this._mapOptions.getDataModel());
+    }
   }
 
   // @matyasfodor Note: Do not use data -> vague definition.

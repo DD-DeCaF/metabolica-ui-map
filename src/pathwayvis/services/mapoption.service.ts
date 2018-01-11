@@ -273,7 +273,9 @@ export class MapOptionService {
     this.selectedCardId = id;
   }
 
-  public actionHandler(action, {id = null, reaction = null}: {id?: string, reaction?: AddedReaction}): any {
+  public actionHandler(
+    action,
+    {id = null, reaction = null, reactions = null}: {id?: string, reaction?: AddedReaction, reactions?: AddedReaction[]}): any {
     const shared = angular.copy(this.getMapData());
 
     // TODO write a nice, functional switch-case statement
@@ -358,5 +360,13 @@ export class MapOptionService {
     mapData.addedReactions.splice(index, 1);
     // TODO add reaction here?
     return this.actionHandler(this.actions.getAction('reaction:update'), {});
+  }
+
+  public setSharedPathway(item): void {
+    this.getMapData().pathwayData = item;
+  }
+
+  public getSharedPathway(): any {
+    return this.getMapData().pathwayData;
   }
 }

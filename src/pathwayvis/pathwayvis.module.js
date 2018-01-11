@@ -74,6 +74,12 @@ export const PathwayVisModule = angular.module('pathwayvis', [
       ],
       name: 'Interactive map'
     });
+    $sharingProvider.register('app.pathwayvis', {
+      accept: [
+        { type: 'pathwayPrediction', multiple: false }
+      ],
+      name: 'Interactive map'
+    });
   })
   .config(($mdThemingProvider) => {
     $mdThemingProvider.theme('warn-toast');
