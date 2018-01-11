@@ -29,13 +29,7 @@ export abstract class ReactionAction extends Action {
         metabolites: r.metabolites,
       })),
     };
-
-    return $timeout(() => {
-      return ws.send(this.shared.model.uid, data).then((response) => {
-        shared.decrement('action');
-        return response;
-      });
-    }, 0, false);
+    return ws.send(this.shared.model.uid, data);
   }
 
   public canDisplay(context) {

@@ -340,7 +340,6 @@ class MapComponentCtrl {
         this._mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
         this._mapOptions.setReactionData(response.fluxes);
         this._mapOptions.setRemovedReactions(response['removed-reactions']);
-        this.$scope.$apply();
       });
     }
   }

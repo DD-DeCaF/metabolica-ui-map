@@ -104,6 +104,8 @@ export class WSService {
     if (connection && connection.readyState === WebSocket.OPEN) {
       this._processRequests(connection);
       return callback.deffered.promise;
+    } else {
+      return this._q.reject();
     }
   }
 

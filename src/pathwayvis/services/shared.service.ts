@@ -13,12 +13,13 @@ export class SharedService {
     promise.finally(() => {
       this.decrement(message);
     });
+    return promise;
   }
 
   public decrement(message?): void {
     this.loading--;
     if (message) {
-      console.log(`decrement ${message}`);
+      console.debug(`decrement ${message}`);
     }
   }
 
