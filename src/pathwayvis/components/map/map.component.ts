@@ -369,6 +369,7 @@ class MapComponentCtrl {
       reaction_no_data_color: '#CBCBCB',
       reaction_no_data_size: 10,
       reaction_knockout: this._mapOptions.getRemovedReactions(),
+      enable_editing: false,
     };
     this._builder = escher.Builder(this._mapOptions.getMap(), null, null, this._mapElement, settings);
   }
