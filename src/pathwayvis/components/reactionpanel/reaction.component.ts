@@ -14,6 +14,8 @@ const DecafBiggProxy = 'https://api-staging.dd-decaf.eu/bigg/';
 
 class ReactionComponentCtrl {
   public searchText: string;
+  public searchTextModelReactions: string;
+  public modelReactions = [];
 
   private $http: angular.IHttpService;
   private mapOptions: MapOptionService;
@@ -29,7 +31,9 @@ class ReactionComponentCtrl {
     this.$scope = $scope;
     this.actions = actions;
 
-    mapOptions.reactionsObservable.subscribe(console.log);
+    mapOptions.reactionsObservable.subscribe((reactions) => {
+      this.modelReactions = reactions;
+    });
   }
 
   public getRemovedReactions(): string[] {
@@ -52,6 +56,12 @@ class ReactionComponentCtrl {
     // return $.getJSON(url).then((response) => response.results);
     return $.getJSON(url).then((response) => {
       return [...response.results, PHHB, TRPHYDRO4, DM_melatn_c];
+    });
+  }
+
+  public queryModelReactions(query: string): any[] {
+    return this.modelReactions.filter((reaction) => {
+      return reaction.name.toLowerCase().includes(query.toLowerCase());
     });
   }
 
@@ -82,6 +92,14 @@ class ReactionComponentCtrl {
         });
       });
     this.searchText = '';
+  }
+
+  public removeReactionSelectedItem(item) {
+    if (!item) return;
+    const doKnockoutAction = this.actions.getAction('reaction:knockout:do');
+    this.mapOptions.actionHandler(doKnockoutAction, { id: item.id })
+      .then(this.updateMapData.bind(this));
+    this.searchTextModelReactions = '';
   }
 
   public getAddedReactions(): BiggReaction[] {

@@ -28,6 +28,17 @@
   </md-card>
 
   <md-card>
+    <md-autocomplete md-no-cache="true" md-search-text="ctrl.searchTextModelReactions" md-items="item in ctrl.queryModelReactions(ctrl.searchTextModelReactions)"
+                     md-selected-item-change="ctrl.removeReactionSelectedItem(item)" md-item-text="item.name" md-min-length="3" placeholder="Enter the reaction you want to remove"
+                     ng-model-options="{debounce: 500}" md-menu-class="autocomplete-custom-template">
+        <md-item-template>
+          <span class="item-title"><b>Name:</b> {{ item.name }}</span>
+          <span class="item-metadata" md-highlight-text="ctrl.searchText" md-highlight-flags="^i">{{ item.id }}</span>
+      </md-item-template>
+    </md-autocomplete>
+  </md-card>
+
+  <md-card>
     <md-content>
       <md-subheader class="md-primary">Removed reactions:</md-subheader>
       <md-list>
