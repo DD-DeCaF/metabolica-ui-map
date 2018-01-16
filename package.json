@@ -12,7 +12,8 @@
     "jquery": "^3.1.1",
     "jquery-ui": "^1.12.1",
     "lodash": "^4.16.4",
-    "metabolica": "github:biosustain/metabolica-ui"
+    "metabolica": "github:biosustain/metabolica-ui",
+    "rxjs": "^5.5.6"
   },
   "scripts": {
     "build": "webpack",

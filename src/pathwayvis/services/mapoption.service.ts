@@ -1,6 +1,8 @@
 import * as types from '../types';
 import * as _ from 'lodash';
 import * as angular from "angular";
+import * as Rx from 'rxjs/Rx';
+
 import { APIService } from "./api";
 import { ToastService } from "./toastservice";
 import { ActionsService } from "./actions/actions.service";
@@ -28,7 +30,8 @@ export class MapOptionService {
 
   private toastService: ToastService;
   private actions: ActionsService;
-
+  public reactionsObservable: any;
+  private reactionsObserver: any;
   // TODO rename services to lowercase
   constructor(api: APIService, toastService: ToastService,
     actions: ActionsService,
@@ -37,6 +40,9 @@ export class MapOptionService {
     this.toastService = toastService;
     this.actions = actions;
     this.experimentService = experimentService;
+    this.reactionsObservable = Rx.Observable.create((observer) => {
+      this.reactionsObserver = observer;
+    });
     this.init();
   }
 
@@ -109,6 +115,8 @@ export class MapOptionService {
     modelId?: string,
     objectId: number = this.selectedCardId): void {
 
+    this.reactionsObserver.next(model.reactions
+      .map(({id, name}) => ({id, name})));
     // Save the original uid, if the new uid is not provided, re-use it
     const uid = this.getDataObject(objectId).mapData.model.uid;
     this.getDataObject(objectId).mapData.model = model;

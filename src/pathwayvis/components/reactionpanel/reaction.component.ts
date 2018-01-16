@@ -28,6 +28,8 @@ class ReactionComponentCtrl {
     this.mapOptions = mapOptions;
     this.$scope = $scope;
     this.actions = actions;
+
+    mapOptions.reactionsObservable.subscribe(console.log);
   }
 
   public getRemovedReactions(): string[] {
