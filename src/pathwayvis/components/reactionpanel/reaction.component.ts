@@ -53,8 +53,10 @@ class ReactionComponentCtrl {
   }
 
   public queryModelReactions(query: string): any[] {
+    query = query.toLowerCase();
     return this.modelReactions.filter((reaction) => {
-      return reaction.name.toLowerCase().includes(query.toLowerCase());
+      return reaction.name.toLowerCase().includes(query)
+        || reaction.id.toLowerCase().includes(query);
     });
   }
 

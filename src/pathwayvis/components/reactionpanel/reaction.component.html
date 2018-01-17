@@ -8,6 +8,7 @@
     items="ctrl.addedReactions"
     on-remove-item="ctrl.onReactionRemoveClick(item)"
     item-display="ctrl.addedReactionDisplay(item)">
+    id-property="'bigg_id'">
   </pv-panel-item-component>
 
   <pv-panel-item-component
@@ -19,5 +20,6 @@
     items="ctrl.removedReactions"
     on-remove-item="ctrl.onUndoClick(item)"
     item-display="ctrl.knockoutDisplay(item)">
+    id-property="'id'">
   </pv-panel-item-component>
 </md-content>

@@ -11,6 +11,8 @@ class PanelItemCtrl {
   public missingItems: string;
   public items = [];
   public onRemoveItem: (item: any) => void;
+  public itemDisplay: (item: any) => string;
+  public idProperty: string;
 
   public selectedItemChange(item) {
     this.onItemSelect({item});
@@ -30,5 +32,6 @@ export const PanelItemComponent = {
     items: '<',
     onRemoveItem: '&',
     itemDisplay: '&',
+    idProperty: '<',
   },
 };
