@@ -1,57 +1,23 @@
 <md-content>
-  <md-card>
-    <md-autocomplete md-no-cache="true" md-selected-item="selectedItem" md-search-text="ctrl.searchText" md-items="item in ctrl.querySearch(ctrl.searchText)"
-      md-selected-item-change="ctrl.selectedItemChange(item)" md-item-text="item.name" md-min-length="1" placeholder="Enter the reaction you want to add"
-      ng-model-options="{debounce: 500}" md-menu-class="autocomplete-custom-template">
-      <md-item-template>
-        <span class="item-title"><b>Name:</b> {{ item.name }}</span>
-        <span class="item-metadata" md-highlight-text="ctrl.searchText" md-highlight-flags="^i">{{ item.bigg_id }}</span>
-      </md-item-template>
-    </md-autocomplete>
-  </md-card>
+  <pv-panel-item-component
+    on-item-select="ctrl.selectedItemChange(item)"
+    query-search="ctrl.querySearch(query)"
+    placeholder="'Enter the reaction you want to add'"
+    missing-items="'No added reactions'"
+    header="'Added reactions:'"
+    items="ctrl.addedReactions"
+    on-remove-item="ctrl.onReactionRemoveClick(item)"
+    item-display="ctrl.addedReactionDisplay(item)">
+  </pv-panel-item-component>
 
-  <md-card>
-    <md-content>
-      <md-subheader class="md-primary">Added reactions:</md-subheader>
-      <md-list>
-        <md-list-item ng-hide="ctrl.getAddedReactions().length > 0">No added reactions</md-list-item>
-        <md-list-item ng-repeat="reaction in ctrl.getAddedReactions()">
-          <span class="md-caption">{{ reaction.name || reaction.id }}</span>
-          <md-button class="md-icon-button md-secondary" ng-click="ctrl.onReactionRemoveClick(reaction.bigg_id)">
-            <md-icon md-font-icon="close">
-              close
-            </md-icon>
-          </md-button>
-        </md-list-item>
-      </md-list>
-    </md-content>
-  </md-card>
-
-  <md-card>
-    <md-autocomplete md-no-cache="true" md-search-text="ctrl.searchTextModelReactions" md-items="item in ctrl.queryModelReactions(ctrl.searchTextModelReactions)"
-                     md-selected-item-change="ctrl.removeReactionSelectedItem(item)" md-item-text="item.name" md-min-length="3" placeholder="Enter the reaction you want to remove"
-                     ng-model-options="{debounce: 500}" md-menu-class="autocomplete-custom-template">
-        <md-item-template>
-          <span class="item-title"><b>Name:</b> {{ item.name }}</span>
-          <span class="item-metadata" md-highlight-text="ctrl.searchText" md-highlight-flags="^i">{{ item.id }}</span>
-      </md-item-template>
-    </md-autocomplete>
-  </md-card>
-
-  <md-card>
-    <md-content>
-      <md-subheader class="md-primary">Removed reactions:</md-subheader>
-      <md-list>
-        <md-list-item ng-hide="ctrl.getRemovedReactions().length > 0">No knocked out reactions</md-list-item>
-        <md-list-item ng-repeat="reaction in ctrl.getRemovedReactions()">
-          <span class="md-caption">{{reaction}}</span>
-          <md-button class="md-icon-button md-secondary" ng-click="ctrl.onUndoClick(reaction)">
-            <md-icon md-font-icon="close">
-              close
-            </md-icon>
-          </md-button>
-        </md-list-item>
-      </md-list>
-    </md-content>
-  </md-card>
+  <pv-panel-item-component
+    on-item-select="ctrl.removeReactionSelectedItem(item)"
+    query-search="ctrl.queryModelReactions(query)"
+    placeholder="'Enter the reaction you want to remove'"
+    missing-items="'No knocked out reactions'"
+    header="'Removed reactions:'"
+    items="ctrl.removedReactions"
+    on-remove-item="ctrl.onUndoClick(item)"
+    item-display="ctrl.knockoutDisplay(item)">
+  </pv-panel-item-component>
 </md-content>

@@ -30,8 +30,15 @@ export class MapOptionService {
 
   private toastService: ToastService;
   private actions: ActionsService;
-  public reactionsObservable: any;
-  private reactionsObserver: any;
+
+  public addedReactionsObservable: Rx.Observable<any>;
+  private addedReactionsSubject: Rx.Subject<any>;
+
+  public reactionsObservable: Rx.Observable<any>;
+  private reactionsSubject: Rx.Subject<any>;
+
+  public removedReactionsObservable: Rx.Observable<any>;
+  private removedReactionsSubject: Rx.Subject<any>;
   // TODO rename services to lowercase
   constructor(api: APIService, toastService: ToastService,
     actions: ActionsService,
@@ -40,9 +47,15 @@ export class MapOptionService {
     this.toastService = toastService;
     this.actions = actions;
     this.experimentService = experimentService;
-    this.reactionsObservable = Rx.Observable.create((observer) => {
-      this.reactionsObserver = observer;
-    });
+
+    this.reactionsSubject = new Rx.Subject();
+    this.reactionsObservable = this.reactionsSubject.asObservable();
+
+    this.addedReactionsSubject = new Rx.Subject();
+    this.addedReactionsObservable = this.addedReactionsSubject.asObservable();
+
+    this.removedReactionsSubject = new Rx.Subject();
+    this.removedReactionsObservable = this.removedReactionsSubject.asObservable();
     this.init();
   }
 
@@ -115,7 +128,7 @@ export class MapOptionService {
     modelId?: string,
     objectId: number = this.selectedCardId): void {
 
-    this.reactionsObserver.next(model.reactions
+    this.reactionsSubject.next(model.reactions
       .map(({id, name}) => ({id, name})));
     // Save the original uid, if the new uid is not provided, re-use it
     const uid = this.getDataObject(objectId).mapData.model.uid;
@@ -142,6 +155,7 @@ export class MapOptionService {
 
   public setRemovedReactions(reactions: string[]) {
     this.getDataObject().setRemovedReactions(reactions);
+    this.removedReactionsSubject.next(reactions);
   }
 
   public getCurrentGrowthRate(): number {
@@ -356,6 +370,7 @@ export class MapOptionService {
 
   public setAddedReactions(reactions: AddedReaction[]): void {
     this.getDataObject().mapData.addedReactions = reactions;
+    this.addedReactionsSubject.next(reactions);
   }
 
   public addReaction(addedReaction: AddedReaction): any {

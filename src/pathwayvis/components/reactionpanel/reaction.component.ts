@@ -1,21 +1,18 @@
 import * as _ from 'lodash';
-import "./reaction.component.scss";
 import * as template from "./reaction.component.html";
 import * as angular from "angular";
 import { MapOptionService } from "../../services/mapoption.service";
 import { AddedReaction, BiggReaction } from "../../types";
 import { ActionsService } from "../../services/actions/actions.service";
 import * as $ from "jquery";
-import PHHB from './fakeBiggReactions/PHHB.json';
-import TRPHYDRO4 from './fakeBiggReactions/TRPHYDRO4.json';
-import DM_melatn_c from './fakeBiggReactions/DM_melatn_c.json';
+import { IHttpResponse } from 'angular';
 
 const DecafBiggProxy = 'https://api-staging.dd-decaf.eu/bigg/';
 
 class ReactionComponentCtrl {
-  public searchText: string;
-  public searchTextModelReactions: string;
+  public addedReactions = [];
   public modelReactions = [];
+  public removedReactions = [];
 
   private $http: angular.IHttpService;
   private mapOptions: MapOptionService;
@@ -34,10 +31,14 @@ class ReactionComponentCtrl {
     mapOptions.reactionsObservable.subscribe((reactions) => {
       this.modelReactions = reactions;
     });
-  }
 
-  public getRemovedReactions(): string[] {
-    return this.mapOptions.getRemovedReactions();
+    mapOptions.addedReactionsObservable.subscribe((reactions) => {
+      this.addedReactions = reactions;
+    });
+
+    mapOptions.removedReactionsObservable.subscribe((reactions) => {
+      this.removedReactions = reactions;
+    });
   }
 
   public onUndoClick(selectedReaction: string): void {
@@ -47,16 +48,8 @@ class ReactionComponentCtrl {
   }
 
   public querySearch(query: string) {
-    const url = `${DecafBiggProxy}search?query=${query}&search_type=reactions`;
-    // Get rid of jquery
-    // $http is configured to add Auth header to all requests.
-    // This triggers a preflight check, the client sends an options
-    // request, which cannot be handled by the bigg database.
-
-    // return $.getJSON(url).then((response) => response.results);
-    return $.getJSON(url).then((response) => {
-      return [...response.results, PHHB, TRPHYDRO4, DM_melatn_c];
-    });
+    return this.$http.get(`${DecafBiggProxy}search?query=${query}&search_type=reactions`)
+      .then((response: IHttpResponse<any>) => response.data.results);
   }
 
   public queryModelReactions(query: string): any[] {
@@ -65,33 +58,24 @@ class ReactionComponentCtrl {
     });
   }
 
-  public selectedItemChange(item: BiggReaction) {
+  public async selectedItemChange(item: BiggReaction) {
     if (!item) return;
-    let promise;
-    if ((<any> item).fake) {
-      promise = Promise.resolve(item);
-    } else {
-      const url = `${DecafBiggProxy}${item.model_bigg_id.toLowerCase()}/reactions/${item.bigg_id}`;
-      promise = $.getJSON(url);
-    }
-    promise.then((response) => {
-        this.$scope.$apply(() => {
-          const metanetx_id = <string> _.get(response, 'database_links.MetaNetX (MNX) Equation.0.id');
-          const metabolites = Object.assign({}, ...response.metabolites.map((m) => {
-            return {
-              [`${m.bigg_id}_${m.compartment_bigg_id}`]: m.stoichiometry,
-            };
-          }));
-          const reaction = <AddedReaction> {
-            ...item,
-            reaction_string: <string> response.reaction_string.replace("&#8652;", "<=>"),
-            metabolites,
-            metanetx_id,
-          };
-          this.mapOptions.addReaction(reaction).then(this.updateMapData.bind(this));
-        });
-      });
-    this.searchText = '';
+
+    const response = await this.$http.get(`${DecafBiggProxy}${item.model_bigg_id.toLowerCase()}/reactions/${item.bigg_id}`);
+    const responseData = (<any> response.data);
+    const metanetx_id = <string> _.get(response, 'database_links.MetaNetX (MNX) Equation.0.id');
+    const metabolites = Object.assign({}, ...responseData.metabolites.map((m) => {
+      return {
+        [`${m.bigg_id}_${m.compartment_bigg_id}`]: m.stoichiometry,
+      };
+    }));
+    const reaction = <AddedReaction> {
+      ...item,
+      reaction_string: <string> responseData.reaction_string.replace("&#8652;", "<=>"),
+      metabolites,
+      metanetx_id,
+    };
+    this.mapOptions.addReaction(reaction).then(this.updateMapData.bind(this));
   }
 
   public removeReactionSelectedItem(item) {
@@ -99,14 +83,17 @@ class ReactionComponentCtrl {
     const doKnockoutAction = this.actions.getAction('reaction:knockout:do');
     this.mapOptions.actionHandler(doKnockoutAction, { id: item.id })
       .then(this.updateMapData.bind(this));
-    this.searchTextModelReactions = '';
   }
 
-  public getAddedReactions(): BiggReaction[] {
-    return this.mapOptions.getAddedReactions();
+  public knockoutDisplay(item) {
+    return item;
   }
 
-  public onReactionRemoveClick(bigg_id: string) {
+  public addedReactionDisplay(item) {
+    return item.name || item.id;
+  }
+
+  public onReactionRemoveClick({bigg_id}) {
     this.mapOptions.removeReaction(bigg_id).then(this.updateMapData.bind(this));
   }
 

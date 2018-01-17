@@ -1,0 +1,29 @@
+<md-card>
+  <md-subheader class="md-primary">{{ $ctrl.header}}</md-subheader>
+  <md-card-content>
+    <md-autocomplete 
+      md-no-cache="true" 
+      md-search-text="$ctrl.searchText"
+      md-items="item in $ctrl.querySearch({query: $ctrl.searchText})"
+      md-selected-item-change="$ctrl.selectedItemChange(item)"
+      md-item-text="item.name"
+      md-min-length="1"
+      placeholder="{{$ctrl.placeholder}}"
+      ng-model-options="{debounce: 500}"
+      md-menu-class="autocomplete-custom-template">
+      <md-item-template>
+        <span class="item-title"><b>Name:</b> <span md-highlight-text="$ctrl.searchText" md-highlight-flags="i">{{ item.name }}</span></span>
+        <span class="item-metadata" md-highlight-text="$ctrl.searchText" md-highlight-flags="i">{{ item.bigg_id }}</span>
+      </md-item-template>
+    </md-autocomplete>
+    <md-list>
+      <md-list-item ng-hide="$ctrl.items.length > 0">{{ $ctrl.missingItems }}</md-list-item>
+      <md-list-item ng-repeat="item in $ctrl.items">
+        <span class="md-caption">{{ $ctrl.itemDisplay({item: item}) }}</span>
+        <md-button class="md-icon-button md-secondary" ng-click="$ctrl.onRemoveItem({item: item})">
+          <md-icon md-font-icon="close">close</md-icon>
+        </md-button>
+      </md-list-item>
+    </md-list>
+  </md-card-content>
+</md-card>

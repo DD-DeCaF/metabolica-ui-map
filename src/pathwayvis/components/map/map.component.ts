@@ -71,7 +71,7 @@ class MapComponentCtrl {
 
         if (this._builder) {
           this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
-          this._drawAddedReactions();
+          this._drawAddedReactions(this._mapOptions.getAddedReactions());
         }
       }
     }, true);
@@ -106,9 +106,9 @@ class MapComponentCtrl {
       }
     }, true);
 
-    $scope.$watch('ctrl._mapOptions.getAddedReactions()', () => {
-      this._drawAddedReactions();
-    }, true);
+    this._mapOptions.addedReactionsObservable.subscribe((reactions) => {
+      this._drawAddedReactions(reactions);
+    });
 
     $scope.$watch('ctrl._mapOptions.getDataModel().uid', (modelUid: string) => {
       if (!modelUid) return;
@@ -260,8 +260,7 @@ class MapComponentCtrl {
     this.updateAllMaps(true);
   }
 
-  private _drawAddedReactions() {
-    const addedReactions = this._mapOptions.getAddedReactions();
+  private _drawAddedReactions(addedReactions) {
     if (this._builder) {
       this._builder.set_added_reactions(addedReactions.map((reaction) => reaction.bigg_id));
     }
