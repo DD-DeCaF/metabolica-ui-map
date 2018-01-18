@@ -1,7 +1,7 @@
 <md-card name="loadData" novalidate layout="column">
   <md-toolbar ng-class="{'md-primary': ctrl.isActiveObject(), 'md-accent': !ctrl.isActiveObject()}" ng-click="ctrl.setActiveObject()">
     <div class="md-toolbar-tools" layout="row" layout-align="start center">
-      <span class="md-caption" ng-dblclick="ctrl.startEditing()" ng-hide="ctrl.editing">{{ctrl.getName()}}</span>
+      <h4 class="md-caption" ng-dblclick="ctrl.startEditing()" ng-hide="ctrl.editing">{{ctrl.getName()}}</h4>
       <form ng-submit="ctrl.stopEditing()">
         <input ng-show="ctrl.editing" class="md-caption" ng-model="ctrl.name" ng-blur="ctrl.stopEditing()" show-focus="ctrl.editing">
       </form>
