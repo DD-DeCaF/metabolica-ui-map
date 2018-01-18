@@ -5,7 +5,7 @@ import { KnockoutsComponent } from './knockouts/knockouts.component';
 import { PanelItemComponent } from './panelitem/panelitem.component';
 import { ReactionComponent } from './reaction.component';
 
-export const RactionsPanelModule = angular.module('ReactionsPanel', [
+export const ReactionsPanelModule = angular.module('ReactionsPanel', [
   'ngMaterial',
 ])
   .component('rpAddedReactions', AddedReactionsComponent)
