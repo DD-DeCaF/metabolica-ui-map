@@ -1,5 +1,4 @@
 import * as types from '../../types';
-import './info.component.scss';
 import * as template from './info.component.html';
 import { MapOptionService } from "../../services/mapoption.service";
 
