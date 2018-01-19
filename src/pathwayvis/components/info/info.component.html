@@ -4,9 +4,10 @@
       <md-subheader class="md-primary">Genotype changes</md-subheader>
       <md-list layout-padding>
         <md-list-item ng-repeat="change in ctrl.getGenotypeChanges()">
-          <span class="md-caption" id="genotype"> {{ change | limitTo : 30 }}...
-                    <md-tooltip md-direction="right">{{ change }}</md-tooltip>
-                  </span>
+          <span>
+              <md-tooltip md-direction="left">{{ change }}</md-tooltip>
+              <span class="md-caption"> {{ change | limitTo : 30 }}...</span>
+          </span>
         </md-list-item>
       </md-list>
     </md-content>
@@ -19,8 +20,8 @@
         <table md-table>
           <tbody md-body>
             <tr md-row ng-repeat="change in ctrl.getMeasurements()">
-              <td md-cell>{{ change["name"] }}</td>
-              <td md-cell>{{ change["measurements"].join(', ') }} {{ change["unit"] }} g<sup>-1</sup> h<sup>-1</sup></td>
+              <td md-cell>{{ change.name }}</td>
+              <td md-cell><span>{{ change.measurements.join(', ') }} {{ change.unit }} g<sup>-1</sup> h<sup>-1</sup></span></td>
             </tr>
           </tbody>
         </table>
