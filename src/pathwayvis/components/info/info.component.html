@@ -21,7 +21,7 @@
           <tbody md-body>
             <tr md-row ng-repeat="change in ctrl.getMeasurements()">
               <td md-cell>{{ change.name }}</td>
-              <td md-cell><span>{{ change.measurements.join(', ') }} {{ change.unit }} g<sup>-1</sup> h<sup>-1</sup></span></td>
+              <td md-cell><span>{{ change.measurements.join(', ') }} {{ change.units.nominator }} {{ change.units.denominator }}<sup>-1</sup> {{ change.rate }}<sup>-1</sup></span></td>
             </tr>
           </tbody>
         </table>
