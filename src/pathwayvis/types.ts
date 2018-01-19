@@ -61,6 +61,7 @@ export interface MapData {
   addedReactions?: AddedReaction[];
   info?: MapInfo;
   selected?: SelectedItems;
+  pathwayData?: any;
 }
 
 export interface MapSettings {

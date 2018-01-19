@@ -1,6 +1,8 @@
 import * as types from '../types';
 import * as _ from 'lodash';
 import * as angular from "angular";
+import * as Rx from 'rxjs/Rx';
+
 import { APIService } from "./api";
 import { ToastService } from "./toastservice";
 import { ActionsService } from "./actions/actions.service";
@@ -29,6 +31,14 @@ export class MapOptionService {
   private toastService: ToastService;
   private actions: ActionsService;
 
+  public addedReactionsObservable: Rx.Observable<any>;
+  private addedReactionsSubject: Rx.Subject<any>;
+
+  public reactionsObservable: Rx.Observable<any>;
+  private reactionsSubject: Rx.Subject<any>;
+
+  public removedReactionsObservable: Rx.Observable<any>;
+  private removedReactionsSubject: Rx.Subject<any>;
   // TODO rename services to lowercase
   constructor(api: APIService, toastService: ToastService,
     actions: ActionsService,
@@ -37,6 +47,15 @@ export class MapOptionService {
     this.toastService = toastService;
     this.actions = actions;
     this.experimentService = experimentService;
+
+    this.reactionsSubject = new Rx.Subject();
+    this.reactionsObservable = this.reactionsSubject.asObservable();
+
+    this.addedReactionsSubject = new Rx.Subject();
+    this.addedReactionsObservable = this.addedReactionsSubject.asObservable();
+
+    this.removedReactionsSubject = new Rx.Subject();
+    this.removedReactionsObservable = this.removedReactionsSubject.asObservable();
     this.init();
   }
 
@@ -109,6 +128,8 @@ export class MapOptionService {
     modelId?: string,
     objectId: number = this.selectedCardId): void {
 
+    this.reactionsSubject.next(model.reactions
+      .map(({id, name}) => ({id, name})));
     // Save the original uid, if the new uid is not provided, re-use it
     const uid = this.getDataObject(objectId).mapData.model.uid;
     this.getDataObject(objectId).mapData.model = model;
@@ -134,6 +155,7 @@ export class MapOptionService {
 
   public setRemovedReactions(reactions: string[]) {
     this.getDataObject().setRemovedReactions(reactions);
+    this.removedReactionsSubject.next(reactions);
   }
 
   public getCurrentGrowthRate(): number {
@@ -273,7 +295,9 @@ export class MapOptionService {
     this.selectedCardId = id;
   }
 
-  public actionHandler(action, {id = null, reaction = null}: {id?: string, reaction?: AddedReaction}): any {
+  public actionHandler(
+    action,
+    {id = null, reaction = null, reactions = null}: {id?: string, reaction?: AddedReaction, reactions?: AddedReaction[]}): any {
     const shared = angular.copy(this.getMapData());
 
     // TODO write a nice, functional switch-case statement
@@ -346,6 +370,7 @@ export class MapOptionService {
 
   public setAddedReactions(reactions: AddedReaction[]): void {
     this.getDataObject().mapData.addedReactions = reactions;
+    this.addedReactionsSubject.next(reactions);
   }
 
   public addReaction(addedReaction: AddedReaction): any {
@@ -358,5 +383,13 @@ export class MapOptionService {
     mapData.addedReactions.splice(index, 1);
     // TODO add reaction here?
     return this.actionHandler(this.actions.getAction('reaction:update'), {});
+  }
+
+  public setSharedPathway(item): void {
+    this.getMapData().pathwayData = item;
+  }
+
+  public getSharedPathway(): any {
+    return this.getMapData().pathwayData;
   }
 }

@@ -8,9 +8,11 @@
 <pv-legend ng-show="ctrl.showLegend()"></pv-legend>
 <div class="container" layout-fill layout="column" layout-align="center center">
   <div class="spinner" ng-if="ctrl.shared.isLoading()">
-    <md-progress-circular id="map-progress" class="md-accent" md-diameter="85vh" layout-align="center center"></md-progress-circular>
+    <div class="map-progress">
+        <md-progress-circular class="md-accent" md-diameter="85vh" layout-align="center center"></md-progress-circular>
+        <p class="map-progress-text">Calculating flux distribution...</p>
+    </div>
   </div>
   <div class="map-container" layout-fill layout="column" layout-align="center center">
-    <span>Please load the map.</span>
   </div>
 </div>
