@@ -243,8 +243,12 @@ class MapComponentCtrl {
   }
 
   private _drawAddedReactions(addedReactions) {
+    const sharedPathway = this._mapOptions.getSharedPathway();
     if (this._builder) {
-      this._builder.set_added_reactions(addedReactions.map((reaction) => reaction.bigg_id));
+      this._builder.set_added_reactions(
+        addedReactions.map((reaction) => reaction.bigg_id),
+        (sharedPathway && sharedPathway.pathway) || [],
+      );
     }
   }
 
