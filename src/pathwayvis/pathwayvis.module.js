@@ -86,11 +86,11 @@ export const PathwayVisModule = angular.module('pathwayvis', [
     $mdThemingProvider.theme('error-toast');
   })
   // Should live somewhere else
-  .directive('showFocus', function ($timeout) {
-    return function (scope, element, attrs) {
+  .directive('showFocus', ($timeout) => {
+    return (scope, element, attrs) => {
       scope.$watch(attrs.showFocus,
         function (newValue) {
-          $timeout(function () {
+          $timeout(() => {
             newValue && element[0].focus();
           });
         }, true);

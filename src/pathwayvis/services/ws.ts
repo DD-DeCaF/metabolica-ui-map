@@ -42,7 +42,7 @@ export class WSService {
 
     if (this._websockets.has(path)) return;
     const localWs = new WebSocket(this._url);
-    this._websockets[path] = localWs;
+    this._websockets.set(path, localWs);
 
     let timeout = setTimeout(() => {
       this._timedOut = true;
@@ -82,10 +82,10 @@ export class WSService {
   }
 
   public send(path: string, data: any): angular.IPromise<any> {
-    const connection = this._websockets[path];
+    const connection = this._websockets.get(path);
     if (!connection) {
       console.debug(`Attempted to send data to non-existent connection ${path}`);
-      return;
+      return this._q.reject();
     }
     const requestId = this._generateID();
 
@@ -113,7 +113,7 @@ export class WSService {
    * Returns boolean, whether websocket was FORCEFULLY closed.
    */
   public close(path: string): boolean {
-    const connection = this._websockets[path];
+    const connection = this._websockets.get(path);
     if (connection) {
       this._forcedClose = true;
       connection.close();
@@ -123,7 +123,7 @@ export class WSService {
   }
 
   public isActive(path: string): boolean {
-    const connection = this._websockets[path];
+    const connection = this._websockets.get(path);
     return connection && [WebSocket.OPEN, WebSocket.CONNECTING].includes(connection.readyState);
   }
 
@@ -135,7 +135,7 @@ export class WSService {
    * Returns boolean, whether websocket was closed.
    */
   public refresh(path: string): boolean {
-    const connection = this._websockets[path];
+    const connection = this._websockets.get(path);
     if (connection) {
       connection.close();
       return true;

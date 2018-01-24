@@ -32,7 +32,6 @@ class MapComponentCtrl {
   private toastService: ToastService;
   private _q: any;
   private $window: angular.IWindowService;
-  private pathwayAdded = false;
 
   constructor($scope: angular.IScope,
     api: APIService,
@@ -71,7 +70,8 @@ class MapComponentCtrl {
 
         if (this._builder) {
           this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
-          this._drawAddedReactions(this._mapOptions.getAddedReactions());
+          // @matyasfodor not sure if I break here something
+          // this._drawAddedReactions(this._mapOptions.getAddedReactions());
         }
       }
     }, true);
@@ -200,24 +200,6 @@ class MapComponentCtrl {
     this._builder.set_reaction_fva_data(noOpacity);
   }
 
-  /**
-   * addPathway
-   * this method adds the pathway shared form the pathway predictor
-   */
-  private addPathway(item, model) {
-    const modelId = (<any> item.param.model_id);
-    this._mapOptions.getMapData().model = Object.assign({}, model, {
-      id: modelId,
-      uid: modelId,
-      metabolites: [...model.metabolites, ...item.model.metabolites],
-      reactions: [...model.reactions, ...item.model.reactions],
-    });
-    this._builder.load_model(this._mapOptions.getMapData().model);
-
-    const reactions = item.model.reactions.map(({id, metabolites}) => ({id, metabolites}));
-    this._builder.add_pathway(reactions);
-  }
-
   private mapChanged(): void {
     let mapObject = this._mapOptions.getDataObject();
     if (mapObject.isComplete()) {
@@ -307,7 +289,7 @@ class MapComponentCtrl {
       const url = `models/${settings.model_id}`;
       const modelPromise = this._api.postModel(url, {
         message: {
-          'to-return': ['fluxes', 'model'],
+          'to-return': ['fluxes', 'model', 'growth-rate', 'removed-reactions', 'added-reactions'],
           'simulation-method': this._mapOptions.getDataObject(id).selected.method.id,
           'map': settings.map_id,
           'reactions-knockout': this._mapOptions.getRemovedReactions(),
@@ -377,14 +359,7 @@ class MapComponentCtrl {
    * Loads model to the map
    */
   private _loadModel(): void {
-    const sharedPathway = this._mapOptions.getSharedPathway();
-    if (!this.pathwayAdded && sharedPathway) {
-      // Adds the model as well
-      this.addPathway(sharedPathway, this._mapOptions.getDataModel());
-      this.pathwayAdded = true;
-    } else {
-      this._builder.load_model(this._mapOptions.getDataModel());
-    }
+    this._builder.load_model(this._mapOptions.getDataModel());
   }
 
   // @matyasfodor Note: Do not use data -> vague definition.

@@ -18,7 +18,7 @@ export abstract class Action {
 export abstract class ReactionAction extends Action {
   public shared: MapData;
 
-  public callback(ws: WSService, $timeout: angular.ITimeoutService, shared: SharedService): any {
+  public callback(ws: WSService, $timeout: angular.ITimeoutService): any {
 
     const data = {
       'to-return': ['fluxes', 'growth-rate', 'removed-reactions', 'added-reactions', 'model'],

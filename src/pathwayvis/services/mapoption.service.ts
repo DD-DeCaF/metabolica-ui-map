@@ -40,9 +40,11 @@ export class MapOptionService {
   public removedReactionsObservable: Rx.Observable<any>;
   private removedReactionsSubject: Rx.Subject<any>;
   // TODO rename services to lowercase
-  constructor(api: APIService, toastService: ToastService,
+  constructor(api: APIService,
+    toastService: ToastService,
     actions: ActionsService,
-    experimentService: ExperimentService) {
+    experimentService: ExperimentService,
+  ) {
     this.apiService = api;
     this.toastService = toastService;
     this.actions = actions;
@@ -297,7 +299,7 @@ export class MapOptionService {
 
   public actionHandler(
     action,
-    {id = null, reaction = null, reactions = null}: {id?: string, reaction?: AddedReaction, reactions?: AddedReaction[]}): any {
+    {id = null, reaction = null}: {id?: string, reaction?: AddedReaction }): any {
     const shared = angular.copy(this.getMapData());
 
     // TODO write a nice, functional switch-case statement
@@ -385,8 +387,11 @@ export class MapOptionService {
     return this.actionHandler(this.actions.getAction('reaction:update'), {});
   }
 
-  public setSharedPathway(item): void {
-    this.getMapData().pathwayData = item;
+  public setSharedPathway({model, pathway}): void {
+    // Convert the shared reactions in the desired format
+    const reactions = model.reactions.map(({id: bigg_id, metabolites}) => ({bigg_id, metabolites}));
+    this.setAddedReactions(reactions);
+    this.getMapData().pathwayData = pathway;
   }
 
   public getSharedPathway(): any {
