@@ -247,7 +247,7 @@ class MapComponentCtrl {
     if (this._builder) {
       this._builder.set_added_reactions(
         addedReactions.map((reaction) => reaction.bigg_id),
-        (sharedPathway && sharedPathway.pathway) || [],
+        sharedPathway || [],
       );
     }
   }
