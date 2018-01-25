@@ -164,9 +164,6 @@ export class MapOptionService {
 
   public setCurrentGrowthRate(growthRate: number) {
     this.getDataObject().mapData.map.growthRate = growthRate;
-    if (_.round(growthRate, 5) === 0) {
-      this.toastService.showWarnToast('Growth rate is 0!');
-    }
   }
 
   // @matyasfodor no check for undefined

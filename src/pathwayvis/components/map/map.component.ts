@@ -297,6 +297,7 @@ class MapComponentCtrl {
           this._mapOptions.setReactionData(phase.fluxes, id);
           this._mapOptions.setMapInfo(infoResponse.data.response[phaseId.toString()], id);
           this._mapOptions.setMethod(selectedItem.method);
+          this._mapOptions.setCurrentGrowthRate(parseFloat(phase['growthRate']));
 
         }, (error) => {
           this.toastService.showErrorToast('Oops! Sorry, there was a problem with fetching the data.');
@@ -307,7 +308,7 @@ class MapComponentCtrl {
       const url = `models/${settings.model_id}`;
       const modelPromise = this._api.postModel(url, {
         message: {
-          'to-return': ['fluxes', 'model'],
+          'to-return': ['fluxes', 'model', 'growth-rate'],
           'simulation-method': this._mapOptions.getDataObject(id).selected.method.id,
           'map': settings.map_id,
           'reactions-knockout': this._mapOptions.getRemovedReactions(),
@@ -320,6 +321,7 @@ class MapComponentCtrl {
       this.shared.async(modelPromise.then(({data}: any) => {
         this._mapOptions.setDataModel(data.model, data.model.id, id);
         this._mapOptions.setReactionData(data.fluxes, id);
+        this._mapOptions.setCurrentGrowthRate(parseFloat(data['growth-rate']));
       }), 'Reference');
       this._api.getWildTypeInfo(settings.model_id).then(({data: mapInfo}: any) => {
         this._mapOptions.setMapInfo(mapInfo, id);
