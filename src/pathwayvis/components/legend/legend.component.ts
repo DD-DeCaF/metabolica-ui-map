@@ -1,7 +1,6 @@
 import * as template from './legend.component.html';
 import * as angular from "angular";
 import './legend.component.scss';
-import * as _ from 'lodash';
 import { MapOptionService } from "../../services/mapoption.service";
 
 
@@ -19,10 +18,14 @@ class LegendComponentCtrl {
         this.background = defaultColor;
     }
 
-    private getPredictedGrowth(): number {
-      let rate = _.round(this._mapOptions.getCurrentGrowthRate(), 3);
-      this.background = rate !== 0.0 ? defaultColor : warningColor;
-      return rate;
+    private getPredictedGrowth(): string {
+      let rate = this._mapOptions.getCurrentGrowthRate();
+      if (Math.abs(rate) > 1e-05) {
+          this.background = defaultColor;
+          return rate.toPrecision(3);
+      }
+      this.background = warningColor;
+      return '0';
     }
 }
 
