@@ -161,7 +161,8 @@ resizes. */
   }
 }
 .escher-container .search-container {
-  display: block;
+  display: flex;
+  align-items: center;
   background: rgba(255, 255, 255, 0.95);
   padding: 3px;
   border: 1px solid #DDD;
@@ -176,6 +177,10 @@ resizes. */
 
   .btn {
     border-radius: 3px;
+
+    &.close-button {
+      margin-left: auto;
+    }
   }
 
   .btn-group {
@@ -211,7 +216,6 @@ resizes. */
   }
 }
 .escher-container .search-bar {
-  display: inline-block;
   border: 1px solid #DDD;
   margin-right: 4px;
   width: 114px;
