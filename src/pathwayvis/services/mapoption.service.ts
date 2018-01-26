@@ -1,5 +1,4 @@
 import * as types from '../types';
-import * as _ from 'lodash';
 import * as angular from "angular";
 import * as Rx from 'rxjs/Rx';
 
