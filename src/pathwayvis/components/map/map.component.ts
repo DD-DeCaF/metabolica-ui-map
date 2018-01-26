@@ -351,7 +351,7 @@ class MapComponentCtrl {
   private _initMap(): void {
     // Default map settings
     const settings = {
-      menu: 'all',
+      menu: 'zoom',
       scroll_behavior: 'zoom',
       fill_screen: true,
       ignore_bootstrap: true,
