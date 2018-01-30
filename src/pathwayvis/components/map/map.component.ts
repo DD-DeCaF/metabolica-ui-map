@@ -225,9 +225,6 @@ class MapComponentCtrl {
       this._loadModel();
       this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
       this._loadContextMenu();
-      // Reset zoom - if the zoom is set to a reaction,
-      // it might not be included in the other map
-      this._builder.map.zoom_extent_canvas();
     }
   }
 
