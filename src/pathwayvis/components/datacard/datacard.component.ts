@@ -2,6 +2,7 @@ import * as types from '../../types';
 import * as template from "./datacard.component.html";
 import * as dialog_template from "./methods_dialog.tmpl.html";
 import * as angular from "angular";
+import './datacard.component.scss';
 import { ToastService } from "../../services/toastservice";
 import { MapOptionService } from "../../services/mapoption.service";
 import { methods, defaultMethod } from "../../consts/methods";
