@@ -13,6 +13,9 @@
   <md-content layout="column" layout-padding ng-hide="!ctrl.isActiveObject() || ctrl.animating">
     <md-input-container>
       <label>Method</label>
+      <md-button style='position: absolute; right: -10px; top: -25px;' class="md-icon-button"  ng-click='ctrl.showHelp($event)'>
+        <md-icon md-font-icon="help_outline">help_outline</md-icon>
+      </md-button>
       <md-select name="method" ng-model="ctrl.selected.method" ng-change="ctrl.changeMethod(ctrl.selected.method)" ng-model-options="{trackBy: '$value.id'}">
         <md-option ng-repeat="method in ctrl.methods" ng-value="method">{{method.name}}</md-option>
       </md-select>
