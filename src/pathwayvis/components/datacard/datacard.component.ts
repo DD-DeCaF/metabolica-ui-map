@@ -30,13 +30,14 @@ class DataCardComponentCtrl {
   public animating: boolean;
   public id: number;
   public samples: types.Sample[];
-  private _mdDialog;
+  private _mdDialog: angular.material.IDialogService;
   private toastService;
   private experimentService: ExperimentService;
 
-  constructor($mdDialog, toastService: ToastService,
-    mapOptions: MapOptionService,
-    experimentService: ExperimentService) {
+  constructor($mdDialog: angular.material.IDialogService,
+              toastService: ToastService,
+              mapOptions: MapOptionService,
+              experimentService: ExperimentService) {
     this.mapOptions = mapOptions;
     this.toastService = toastService;
     this.experimentService = experimentService;
@@ -139,17 +140,17 @@ class DataCardComponentCtrl {
     return this.mapOptions.getType(this.id) === ObjectType.Reference;
   }
 
-  public showHelp(ev) {
+  public showHelp(event) {
     this._mdDialog.show({
-      template: dialog_template,
+      template: dialog_template.toString(),
       parent: angular.element(document.body),
-      targetEvent: ev,
+      targetEvent: event,
       clickOutsideToClose: true,
       controller: ($scope) => {
-        $scope.closeDialog = () => {
-            this._mdDialog.cancel();
-        };
-    },
+          $scope.closeDialog = () => {
+              this._mdDialog.cancel();
+          };
+      },
     });
   }
 }
