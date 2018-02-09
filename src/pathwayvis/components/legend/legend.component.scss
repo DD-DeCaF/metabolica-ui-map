@@ -34,6 +34,11 @@ pv-legend {
     .error {
         background: red;
     }
+    .glow {
+        background: purple;
+        box-shadow: 0 0 20px 0px purple;
+        border-radius: 30%;
+    }
     .legend-text {
         margin-bottom: auto;
         margin-top: auto

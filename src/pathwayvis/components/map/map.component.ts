@@ -382,7 +382,19 @@ class MapComponentCtrl {
       this.addPathway(sharedPathway, this._mapOptions.getDataModel());
       this.pathwayAdded = true;
     } else {
-      this._builder.load_model(this._mapOptions.getDataModel());
+      d3.selectAll('#reactions > .reaction').style('filter', null);
+      const model = this._mapOptions.getDataModel();
+      this._builder.load_model(model);
+      const reactionsToHighlight = model.notes.changes
+        .measured.reactions.map((reaction) => reaction.id);
+      reactionsToHighlight.forEach((reactionId) => {
+        this._builder.map.bigg_index
+          .getAll(reactionId)
+          .forEach(({reaction_id}) => {
+            d3.select(`#r${reaction_id}`)
+              .style("filter", "url(#escher-glow-filter)");
+          });
+      });
     }
   }
 

@@ -13,6 +13,16 @@
         <p class="map-progress-text">Calculating flux distribution...</p>
     </div>
   </div>
-  <div class="map-container" layout-fill layout="column" layout-align="center center">
-  </div>
+  <div class="map-container" layout-fill layout="column" layout-align="center center"></div>
 </div>
+
+<!-- Glow filter for highlighting reactions.Could be a part of escher at some point -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="position: absolute; top: -99999px">
+  <filter id="escher-glow-filter">
+      <feGaussianBlur stdDeviation="15" result="coloredBlur"/>
+      <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+  </filter>
+</svg>
