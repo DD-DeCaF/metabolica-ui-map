@@ -1,8 +1,8 @@
-<md-dialog aria-label="Constraint-based modeling">
+<md-dialog aria-label="Modeling methods">
 	<form ng-cloak>
 		<md-toolbar>
 			<div class="md-toolbar-tools">
-				<h2>Constraint-based modeling</h2>
+				<h2>Modeling methods</h2>
 				<span flex></span>
 				<md-button class="md-icon-button" ng-click="closeDialog()">
 					<md-icon md-font-icon="clear">clear</md-icon>
@@ -11,6 +11,7 @@
 		</md-toolbar>
 		<md-dialog-content>
 			<div class="md-dialog-content">
+				<h2>Constraint-based modeling</h2>
 				<p>The following simulation methods predict metabolic fluxes that optimize certain biological objectives, for example, growth yield. They operate under the assumption that the organism’s metabolism is in a dynamic equilibrium (pseudo steady-state): internal metabolite concentrations are constant and production and consumption fluxes perfectly balance each other.<br>
 					This is a reasonable assumption when the environment is constant (e.g. in a <a href="https://en.wikipedia.org/wiki/Chemostat">chemostat</a>) or there is nutrient excess (e.g. a microbial culture growing in <a href="https://en.wikipedia.org/wiki/Bacterial_growth#Phases">exponential phase</a>).</p>
 				<p>Physiological data (uptake and secretion rates, yields, growth rates, C13 fluxes etc.) can all be readily integrated in the form of reaction rate constraints. In the future, the integration of additional types of omics data will be added.</p>
@@ -32,7 +33,7 @@
 				<h3>Flux Variability Analysis (FVA)</h3>
 				<p>In general, constraint-based modeling solutions will have many alternative optima. <a href="http://cobramethods.wikidot.com/flux-variability-analysis">Flux Variability Analysis</a> (FVA) allows the estimation of the uncertainty in flux predictions computed by FBA. Uncertain reaction rates are highlighted using transparency.</p>
 				<h3>Parsimonious FVA</h3>
-				<p>Similar to FVA, parsimonious FVA will estimate the uncertainty of flux predictions computed by pFBA</p>
+				<p>Similar to FVA, parsimonious FVA will estimate the uncertainty of flux predictions computed by pFBA.</p>
 				<h2>Kinetic modeling</h2>
 				<p>Kinetic modeling will be integrated soon—stay tuned!</p>
 			</div>

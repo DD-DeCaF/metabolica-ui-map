@@ -8,6 +8,7 @@
     <md-content>
       <md-tab id="tab1">
         <md-tab-label>
+          <md-tooltip>Manage predicted and experimental fluxes</md-tooltip>
           <md-icon md-font-icon="build">build</md-icon>
         </md-tab-label>
         <md-tab-body>
@@ -17,6 +18,7 @@
 
       <md-tab id="info_tab" ng-disabled="ctrl.disableInfo()">
         <md-tab-label>
+          <md-tooltip>Information</md-tooltip>
           <md-icon md-font-icon="info">info</md-icon>
         </md-tab-label>
         <md-tab-body>
@@ -26,7 +28,8 @@
 
       <md-tab id="map_selector" ng-disabled="ctrl.disableMapSelector()">
         <md-tab-label>
-          <md-icon md-font-icon="layers">layers</md-icon>
+          <md-tooltip>Metabolic Pathways</md-tooltip>
+          <md-icon md-font-icon="timeline">timeline</md-icon>
         </md-tab-label>
         <md-tab-body>
           <pv-map-selector></pv-map-selector>
@@ -35,6 +38,7 @@
 
       <md-tab id="reaction_tab">
         <md-tab-label>
+          <md-tooltip>Model changes</md-tooltip>
           <md-icon md-font-icon="edit">edit</md-icon>
         </md-tab-label>
         <md-tab-body>
