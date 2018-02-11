@@ -1,4 +1,8 @@
 pv-legend {
+    .growth {
+        padding: 10px;
+    }
+
     .legend {
         margin-left: 2em;
         margin-bottom: 3em;
@@ -6,6 +10,7 @@ pv-legend {
         z-index: 10;
         background: white;
         bottom: 0;
+        min-width: 175px;
     }
     .grad {
         background: linear-gradient(90deg, #A841D0, #868BB2, #6DBFB0, #54B151);
@@ -28,6 +33,11 @@ pv-legend {
     }
     .error {
         background: red;
+    }
+    .glow {
+        background: purple;
+        box-shadow: 0 0 20px 0px purple;
+        border-radius: 30%;
     }
     .legend-text {
         margin-bottom: auto;

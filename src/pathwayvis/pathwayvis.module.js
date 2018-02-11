@@ -12,7 +12,7 @@ import { mapComponent } from './components/map/map.component';
 import { MapSelectorComponent } from './components/mapselector/mapselector.component';
 import { DataCardComponent } from './components/datacard/datacard.component';
 import { ActionsService } from './services/actions/actions.service';
-import DONUT_LARGE from '../../img/icons/donut_large.svg';
+import MAP_ICON from '../../img/icons/map_icon.svg';
 import { DecafAPIProvider } from './providers/decafapi.provider';
 import { ModelAPIProvider } from './providers/modelapi.provider';
 import { ModelWSProvider } from './providers/modelws.provider';
@@ -49,12 +49,13 @@ export const PathwayVisModule = angular.module('pathwayvis', [
   .component('pvInfo', InfoComponent)
   .component('pvCardController', CardControllerComponent)
   .config(($mdIconProvider, $stateProvider, appNavigationProvider) => {
-    $mdIconProvider.icon('donut_large', DONUT_LARGE, 24);
+    $mdIconProvider.icon('map_icon', MAP_ICON, 24);
 
     appNavigationProvider.register('app.pathwayvis', {
       title: 'Interactive Map',
-      icon: 'donut_large',
-      authRequired: false
+      icon: 'map_icon',
+      authRequired: false,
+      tooltip: 'Investigate and visualize flux distributions on different parts of metabolism. Create new strains'
     });
 
     $stateProvider

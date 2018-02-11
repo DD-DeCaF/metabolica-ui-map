@@ -1,6 +1,8 @@
 import * as types from '../../types';
 import * as template from "./datacard.component.html";
+import * as dialog_template from "./methods_dialog.tmpl.html";
 import * as angular from "angular";
+import './datacard.component.scss';
 import { ToastService } from "../../services/toastservice";
 import { MapOptionService } from "../../services/mapoption.service";
 import { methods, defaultMethod } from "../../consts/methods";
@@ -28,18 +30,21 @@ class DataCardComponentCtrl {
   public animating: boolean;
   public id: number;
   public samples: types.Sample[];
+  private _mdDialog: angular.material.IDialogService;
   private toastService;
   private experimentService: ExperimentService;
 
-  constructor(toastService: ToastService,
-    mapOptions: MapOptionService,
-    experimentService: ExperimentService) {
+  constructor($mdDialog: angular.material.IDialogService,
+              toastService: ToastService,
+              mapOptions: MapOptionService,
+              experimentService: ExperimentService) {
     this.mapOptions = mapOptions;
     this.toastService = toastService;
     this.experimentService = experimentService;
 
     this.selected.method = defaultMethod;
     this.methods = methods;
+    this._mdDialog = $mdDialog;
 
     if (this.mapOptions.getExperiment()) {
       this.selected.experiment = this.mapOptions.getExperiment();
@@ -133,6 +138,20 @@ class DataCardComponentCtrl {
 
   public isRef(): boolean {
     return this.mapOptions.getType(this.id) === ObjectType.Reference;
+  }
+
+  public showHelp(event) {
+    this._mdDialog.show({
+      template: dialog_template.toString(),
+      parent: angular.element(document.body),
+      targetEvent: event,
+      clickOutsideToClose: true,
+      controller: ($scope) => {
+          $scope.closeDialog = () => {
+              this._mdDialog.cancel();
+          };
+      },
+    });
   }
 }
 

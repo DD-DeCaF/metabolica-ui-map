@@ -225,9 +225,6 @@ class MapComponentCtrl {
       this._loadModel();
       this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
       this._loadContextMenu();
-      // Reset zoom - if the zoom is set to a reaction,
-      // it might not be included in the other map
-      this._builder.map.zoom_extent_canvas();
     }
   }
 
@@ -297,6 +294,7 @@ class MapComponentCtrl {
           this._mapOptions.setReactionData(phase.fluxes, id);
           this._mapOptions.setMapInfo(infoResponse.data.response[phaseId.toString()], id);
           this._mapOptions.setMethod(selectedItem.method);
+          this._mapOptions.setCurrentGrowthRate(parseFloat(phase['growthRate']));
 
         }, (error) => {
           this.toastService.showErrorToast('Oops! Sorry, there was a problem with fetching the data.');
@@ -307,7 +305,7 @@ class MapComponentCtrl {
       const url = `models/${settings.model_id}`;
       const modelPromise = this._api.postModel(url, {
         message: {
-          'to-return': ['fluxes', 'model'],
+          'to-return': ['fluxes', 'model', 'growth-rate'],
           'simulation-method': this._mapOptions.getDataObject(id).selected.method.id,
           'map': settings.map_id,
           'reactions-knockout': this._mapOptions.getRemovedReactions(),
@@ -320,6 +318,7 @@ class MapComponentCtrl {
       this.shared.async(modelPromise.then(({data}: any) => {
         this._mapOptions.setDataModel(data.model, data.model.id, id);
         this._mapOptions.setReactionData(data.fluxes, id);
+        this._mapOptions.setCurrentGrowthRate(parseFloat(data['growth-rate']));
       }), 'Reference');
       this._api.getWildTypeInfo(settings.model_id).then(({data: mapInfo}: any) => {
         this._mapOptions.setMapInfo(mapInfo, id);
@@ -349,7 +348,7 @@ class MapComponentCtrl {
   private _initMap(): void {
     // Default map settings
     const settings = {
-      menu: 'all',
+      menu: 'zoom',
       scroll_behavior: 'zoom',
       fill_screen: true,
       ignore_bootstrap: true,
@@ -383,7 +382,19 @@ class MapComponentCtrl {
       this.addPathway(sharedPathway, this._mapOptions.getDataModel());
       this.pathwayAdded = true;
     } else {
-      this._builder.load_model(this._mapOptions.getDataModel());
+      d3.selectAll('#reactions > .reaction').style('filter', null);
+      const model = this._mapOptions.getDataModel();
+      this._builder.load_model(model);
+      const reactionsToHighlight = model.notes.changes
+        .measured.reactions.map((reaction) => reaction.id);
+      reactionsToHighlight.forEach((reactionId) => {
+        this._builder.map.bigg_index
+          .getAll(reactionId)
+          .forEach(({reaction_id}) => {
+            d3.select(`#r${reaction_id}`)
+              .style("filter", "url(#escher-glow-filter)");
+          });
+      });
     }
   }
 
