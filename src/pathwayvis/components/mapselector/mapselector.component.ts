@@ -5,8 +5,10 @@ import { MapService } from "../../services/map.service";
 
 class MapSelectorComponentCtrl {
   public model: string;
-  public allMaps: any;
   public maps: any;
+
+  public modelIds: string[];
+
   private _selectedMap: any;
   private mapOptions: MapOptionService;
   private mapService: MapService;
@@ -16,40 +18,33 @@ class MapSelectorComponentCtrl {
     this.mapOptions = mapOptions;
 
     this._selectedMap = mapOptions.getSelectedMap();
-    this.allMaps = mapService.allMaps;
 
-    $scope.$watch('ctrl.mapOptions.getModelId()', (modelId: string) => {
+    mapOptions.modelId.subscribe((modelId: string) => {
+      if (!modelId) return;
       this.model = modelId;
-      this.setMapsFromModel(modelId);
-    }, true);
+    });
+    this.mapService.getMapsFromModel(mapOptions.modelId)
+      .subscribe((maps) => {
+        this.maps = maps;
+        const mapId = this.mapOptions.getSelectedMap();
+        if (!maps.includes(mapId)) {
+          this.mapOptions.setSelectedMap(maps[0]);
+        }
+      });
+
+    this.mapOptions.modelIds.subscribe((modelIds) => { this.modelIds = modelIds; });
   }
 
   public setMap(map: string): void {
     this.mapOptions.setSelectedMap(map);
   }
 
-  public getModels(): string[] {
-    return this.mapOptions.modelsIds;
-  }
-
   public changeModel(): void {
     this.mapOptions.setModelId(this.model);
-  }
-
-  public setMapsFromModel(model): void {
-    // TODO flatten logic
-    if (model) {
-      let map_id = this.mapOptions.getSelectedMap();
-      this.maps = this.mapService.getMapsFromModel(model);
-      if (!this.mapService.usableMap(map_id, model)) {
-        this.mapOptions.setSelectedMap(this.maps[0]);
-      }
-    }
   }
 }
 
 export const MapSelectorComponent = {
   controller: MapSelectorComponentCtrl,
-  controllerAs: 'ctrl',
   template: template.toString(),
 };

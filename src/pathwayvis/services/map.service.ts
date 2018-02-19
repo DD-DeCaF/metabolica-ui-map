@@ -1,35 +1,24 @@
 import { APIService } from "./api";
+import * as Rx from 'rxjs/Rx';
 
 
 export class MapService {
   private apiService: APIService;
-  public allMaps: {};
+  public maps: Rx.Observable<Map<string, string[]>>;
 
   constructor(api: APIService) {
     this.apiService = api;
 
-    this.apiService.getModel('maps', {}).then((response: angular.IHttpPromiseCallbackArg<any>) => {
-      this.allMaps = response.data;
-    });
+    this.maps = Rx.Observable
+      .fromPromise(this.apiService.getModel('maps', {}))
+      .map((response: angular.IHttpPromiseCallbackArg<any>) => response.data);
   }
 
-  public usableMap(mapName: string, modelId: string): boolean {
-    const maps = this.allMaps[modelId];
-    return maps.indexOf(mapName) !== -1;
-  }
-
-  public getMapsFromModel(model): string[] {
-    return this.allMaps[model];
-  }
-
-  public getDefaultMap(model): string {
-    let defaultMap = 'Central metabolism';
-    if (this.allMaps) {
-      if (this.allMaps[model].includes(defaultMap)) {
-        return defaultMap;
-      }
-      return this.allMaps[model][0];
-    }
-    return null;
+  public getMapsFromModel(modelObservable: Rx.Observable<string>): Rx.Observable<string[]> {
+    return Rx.Observable.combineLatest(
+      modelObservable,
+      this.maps,
+      (model, maps) => maps[model],
+    );
   }
 }

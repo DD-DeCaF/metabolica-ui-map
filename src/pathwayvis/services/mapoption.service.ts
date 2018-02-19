@@ -14,12 +14,12 @@ import { ExperimentService } from "./experiment.service";
 export class MapOptionService {
   private experimentService: ExperimentService;
   public shouldUpdateData: boolean = false;
-  public modelsIds: string[];
   private apiService: APIService;
   private dataHandler: DataHandler;
   public shouldLoadMap: boolean = false;
 
   public selectedCardId: number;
+  public modelIds: Rx.Observable<string[]>;
 
   public mapSettings: types.MapSettings = {
     map_id: 'Central metabolism',
@@ -29,13 +29,15 @@ export class MapOptionService {
 
   public species: Rx.Observable<Species[]>;
 
-  private selectedSpeciesSubject = new Rx.Subject();
-  public selectedSpecies: Rx.Observable<string> = Rx.Observable.create((observer) => {
-    observer.next('ECOLX');
-  }).merge(this.selectedSpeciesSubject.asObservable());
+  private selectedSpeciesSubject: Rx.Subject<string> = new Rx.Subject();
+  public selectedSpecies = Rx.Observable.of('ECOLX')
+    .merge(this.selectedSpeciesSubject.asObservable());
 
   private toastService: ToastService;
   private actions: ActionsService;
+
+  private modelIdsSubject: Rx.Subject<string> = new Rx.Subject();
+  public modelId = this.modelIdsSubject.asObservable();
 
   public addedReactionsObservable: Rx.Observable<any>;
   private addedReactionsSubject: Rx.Subject<any>;
@@ -71,10 +73,17 @@ export class MapOptionService {
         Object.entries(response.data.response).map(([id, name]) => ({ id, name })),
       );
 
-      this.selectedSpecies.subscribe((species) => {
-        this.experimentService.setExperiments(species);
-        this.setModelsFromSpecies(species);
-      });
+    this.modelIds = this.selectedSpecies
+      .switchMap((species) => this.apiService.getModel(`model-options/${species}`, {}))
+      .map((response: angular.IHttpPromiseCallbackArg<any>) => response.data);
+
+    this.selectedSpecies.subscribe((species: string) => {
+      this.experimentService.setExperiments(species);
+    });
+
+    this.modelIds.subscribe((modelIds) => {
+      this.setModelId(modelIds[0]);
+    });
   }
 
   public getDataObject(id: number = this.selectedCardId): MapDataObject {
@@ -194,40 +203,8 @@ export class MapOptionService {
     }
   }
 
-  public setModelsFromSample(sample: string): void {
-    this.getModelOptions(sample).then((response: angular.IHttpPromiseCallbackArg<any>) => {
-        this.modelsIds = response.data.response;
-        this.setModelId(this.modelsIds[0]);
-      }, (error) => {
-        this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected sample.');
-      });
-  }
-
   public speciesChanged(species: string): void {
     this.selectedSpeciesSubject.next(species);
-  }
-
-  public setModelsFromSpecies(species: string): void {
-    if (species) {
-      let url = 'model-options/' + species;
-      this.apiService.getModel(url, {}).then((response: angular.IHttpPromiseCallbackArg<any>) => {
-        this.modelsIds = response.data;
-        this.shouldUpdateData = true;
-        this.mapSettings.model_id = this.modelsIds[0];
-      });
-    }
-  }
-
-  public getModels(): string[] {
-    return this.modelsIds;
-  }
-
-  public getModelOptions(sample: string): angular.IPromise<Object> {
-    if (sample) {
-      return this.apiService.post('samples/model-options', {
-        sampleIds: JSON.parse(sample),
-      });
-    }
   }
 
   public getExperiment(): Experiment {
@@ -315,6 +292,7 @@ export class MapOptionService {
       this.shouldUpdateData = true;
     }
     this.mapSettings.model_id = modelId;
+    this.modelIdsSubject.next(modelId);
   }
 
   public getModelId(): string {
@@ -327,6 +305,7 @@ export class MapOptionService {
     }
     return null;
   }
+
   public getMapSettings(): types.MapSettings {
     return this.mapSettings;
   }
