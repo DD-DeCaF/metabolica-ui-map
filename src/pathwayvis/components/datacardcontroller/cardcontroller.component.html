@@ -3,7 +3,7 @@
     <md-input-container flex>
       <label>Species:</label>
       <md-select name="species" ng-model="ctrl.species" ng-change="ctrl.changeSpecies()">
-        <md-option ng-repeat="species in ctrl.speciesList()" value="{{species.id}}">{{species.name}}</md-option>
+        <md-option ng-repeat="species in ctrl.speciesList" value="{{species.id}}">{{species.name}}</md-option>
       </md-select>
     </md-input-container>
   </md-card>

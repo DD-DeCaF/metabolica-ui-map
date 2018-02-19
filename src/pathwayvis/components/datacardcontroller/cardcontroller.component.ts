@@ -9,6 +9,7 @@ class CardControllerComponentCtrl {
   public mapOptions: MapOptionService;
   public animating: boolean = false;
   public species: string;
+  public speciesList: Species[] = [];
 
   constructor(mapOptions: MapOptionService,
     $interval: angular.IIntervalService,
@@ -19,11 +20,13 @@ class CardControllerComponentCtrl {
 
     $mdSidenav('right').open();
 
-    this.species = this.mapOptions.selectedSpecies;
-  }
+    this.mapOptions.selectedSpecies.subscribe((species) => {
+      this.species = species;
+    });
 
-  public speciesList(): Species[] {
-    return this.mapOptions.getSpeciesList();
+    this.mapOptions.species.subscribe((speciesList) => {
+      this.speciesList = speciesList;
+    });
   }
 
   public getMapObjectsIds(): number[] {

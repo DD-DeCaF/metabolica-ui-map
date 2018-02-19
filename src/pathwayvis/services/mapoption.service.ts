@@ -13,19 +13,26 @@ import { ExperimentService } from "./experiment.service";
 
 export class MapOptionService {
   private experimentService: ExperimentService;
-  public shouldUpdateData: boolean;
+  public shouldUpdateData: boolean = false;
   public modelsIds: string[];
   private apiService: APIService;
   private dataHandler: DataHandler;
-  public shouldLoadMap: boolean;
+  public shouldLoadMap: boolean = false;
 
   public selectedCardId: number;
 
-  public mapSettings: types.MapSettings;
+  public mapSettings: types.MapSettings = {
+    map_id: 'Central metabolism',
+    model_id: null,
+    map: (<types.MetabolicMap> {}),
+  };
 
-  private speciesList: Species[] = [];
+  public species: Rx.Observable<Species[]>;
 
-  public selectedSpecies: string = "ECOLX";
+  private selectedSpeciesSubject = new Rx.Subject();
+  public selectedSpecies: Rx.Observable<string> = Rx.Observable.create((observer) => {
+    observer.next('ECOLX');
+  }).merge(this.selectedSpeciesSubject.asObservable());
 
   private toastService: ToastService;
   private actions: ActionsService;
@@ -47,6 +54,9 @@ export class MapOptionService {
     this.actions = actions;
     this.experimentService = experimentService;
 
+    this.dataHandler = new DataHandler();
+    this.selectedCardId = this.dataHandler.addObject(ObjectType.Reference);
+
     this.reactionsSubject = new Rx.Subject();
     this.reactionsObservable = this.reactionsSubject.asObservable();
 
@@ -55,42 +65,16 @@ export class MapOptionService {
 
     this.removedReactionsSubject = new Rx.Subject();
     this.removedReactionsObservable = this.removedReactionsSubject.asObservable();
-    this.init();
-  }
 
-  public init(): void {
-    this.apiService.get('species/current').then((response: types.CallbackEmbeddedResponse<any>) => {
-      const species = response.data.response;
-      this.speciesList = Object.entries(species).map(([id, name]) => ({ id, name }));
+    this.species = Rx.Observable.fromPromise(this.apiService.get('species/current'))
+      .map((response: types.CallbackEmbeddedResponse<Map<string, string>>) =>
+        Object.entries(response.data.response).map(([id, name]) => ({ id, name })),
+      );
 
-      // Set selected species
-      this.setModelsFromSpecies(this.selectedSpecies);
-    });
-    this.dataHandler = new DataHandler();
-    this.selectedCardId = this.dataHandler.addObject(ObjectType.Reference);
-
-    this.mapSettings = <types.MapSettings> {
-      map_id: 'Central metabolism',
-      model_id: null,
-      map: {},
-    };
-
-    this.shouldLoadMap = false;
-    this.shouldUpdateData = false;
-
-    this.setExperimentsFromSpecies();
-  }
-
-  private setExperimentsFromSpecies(speciesCode = this.selectedSpecies): void {
-    this.experimentService.setExperiments(speciesCode);
-  }
-
-  public getSelectedSpecies(): string {
-    return this.selectedSpecies;
-  }
-
-  public getSpeciesList(): Species[] {
-    return this.speciesList;
+      this.selectedSpecies.subscribe((species) => {
+        this.experimentService.setExperiments(species);
+        this.setModelsFromSpecies(species);
+      });
   }
 
   public getDataObject(id: number = this.selectedCardId): MapDataObject {
@@ -220,8 +204,7 @@ export class MapOptionService {
   }
 
   public speciesChanged(species: string): void {
-    this.setModelsFromSpecies(species);
-    this.setExperimentsFromSpecies(species);
+    this.selectedSpeciesSubject.next(species);
   }
 
   public setModelsFromSpecies(species: string): void {
