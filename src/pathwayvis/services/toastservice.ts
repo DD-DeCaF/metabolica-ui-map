@@ -18,7 +18,8 @@ export class ToastService {
       .textContent(text)
       .action('close')
       .position('bottom right')
-      .theme(theme);
+      .theme(theme)
+      .hideDelay(6000);
     this.$mdToast.show(toast);
   }
 }
