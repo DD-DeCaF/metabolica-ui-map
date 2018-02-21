@@ -19,10 +19,15 @@
       <md-table-container>
         <table md-table>
           <tbody md-body>
-            <tr md-row ng-repeat="change in ctrl.getMeasurements()">
+            <tr md-row ng-repeat="change in ctrl.getMeasurements()" ng-if="change.type == 'compound'">
               <td md-cell>{{ change.name }}</td>
               <td md-cell><span>{{ change.measurements.join(', ') }} {{ change.units.numerator }} {{ change.units.denominator }}<sup>-1</sup> {{ change.rate }}<sup>-1</sup></span></td>
-            </tr>
+			</tr>
+
+            <tr md-row ng-repeat="change in ctrl.getMeasurements()" ng-if="change.type != 'compound'">
+              <td md-cell>{{ change.id }}</td>
+              <td md-cell><span>{{ change.measurements.join(', ') }} mmol g<sup>-1</sup>h<sup>-1</sup></span></td>
+			</tr>
           </tbody>
         </table>
       </md-table-container>
