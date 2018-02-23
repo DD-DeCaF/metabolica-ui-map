@@ -22,7 +22,6 @@ export class MapOptionService {
   public modelIds: Rx.Observable<string[]>;
 
   public mapSettings: types.MapSettings = {
-    map_id: 'Central metabolism',
     model_id: null,
     map: (<types.MetabolicMap> {}),
   };
@@ -38,6 +37,12 @@ export class MapOptionService {
 
   private modelIdsSubject: Rx.Subject<string> = new Rx.Subject();
   public modelId = this.modelIdsSubject.asObservable();
+
+  private mapIdSubject: Rx.Subject<string> = new Rx.Subject();
+  public mapId = Rx.Observable.merge(
+    Rx.Observable.of('Central metabolism'),
+    this.mapIdSubject.asObservable(),
+  );
 
   public addedReactionsObservable: Rx.Observable<any>;
   private addedReactionsSubject: Rx.Subject<any>;
@@ -301,6 +306,7 @@ export class MapOptionService {
 
   public getMapId(): string {
     if (this.mapSettings.map.map) {
+      console.log('getMapId: ', this.mapSettings.map.map[0].map_id);
       return this.mapSettings.map.map[0].map_id;
     }
     return null;
@@ -310,12 +316,8 @@ export class MapOptionService {
     return this.mapSettings;
   }
 
-  public getSelectedMap(): string {
-    return this.mapSettings.map_id;
-  }
-
   public setSelectedMap(map_id: string): void {
-    this.mapSettings.map_id = map_id;
+    this.mapIdSubject.next(map_id);
   }
 
   public getCollectionSize(): number {

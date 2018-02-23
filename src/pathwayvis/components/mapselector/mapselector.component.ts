@@ -1,6 +1,8 @@
 import * as template from "./mapselector.component.html";
 import { MapOptionService } from "../../services/mapoption.service";
 import { MapService } from "../../services/map.service";
+import "./mapselector.component.scss";
+import * as Rx from 'rxjs/Rx';
 
 
 class MapSelectorComponentCtrl {
@@ -9,7 +11,7 @@ class MapSelectorComponentCtrl {
 
   public modelIds: string[];
 
-  private _selectedMap: any;
+  private selectedMap: string;
   private mapOptions: MapOptionService;
   private mapService: MapService;
 
@@ -17,19 +19,22 @@ class MapSelectorComponentCtrl {
     this.mapService = mapService;
     this.mapOptions = mapOptions;
 
-    this._selectedMap = mapOptions.getSelectedMap();
-
     mapOptions.modelId.subscribe((modelId: string) => {
       if (!modelId) return;
       this.model = modelId;
     });
-    this.mapService.getMapsFromModel(mapOptions.modelId)
-      .subscribe((maps) => {
+
+    Rx.Observable.combineLatest(
+      this.mapService.getMapsFromModel(mapOptions.modelId),
+      this.mapOptions.mapId,
+    )
+      .subscribe(([maps, mapId]) => {
         this.maps = maps;
-        const mapId = this.mapOptions.getSelectedMap();
         if (!maps.includes(mapId)) {
           this.mapOptions.setSelectedMap(maps[0]);
+          mapId = maps[0];
         }
+        this.selectedMap = mapId;
       });
 
     this.mapOptions.modelIds.subscribe((modelIds) => { this.modelIds = modelIds; });

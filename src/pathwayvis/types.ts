@@ -65,7 +65,6 @@ export interface MapData {
 }
 
 export interface MapSettings {
-  map_id: string;
   model_id: string;
   map: MetabolicMap;
 }
@@ -76,6 +75,7 @@ export interface MapObject {
   selected: SelectedItems;
 }
 
+// TODO @matyasfodor rename these to configuration / settings
 export interface SelectedItems {
   experiment?: Experiment;
   sample?: Sample;
@@ -150,3 +150,7 @@ export interface EmbeddedResponse<T> {
 }
 
 export type CallbackEmbeddedResponse<T> = angular.IHttpPromiseCallbackArg<EmbeddedResponse<T>>;
+
+export interface Builder {
+  
+}

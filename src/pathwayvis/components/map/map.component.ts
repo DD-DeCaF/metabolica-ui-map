@@ -2,6 +2,7 @@ import * as escher from '@dd-decaf/escher';
 import * as d3 from 'd3';
 import {event as currentEvent} from 'd3';
 import * as _ from 'lodash';
+import * as Rx from 'rxjs/Rx';
 
 import { APIService } from '../../services/api';
 import { WSService } from '../../services/ws';
@@ -25,7 +26,13 @@ class MapComponentCtrl {
   private resetKnockouts: boolean;
   private _mapOptions: MapOptionService;
   private _mapElement: d3.Selection<any>;
-  private _builder: any;
+
+  private builderSubject: Rx.Subject<types.Builder> = new Rx.Subject();
+  private builder = this.builderSubject.asObservable();
+
+  private mapSettingsSubject: Rx.Subject<types.MapSettings> = new Rx.Subject();
+  private mapSettings = this.mapSettingsSubject.asObservable();
+
   private _api: APIService;
   private _ws: WSService;
   private $scope: angular.IScope;
@@ -33,6 +40,8 @@ class MapComponentCtrl {
   private _q: any;
   private $window: angular.IWindowService;
   private pathwayAdded = false;
+  // This is just a temporal change
+  private mapId: string;
 
   constructor($scope: angular.IScope,
     api: APIService,
@@ -55,25 +64,33 @@ class MapComponentCtrl {
     this.actions = actions;
     this.$scope = $scope;
 
+    Rx.Observable.combineLatest(
+      this._mapOptions.mapId,
+      this._mapOptions.modelId,
+    ).subscribe(([mapId, modelId]) => {
+      this._setMap(modelId, mapId);
+    });
+
     // TODO @matyasfodor watch expressions consume too much memory
     // see https://docs.angularjs.org/api/ng/type/$rootScope.Scope#$watch
     // TODO @matyasfodor this call sets the map even if a completely different setting is changed.
     // which causes loading the map 3 times in some cases.
     $scope.$watch('ctrl._mapOptions.getMapSettings()', (settings: types.MapSettings) => {
-      if (settings.model_id && settings.map_id) {
-        if (this._mapOptions.shouldUpdateData) {
-          this.updateAllMaps();
-          this._mapOptions.dataUpdated();
-        } else {
-          this.updateFVAMaps();
-        }
-        this._setMap(this._mapOptions.getSelectedMap());
+      this.mapSettingsSubject.next(settings);
 
-        if (this._builder) {
-          this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
-          this._drawAddedReactions(this._mapOptions.getAddedReactions());
-        }
-      }
+      // if (settings.model_id) {
+      //   if (this._mapOptions.shouldUpdateData) {
+      //     this.updateAllMaps();
+      //     this._mapOptions.dataUpdated();
+      //   } else {
+      //     this.updateFVAMaps();
+      //   }
+
+      //   if (this._builder) {
+      //     this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
+      //     this._drawAddedReactions(this._mapOptions.getAddedReactions());
+      //   }
+      // }
     }, true);
 
     // Map watcher
@@ -228,12 +245,11 @@ class MapComponentCtrl {
     }
   }
 
-  private _setMap(map: string): void {
-    if (!map) return;
-    const {model_id, map_id} = this._mapOptions.getMapSettings();
+  private _setMap(modelId: string, mapId: string): void {
+    if (!mapId) return;
     this.shared.async(this._api.getModel('map', {
-      'model': model_id,
-      'map': map_id,
+      'model': modelId,
+      'map': mapId,
     }).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
       this._mapOptions.setMap(response.data);
     }, () => {
@@ -263,6 +279,7 @@ class MapComponentCtrl {
     }
   }
 
+  // This one should move out from here
   private _loadMap(type: ObjectType, selectedItem: types.SelectedItems, id: number): void {
     const settings = this._mapOptions.getMapSettings();
 
@@ -276,7 +293,7 @@ class MapComponentCtrl {
         sampleIds,
         phaseId,
         method: selectedItem.method.id,
-        map: settings.map_id,
+        map: settings.mapId,
         withFluxes: true,
         modelId: settings.model_id,
       });
@@ -307,7 +324,7 @@ class MapComponentCtrl {
         message: {
           'to-return': ['fluxes', 'model', 'growth-rate'],
           'simulation-method': this._mapOptions.getDataObject(id).selected.method.id,
-          'map': settings.map_id,
+          'map': this.mapId,
           'reactions-knockout': this._mapOptions.getRemovedReactions(),
           'reactions-add': addedReactions.map((r) => ({
             id: r.bigg_id,
