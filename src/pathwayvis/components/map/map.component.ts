@@ -67,7 +67,7 @@ class MapComponentCtrl {
         } else {
           this.updateFVAMaps();
         }
-        this._setMap(this._mapOptions.getSelectedMap());
+        // this._setMap(this._mapOptions.getSelectedMap());
 
         if (this._builder) {
           this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
@@ -229,16 +229,16 @@ class MapComponentCtrl {
   }
 
   private _setMap(map: string): void {
-    if (!map) return;
-    const {model_id, map_id} = this._mapOptions.getMapSettings();
-    this.shared.async(this._api.getModel('map', {
-      'model': model_id,
-      'map': map_id,
-    }).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
-      this._mapOptions.setMap(response.data);
-    }, () => {
-      this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected map.');
-    }), 'setMap');
+    // if (!map) return;
+    // const {model_id, map_id} = this._mapOptions.getMapSettings();
+    // this.shared.async(this._api.getModel('map', {
+    //   'model': model_id,
+    //   'map': map_id,
+    // }).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
+    //   this._mapOptions.setMap(response.data);
+    // }, () => {
+    //   this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected map.');
+    // }), 'setMap');
   }
 
   private updateAllMaps(FVAonly: boolean = false) {

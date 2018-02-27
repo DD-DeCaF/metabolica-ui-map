@@ -7,3 +7,8 @@ declare module "*.json" {
   const json: string;
   export default json;
 }
+
+declare module "*.svg" {
+  const content: any;
+  export default content;
+}

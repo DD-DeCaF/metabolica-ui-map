@@ -8,14 +8,17 @@ import { ActionsService } from "./actions/actions.service";
 import { MapDataObject } from "../models/MapDataObject";
 import { DataHandler } from "../models/DataHandler";
 // TODO @matyasfodor access these through types. (..)
-import { AddedReaction, Experiment, Method, ObjectType, Phase, Sample, Species, MapSettings } from "../types";
+import { AddedReaction, Experiment, Method, ObjectType, Phase, Sample, Species } from "../types";
 import { ExperimentService } from "./experiment.service";
+import { MapSettings } from './mapsettings.service';
 
 export class MapOptionService {
   private experimentService: ExperimentService;
   public shouldUpdateData: boolean = false;
   private apiService: APIService;
   private dataHandler: DataHandler;
+  private mapSettingsService: MapSettings;
+
   public shouldLoadMap: boolean = false;
 
   public selectedCardId: number;
@@ -50,11 +53,13 @@ export class MapOptionService {
   // TODO rename services to lowercase
   constructor(api: APIService, toastService: ToastService,
     actions: ActionsService,
-    experimentService: ExperimentService) {
+    experimentService: ExperimentService,
+    mapSettingsService: MapSettings) {
     this.apiService = api;
     this.toastService = toastService;
     this.actions = actions;
     this.experimentService = experimentService;
+    this.mapSettingsService = mapSettingsService;
 
     this.dataHandler = new DataHandler();
     this.selectedCardId = this.dataHandler.addObject(ObjectType.Reference);
@@ -83,6 +88,11 @@ export class MapOptionService {
 
     this.modelIds.subscribe((modelIds) => {
       this.setModelId(modelIds[0]);
+    });
+
+    //////
+    mapSettingsService.mapSettings.subscribe((val) => {
+      console.log('New mapSettingsObject: ', val);
     });
   }
 
@@ -278,21 +288,19 @@ export class MapOptionService {
     return this.mapSettings.map.map;
   }
 
-  public setMap(map: object): void {
-    this.mapSettings.map.map = map;
-  }
-
   public setModel(model: types.Model, id: number = this.selectedCardId) {
     this.shouldUpdateData = true;
     this.getDataObject(id).mapData.model = model;
   }
 
   public setModelId(modelId: string): void {
+    // @anchor
     if (this.mapSettings.model_id) {
       this.shouldUpdateData = true;
     }
     this.mapSettings.model_id = modelId;
     this.modelIdsSubject.next(modelId);
+    this.mapSettingsService.setModelId(modelId);
   }
 
   public getModelId(): string {
@@ -315,7 +323,9 @@ export class MapOptionService {
   }
 
   public setSelectedMap(map_id: string): void {
+    // @anchor
     this.mapSettings.map_id = map_id;
+    this.mapSettingsService.setMapId(map_id);
   }
 
   public getCollectionSize(): number {

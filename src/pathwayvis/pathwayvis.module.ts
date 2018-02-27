@@ -1,13 +1,14 @@
-import angular from 'angular';
+import * as angular from "angular";
 import { AppModule } from 'metabolica';
 import { APIService } from './services/api';
 import { WSService } from './services/ws';
-import { ToastService } from './services/toastservice'
+import { ToastService } from './services/toastservice';
 import { MapOptionService } from './services/mapoption.service';
 import { MapService } from './services/map.service';
+import { MapSettings } from './services/mapsettings.service';
 import { ExperimentService } from './services/experiment.service';
 import { SharedService } from './services/shared.service';
-import { PathwayVisComponent } from './pathwayvis.component'
+import { PathwayVisComponent } from './pathwayvis.component';
 import { mapComponent } from './components/map/map.component';
 import { MapSelectorComponent } from './components/mapselector/mapselector.component';
 import { DataCardComponent } from './components/datacard/datacard.component';
@@ -19,7 +20,7 @@ import { ModelWSProvider } from './providers/modelws.provider';
 import { LegendComponent } from './components/legend/legend.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { InfoComponent } from './components/info/info.component';
-import { CardControllerComponent } from './components/datacardcontroller/cardcontroller.component'
+import { CardControllerComponent } from './components/datacardcontroller/cardcontroller.component';
 import { ReactionsPanelModule } from './components/reactionpanel/reactionspanel.module';
 
 export const PathwayVisModule = angular.module('pathwayvis', [
@@ -38,6 +39,7 @@ export const PathwayVisModule = angular.module('pathwayvis', [
   .service('toastService', ToastService)
   .service('mapService', MapService)
   .service('mapOptions', MapOptionService)
+  .service('mapSettingsService', MapSettings)
   .service('experimentService', ExperimentService)
   .service('shared', SharedService)
   .component('pathwayvis', PathwayVisComponent)
@@ -55,7 +57,7 @@ export const PathwayVisModule = angular.module('pathwayvis', [
       title: 'Interactive Map',
       icon: 'map_icon',
       authRequired: false,
-      tooltip: 'Investigate and visualize flux distributions on different parts of metabolism. Create new strains'
+      tooltip: 'Investigate and visualize flux distributions on different parts of metabolism. Create new strains',
     });
 
     $stateProvider
@@ -64,22 +66,22 @@ export const PathwayVisModule = angular.module('pathwayvis', [
         url: '/pathwayvis',
         component: 'pathwayvis',
         data: {
-          title: 'Interactive Map' // FIXME look up from app nagivation provider
-        }
-      })
+          title: 'Interactive Map', // FIXME look up from app nagivation provider
+        },
+      });
   })
   .config(($sharingProvider) => {
     $sharingProvider.register('app.pathwayvis', {
       accept: [
-        { type: 'experiment', multiple: false }
+        { type: 'experiment', multiple: false },
       ],
-      name: 'Interactive map'
+      name: 'Interactive map',
     });
     $sharingProvider.register('app.pathwayvis', {
       accept: [
-        { type: 'pathwayPrediction', multiple: false }
+        { type: 'pathwayPrediction', multiple: false },
       ],
-      name: 'Interactive map'
+      name: 'Interactive map',
     });
   })
   .config(($mdThemingProvider) => {
@@ -87,13 +89,13 @@ export const PathwayVisModule = angular.module('pathwayvis', [
     $mdThemingProvider.theme('error-toast');
   })
   // Should live somewhere else
-  .directive('showFocus', function ($timeout) {
-    return function (scope, element, attrs) {
+  .directive('showFocus', ($timeout) => (scope, element, attrs) => {
       scope.$watch(attrs.showFocus,
-        function (newValue) {
-          $timeout(function () {
-            newValue && element[0].focus();
+        (newValue) => {
+          $timeout(() => {
+            if (newValue) {
+              element[0].focus();
+            }
           });
         }, true);
-    };
-  });
+    });
