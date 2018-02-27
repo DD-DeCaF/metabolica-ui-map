@@ -4,7 +4,6 @@ import { APIService } from './services/api';
 import { WSService } from './services/ws';
 import { ToastService } from './services/toastservice';
 import { MapOptionService } from './services/mapoption.service';
-import { MapService } from './services/map.service';
 import { MapSettings } from './services/mapsettings.service';
 import { ExperimentService } from './services/experiment.service';
 import { SharedService } from './services/shared.service';
@@ -37,7 +36,6 @@ export const PathwayVisModule = angular.module('pathwayvis', [
   .service('ws', WSService)
   .service('actions', ActionsService)
   .service('toastService', ToastService)
-  .service('mapService', MapService)
   .service('mapOptions', MapOptionService)
   .service('mapSettingsService', MapSettings)
   .service('experimentService', ExperimentService)
