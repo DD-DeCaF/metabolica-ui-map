@@ -2,55 +2,74 @@ import { APIService } from "./api";
 import * as Rx from 'rxjs/Rx';
 import * as types from '../types';
 
+type mapsByModel = Map<string, string[]>;
 
 export class MapSettings {
   private apiService: APIService;
   private setModelIdSubject: Rx.Subject<string> = new Rx.Subject();
   private setMapIdSubject: Rx.Subject<string> = new Rx.Subject();
+  private mapsByModel: Rx.Observable<mapsByModel>;
 
   public mapSettings: Rx.Observable<types.MapSettings>;
+  public maps: Rx.Observable<string[]>;
 
   constructor(api: APIService) {
     this.apiService = api;
 
-    const setModelId = this.setModelIdSubject
-      .map((modelId) => (mapSettings: types.MapSettings) => Rx.Observable.of({
-        ...mapSettings,
-        model_id: modelId,
-      }));
+    this.mapsByModel = Rx.Observable
+      .fromPromise(this.apiService.getModel('maps', {}))
+      .map((response: angular.IHttpPromiseCallbackArg<any>) => response.data);
 
-    const setMapId = this.setMapIdSubject
-      .map((mapId) => (mapSettings: types.MapSettings) => {
-        // TODO add loader
-        // TODO add error handling
-        return Rx.Observable.fromPromise(this.apiService.getModel('map', {
-          'model': mapSettings.model_id,
-          'map': mapId,
-        }))
-          .map((response: angular.IHttpPromiseCallbackArg<Object>) => ({
-            ...mapSettings,
-            map: {
-              ...mapSettings.map,
-              map: response.data,
-            },
-          }));
+    const setModelId = this.setModelIdSubject
+      .map((modelId) => (mapSettings: types.MapSettings, maps: mapsByModel) => {
+        let map_id = mapSettings.map_id;
+        if (!maps[modelId].includes(mapSettings.map_id)) {
+          map_id = maps[modelId][0];
+        }
+
+        return this._loadMap(mapSettings, map_id, modelId);
       });
 
-    // this.mapSettings = Rx.Observable.merge(setMap, setModelId)
-    //   .scan((accumulated, transformFn) => transformFn(accumulated), {
-    //     map_id: 'Central metabolism',
-    //     model_id: null,
-    //     map: (<types.MetabolicMap> {}),
-    //   });
-    this.mapSettings = Rx.Observable.merge(setModelId, setMapId)
-      .scan((accumulatedObservables, transformFn) =>
+    const setMapId = this.setMapIdSubject
+      .map((mapId) => (mapSettings: types.MapSettings, maps: mapsByModel) =>
+        this._loadMap(mapSettings, mapId, mapSettings.model_id),
+    );
+
+    this.mapSettings = Rx.Observable.combineLatest(
+      Rx.Observable.merge(setModelId, setMapId),
+      this.mapsByModel,
+      (func, maps) => ({func, maps}),
+    )
+      .scan((accumulatedObservables, {func, maps}) =>
           accumulatedObservables.flatMap((accumulatedSettings) =>
-          transformFn(accumulatedSettings)), Rx.Observable.of({
+          func(accumulatedSettings, maps)), Rx.Observable.of({
         map_id: 'Central metabolism',
         model_id: null,
         map: (<types.MetabolicMap> {}),
       }))
       .flatMap((a) => a);
+
+    this.maps = Rx.Observable.combineLatest(
+      this.mapSettings,
+      this.mapsByModel,
+      (mapSettings, mapsBymodel) => this.mapsByModel[mapSettings.model_id],
+    );
+  }
+
+  private _loadMap(mapSettings: types.MapSettings, map_id: string, model_id: string) {
+    return Rx.Observable.fromPromise(this.apiService.getModel('map', {
+      'model': mapSettings.model_id,
+      'map': map_id,
+    }))
+      .map((response: angular.IHttpPromiseCallbackArg<Object>) => ({
+        ...mapSettings,
+        map: {
+          ...mapSettings.map,
+          map: response.data,
+        },
+        model_id: model_id,
+        map_id,
+      }));
   }
 
   public setModelId(modelId: string): void {

@@ -39,9 +39,6 @@ export class MapOptionService {
   private toastService: ToastService;
   private actions: ActionsService;
 
-  private modelIdsSubject: Rx.Subject<string> = new Rx.Subject();
-  public modelId = this.modelIdsSubject.asObservable();
-
   public addedReactionsObservable: Rx.Observable<any>;
   private addedReactionsSubject: Rx.Subject<any>;
 
@@ -299,7 +296,6 @@ export class MapOptionService {
       this.shouldUpdateData = true;
     }
     this.mapSettings.model_id = modelId;
-    this.modelIdsSubject.next(modelId);
     this.mapSettingsService.setModelId(modelId);
   }
 
