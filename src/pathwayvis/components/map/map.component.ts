@@ -7,6 +7,7 @@ import { APIService } from '../../services/api';
 import { WSService } from '../../services/ws';
 import { ActionsService } from '../../services/actions/actions.service';
 import { SharedService } from '../../services/shared.service';
+import { MapSettings } from "../../services/mapsettings.service";
 
 import * as types from '../../types';
 
@@ -16,6 +17,27 @@ import { ToastService } from "../../services/toastservice";
 import { MapOptionService } from "../../services/mapoption.service";
 import { ObjectType } from "../../types";
 
+const escherSettings = {
+  menu: 'zoom',
+  scroll_behavior: 'zoom',
+  fill_screen: true,
+  ignore_bootstrap: true,
+  never_ask_before_quit: true,
+  reaction_styles: ['color', 'size', 'text', 'abs'],
+  identifiers_on_map: 'bigg_id',
+  hide_all_labels: false,
+  hide_secondary_metabolites: false,
+  highlight_missing: true,
+  reaction_scale: [
+    { type: 'min', color: '#A841D0', size: 20 },
+    { type: 'Q1', color: '#868BB2', size: 20 },
+    { type: 'Q3', color: '#6DBFB0', size: 20 },
+    { type: 'max', color: '#54B151', size: 20 },
+  ],
+  reaction_no_data_color: '#CBCBCB',
+  reaction_no_data_size: 10,
+  enable_editing: false,
+};
 class MapComponentCtrl {
   public shared: SharedService;
   public actions: ActionsService;
@@ -24,6 +46,7 @@ class MapComponentCtrl {
 
   private resetKnockouts: boolean;
   private _mapOptions: MapOptionService;
+  private mapSettingsService: MapSettings;
   private _mapElement: d3.Selection<any>;
   private _builder: any;
   private _api: APIService;
@@ -41,6 +64,7 @@ class MapComponentCtrl {
     toastService: ToastService,
     $q: angular.IQService,
     mapOptions: MapOptionService,
+    mapSettingsService: MapSettings,
     $window: angular.IWindowService,
     shared: SharedService,
   ) {
@@ -51,35 +75,62 @@ class MapComponentCtrl {
     this.toastService = toastService;
     this._q = $q;
     this._mapOptions = mapOptions;
+    this.mapSettingsService = mapSettingsService;
     this.shared = shared;
     this.actions = actions;
     this.$scope = $scope;
+
+    // Create the builder with the first emmitted data
+    // This could be used to create the builder stream later.
+    this.mapSettingsService.mapSettings
+      .take(1)
+      .subscribe((mapSettings) => {
+        const escherSettingsWithCallbacks = {
+          ...escherSettings,
+          reaction_knockout: this._mapOptions.getRemovedReactions(),
+        };
+        this._builder = escher.Builder(
+          mapSettings.map.map,
+          null,
+          null,
+          this._mapElement,
+          escherSettingsWithCallbacks,
+        );
+      });
+
+    // The other updates are handled here.
+    this.mapSettingsService.mapSettings
+      .skip(1)
+      .subscribe((mapSettings) => {
+        // should_update_data set to true just in case.
+        this._builder.load_map(mapSettings.map.map, true);
+      });
 
     // TODO @matyasfodor watch expressions consume too much memory
     // see https://docs.angularjs.org/api/ng/type/$rootScope.Scope#$watch
     // TODO @matyasfodor this call sets the map even if a completely different setting is changed.
     // which causes loading the map 3 times in some cases.
-    $scope.$watch('ctrl._mapOptions.getMapSettings()', (settings: types.MapSettings) => {
-      if (settings.model_id && settings.map_id) {
-        if (this._mapOptions.shouldUpdateData) {
-          this.updateAllMaps();
-          this._mapOptions.dataUpdated();
-        } else {
-          this.updateFVAMaps();
-        }
-        // this._setMap(this._mapOptions.getSelectedMap());
+    // Disabled. Only left here for rewriting this bit
+    // $scope.$watch('ctrl._mapOptions.getMapSettings()', (settings: types.MapSettings) => {
+    //   if (settings.model_id && settings.map_id) {
+    //     if (this._mapOptions.shouldUpdateData) {
+    //       this.updateAllMaps();
+    //       this._mapOptions.dataUpdated();
+    //     } else {
+    //       this.updateFVAMaps();
+    //     }
+    //     // this._setMap(this._mapOptions.getSelectedMap());
 
-        if (this._builder) {
-          this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
-          this._drawAddedReactions(this._mapOptions.getAddedReactions());
-        }
-      }
-    }, true);
+    //     if (this._builder) {
+    //       this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
+    //       this._drawAddedReactions(this._mapOptions.getAddedReactions());
+    //     }
+    //   }
+    // }, true);
 
     // Map watcher
+    // Disabled
     $scope.$watch('ctrl._mapOptions.getMapId()', (mapId) => {
-      if (!mapId) return;
-      this._initMap();
       if (this._mapOptions.getReactionData()) {
         this._loadModel();
         this._loadData();
@@ -152,39 +203,43 @@ class MapComponentCtrl {
       }
     });
 
-    $scope.$watch('ctrl._mapOptions.getReactionData()', () => {
-      let reactionData = this._mapOptions.getReactionData();
-      let model = this._mapOptions.getDataModelId();
-      if (this._builder) {
-        if (model) {
-          this._loadModel();
-        }
-        if (reactionData) {
-          this._loadData();
-        } else {
-          const type = this._mapOptions.getType();
-          if (type === ObjectType.Reference) {
-            this._loadMap(type, this._mapOptions.getDataObject().selected, this._mapOptions.getSelectedId());
-            reactionData = this._mapOptions.getReactionData();
-          }
-          this._removeOpacity();
+    // Listend to changes in added/removed reactions
+    // Should communicate thorugh an Observable.
 
-          this._builder.set_reaction_data(reactionData);
-        }
-      }
-    }, true);
+    // $scope.$watch('ctrl._mapOptions.getReactionData()', () => {
+    //   let reactionData = this._mapOptions.getReactionData();
+    //   let model = this._mapOptions.getDataModelId();
+    //   if (this._builder) {
+    //     if (model) {
+    //       this._loadModel();
+    //     }
+    //     if (reactionData) {
+    //       this._loadData();
+    //     } else {
+    //       const type = this._mapOptions.getType();
+    //       if (type === ObjectType.Reference) {
+    //         this._loadMap(type, this._mapOptions.getDataObject().selected, this._mapOptions.getSelectedId());
+    //         reactionData = this._mapOptions.getReactionData();
+    //       }
+    //       this._removeOpacity();
 
-    $scope.$watch('ctrl._mapOptions.getCurrentSelectedItems()', (selected: types.SelectedItems) => {
-      let type = this._mapOptions.getDataObject().type;
-      if (this._mapOptions.shouldLoadMap) {
-        if ((selected.method !== null) &&
-          (selected.phase !== null) &&
-          (selected.sample !== null) &&
-          (selected.experiment !== null)) {
-          this._loadMap(type, selected, this._mapOptions.selectedCardId);
-        }
-      }
-    }, true);
+    //       this._builder.set_reaction_data(reactionData);
+    //     }
+    //   }
+    // }, true);
+
+    // Detects any changes on the side panel. Should be handled in a different place
+    // $scope.$watch('ctrl._mapOptions.getCurrentSelectedItems()', (selected: types.SelectedItems) => {
+    //   let type = this._mapOptions.getDataObject().type;
+    //   if (this._mapOptions.shouldLoadMap) {
+    //     if ((selected.method !== null) &&
+    //       (selected.phase !== null) &&
+    //       (selected.sample !== null) &&
+    //       (selected.experiment !== null)) {
+    //       this._loadMap(type, selected, this._mapOptions.selectedCardId);
+    //     }
+    //   }
+    // }, true);
 
     $scope.$on('$destroy', () => {
       ws.close(this._mapOptions.getDataModelId());
@@ -241,20 +296,21 @@ class MapComponentCtrl {
     // }), 'setMap');
   }
 
-  private updateAllMaps(FVAonly: boolean = false) {
+  private updateAllMaps(FVAonly: boolean = false, mapSettings: types.MapSettings) {
     const ids = this._mapOptions.getMapObjectsIds();
     ids.forEach((id) => {
       let selectedItem = this._mapOptions.getDataObject(id).selected;
       if (!FVAonly || (FVAonly && (selectedItem.method.id === 'fva' || selectedItem.method.id === 'pfba-fva'))) {
         this._loadMap(this._mapOptions.getDataObject(id).type,
           selectedItem,
+          mapSettings,
           id);
       }
     });
   }
 
-  private updateFVAMaps() {
-    this.updateAllMaps(true);
+  private updateFVAMaps(mapSettings: types.MapSettings) {
+    this.updateAllMaps(true, mapSettings);
   }
 
   private _drawAddedReactions(addedReactions) {
@@ -263,9 +319,8 @@ class MapComponentCtrl {
     }
   }
 
-  private _loadMap(type: ObjectType, selectedItem: types.SelectedItems, id: number): void {
-    const settings = this._mapOptions.getMapSettings();
-
+  // This one should be moved to mapOption service.
+  private _loadMap(type: ObjectType, selectedItem: types.SelectedItems, mapSettings: types.MapSettings, id: number): void {
     if (type === ObjectType.Experiment) {
       const sampleIds = selectedItem.sample ? selectedItem.sample.id.slice() : null;
       const phaseId = selectedItem.phase ? selectedItem.phase.id : null;
@@ -276,9 +331,9 @@ class MapComponentCtrl {
         sampleIds,
         phaseId,
         method: selectedItem.method.id,
-        map: settings.map_id,
+        map: mapSettings.map_id,
         withFluxes: true,
-        modelId: settings.model_id,
+        modelId: mapSettings.model_id,
       });
 
       const infoPromise = this._api.post('samples/info', {
@@ -300,14 +355,14 @@ class MapComponentCtrl {
           this.toastService.showErrorToast('Oops! Sorry, there was a problem with fetching the data.');
         }), 'Experiment');
     } else if (type === ObjectType.Reference) {
-      if (!settings.model_id) return;
+      if (!mapSettings.model_id) return;
       const addedReactions = this._mapOptions.getAddedReactions();
-      const url = `models/${settings.model_id}`;
+      const url = `models/${mapSettings.model_id}`;
       const modelPromise = this._api.postModel(url, {
         message: {
           'to-return': ['fluxes', 'model', 'growth-rate'],
           'simulation-method': this._mapOptions.getDataObject(id).selected.method.id,
-          'map': settings.map_id,
+          'map': mapSettings.map_id,
           'reactions-knockout': this._mapOptions.getRemovedReactions(),
           'reactions-add': addedReactions.map((r) => ({
             id: r.bigg_id,
@@ -320,7 +375,7 @@ class MapComponentCtrl {
         this._mapOptions.setReactionData(data.fluxes, id);
         this._mapOptions.setCurrentGrowthRate(parseFloat(data['growth-rate']));
       }), 'Reference');
-      this._api.getWildTypeInfo(settings.model_id).then(({data: mapInfo}: any) => {
+      this._api.getWildTypeInfo(mapSettings.model_id).then(({data: mapInfo}: any) => {
         this._mapOptions.setMapInfo(mapInfo, id);
       });
     }
@@ -340,36 +395,6 @@ class MapComponentCtrl {
         this._mapOptions.setRemovedReactions(response['removed-reactions']);
       });
     }
-  }
-
-  /**
-   * Initializes map
-   */
-  private _initMap(): void {
-    // Default map settings
-    const settings = {
-      menu: 'zoom',
-      scroll_behavior: 'zoom',
-      fill_screen: true,
-      ignore_bootstrap: true,
-      never_ask_before_quit: true,
-      reaction_styles: ['color', 'size', 'text', 'abs'],
-      identifiers_on_map: 'bigg_id',
-      hide_all_labels: false,
-      hide_secondary_metabolites: false,
-      highlight_missing: true,
-      reaction_scale: [
-        { type: 'min', color: '#A841D0', size: 20 },
-        { type: 'Q1', color: '#868BB2', size: 20 },
-        { type: 'Q3', color: '#6DBFB0', size: 20 },
-        { type: 'max', color: '#54B151', size: 20 },
-      ],
-      reaction_no_data_color: '#CBCBCB',
-      reaction_no_data_size: 10,
-      reaction_knockout: this._mapOptions.getRemovedReactions(),
-      enable_editing: false,
-    };
-    this._builder = escher.Builder(this._mapOptions.getMap(), null, null, this._mapElement, settings);
   }
 
   /**

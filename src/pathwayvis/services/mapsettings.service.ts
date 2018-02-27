@@ -23,7 +23,7 @@ export class MapSettings {
     const setModelId = this.setModelIdSubject
       .map((modelId) => (mapSettings: types.MapSettings, maps: mapsByModel) => {
         let map_id = mapSettings.map_id;
-        if (!maps[modelId].includes(mapSettings.map_id)) {
+        if (!maps[modelId].includes(map_id)) {
           map_id = maps[modelId][0];
         }
 
@@ -52,13 +52,13 @@ export class MapSettings {
     this.maps = Rx.Observable.combineLatest(
       this.mapSettings,
       this.mapsByModel,
-      (mapSettings, mapsBymodel) => this.mapsByModel[mapSettings.model_id],
+      (mapSettings, maps) => maps[mapSettings.model_id],
     );
   }
 
   private _loadMap(mapSettings: types.MapSettings, map_id: string, model_id: string) {
     return Rx.Observable.fromPromise(this.apiService.getModel('map', {
-      'model': mapSettings.model_id,
+      'model': model_id,
       'map': map_id,
     }))
       .map((response: angular.IHttpPromiseCallbackArg<Object>) => ({

@@ -26,7 +26,7 @@
         </md-tab-body>
       </md-tab>
 
-      <md-tab id="map_selector" ng-disabled="ctrl.disableMapSelector()">
+      <md-tab id="map_selector" ng-disabled="!ctrl.modelLoaded">
         <md-tab-label>
           <md-tooltip>Metabolic Pathways</md-tooltip>
           <md-icon md-font-icon="timeline">timeline</md-icon>

@@ -24,12 +24,6 @@ export class MapOptionService {
   public selectedCardId: number;
   public modelIds: Rx.Observable<string[]>;
 
-  public mapSettings: types.MapSettings = {
-    map_id: 'Central metabolism',
-    model_id: null,
-    map: (<types.MetabolicMap> {}),
-  };
-
   public species: Rx.Observable<Species[]>;
 
   private selectedSpeciesSubject: Rx.Subject<string> = new Rx.Subject();
@@ -84,7 +78,7 @@ export class MapOptionService {
     });
 
     this.modelIds.subscribe((modelIds) => {
-      this.setModelId(modelIds[0]);
+      this.mapSettingsService.setModelId(modelIds[0]);
     });
 
     //////
@@ -136,8 +130,7 @@ export class MapOptionService {
   }
 
   public getDataModelId(): string {
-    const dataModelId = this.getDataObject().mapData.model.uid;
-    return dataModelId ? dataModelId : null;
+    return this.getDataObject().mapData.model.uid || null;
   }
 
   public getMapInfo(): types.MapInfo {
@@ -281,48 +274,29 @@ export class MapOptionService {
     this.shouldUpdateData = false;
   }
 
-  public getMap(): object {
-    return this.mapSettings.map.map;
-  }
+  // public getMap(): object {
+  //   return this.mapSettings.map.map;
+  // }
 
   public setModel(model: types.Model, id: number = this.selectedCardId) {
     this.shouldUpdateData = true;
     this.getDataObject(id).mapData.model = model;
   }
 
-  public setModelId(modelId: string): void {
-    // @anchor
-    if (this.mapSettings.model_id) {
-      this.shouldUpdateData = true;
-    }
-    this.mapSettings.model_id = modelId;
-    this.mapSettingsService.setModelId(modelId);
-  }
+  // public getModelId(): string {
+  //   return this.mapSettings.model_id;
+  // }
 
-  public getModelId(): string {
-    return this.mapSettings.model_id;
-  }
+  // public getMapId(): string {
+  //   if (this.mapSettings.map.map) {
+  //     return this.mapSettings.map.map[0].map_id;
+  //   }
+  //   return null;
+  // }
 
-  public getMapId(): string {
-    if (this.mapSettings.map.map) {
-      return this.mapSettings.map.map[0].map_id;
-    }
-    return null;
-  }
-
-  public getMapSettings(): types.MapSettings {
-    return this.mapSettings;
-  }
-
-  public getSelectedMap(): string {
-    return this.mapSettings.map_id;
-  }
-
-  public setSelectedMap(map_id: string): void {
-    // @anchor
-    this.mapSettings.map_id = map_id;
-    this.mapSettingsService.setMapId(map_id);
-  }
+  // public getMapSettings(): types.MapSettings {
+  //   return this.mapSettings;
+  // }
 
   public getCollectionSize(): number {
     return this.dataHandler.size();
