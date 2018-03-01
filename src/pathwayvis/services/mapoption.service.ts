@@ -103,12 +103,12 @@ export class MapOptionService {
     return this.getDataObject().mapData;
   }
 
-  public getReactionData(): object {
+  public getReactionData(): Map<string, types.FvaData> | Map<string, number> {
     const reactionData = this.getDataObject().mapData.map.reactionData;
     return reactionData ? reactionData : null;
   }
 
-  public setReactionData(data: object, id: number = this.selectedCardId) {
+  public setReactionData(data: Map<string, types.FvaData>, id: number = this.selectedCardId) {
     this.getDataObject(id).mapData.map.reactionData = data;
   }
 

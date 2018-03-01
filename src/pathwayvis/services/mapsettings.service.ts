@@ -61,7 +61,7 @@ export class MapSettings {
       'model': model_id,
       'map': map_id,
     }))
-      .map((response: angular.IHttpPromiseCallbackArg<Object>) => ({
+      .map((response: angular.IHttpPromiseCallbackArg<types.escherMap>) => ({
         ...mapSettings,
         map: {
           ...mapSettings.map,

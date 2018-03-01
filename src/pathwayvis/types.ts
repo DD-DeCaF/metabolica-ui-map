@@ -1,7 +1,7 @@
 export interface MetabolicMap {
-  map: Object;
+  map: escherMap;
   settings: Object;
-  reactionData: Object;
+  reactionData: Map<string, FvaData>;
   geneData: Object;
   metaboliteData: Object;
   growthRate: number;
@@ -150,3 +150,43 @@ export interface EmbeddedResponse<T> {
 }
 
 export type CallbackEmbeddedResponse<T> = angular.IHttpPromiseCallbackArg<EmbeddedResponse<T>>;
+
+export type escherMap = [object, object];
+
+export type escherModel = object;
+
+export interface FvaData {
+  upper_bound: number;
+  lower_bound: number;
+}
+
+export interface Builder {
+  constructor(
+    map_data: escherMap,
+    model_data: escherModel,
+    embedded_css: string,
+    selection: d3.Selection<any>, // D3 selector
+    options: object,
+  );
+
+  load_map(map_data: escherMap, should_update_data?: boolean);
+
+  load_model(model_data: escherModel, should_update_data?: boolean);
+
+  set_knockout_reactions(reactions: string[]);
+
+  map: {
+    cobra_model: {
+      reactions: Map<string, number>,
+    },
+    bigg_index: any,
+  };
+
+  add_pathway(reactions: string[]);
+  set_added_reactions(reactions: string[]);
+
+  set_reaction_data(reaction_data: Map<string, object>);
+  set_reaction_data(reaction_data: Map<string, number>);
+
+  set_reaction_fva_data(fva_data: Map<string, FvaData>);
+}

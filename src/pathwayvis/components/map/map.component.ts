@@ -2,6 +2,7 @@ import * as escher from '@dd-decaf/escher';
 import * as d3 from 'd3';
 import {event as currentEvent} from 'd3';
 import * as _ from 'lodash';
+import * as Rx from 'rxjs/Rx';
 
 import { APIService } from '../../services/api';
 import { WSService } from '../../services/ws';
@@ -16,6 +17,7 @@ import * as template from './views/map.component.html';
 import { ToastService } from "../../services/toastservice";
 import { MapOptionService } from "../../services/mapoption.service";
 import { ObjectType } from "../../types";
+import * as utils from "../../utils";
 
 const escherSettings = {
   menu: 'zoom',
@@ -48,7 +50,8 @@ class MapComponentCtrl {
   private _mapOptions: MapOptionService;
   private mapSettingsService: MapSettings;
   private _mapElement: d3.Selection<any>;
-  private _builder: any;
+  // private _builder: types.Builder;
+  private builder: Rx.Observable<types.Builder>;
   private _api: APIService;
   private _ws: WSService;
   private $scope: angular.IScope;
@@ -82,14 +85,14 @@ class MapComponentCtrl {
 
     // Create the builder with the first emmitted data
     // This could be used to create the builder stream later.
-    this.mapSettingsService.mapSettings
+    this.builder = this.mapSettingsService.mapSettings
       .take(1)
-      .subscribe((mapSettings) => {
+      .map((mapSettings) => {
         const escherSettingsWithCallbacks = {
           ...escherSettings,
           reaction_knockout: this._mapOptions.getRemovedReactions(),
         };
-        this._builder = escher.Builder(
+        return <types.Builder> escher.Builder(
           mapSettings.map.map,
           null,
           null,
@@ -99,12 +102,14 @@ class MapComponentCtrl {
       });
 
     // The other updates are handled here.
-    this.mapSettingsService.mapSettings
-      .skip(1)
-      .subscribe((mapSettings) => {
-        // should_update_data set to true just in case.
-        this._builder.load_map(mapSettings.map.map, true);
-      });
+    Rx.Observable.combineLatest(
+      this.mapSettingsService.mapSettings.skip(1),
+      this.builder,
+      (mapSettings, builder) => ({mapSettings, builder}),
+    ).subscribe(({mapSettings, builder}) => {
+      // should_update_data set to true just in case.
+      builder.load_map(mapSettings.map.map, true);
+    });
 
     // TODO @matyasfodor watch expressions consume too much memory
     // see https://docs.angularjs.org/api/ng/type/$rootScope.Scope#$watch
@@ -135,9 +140,9 @@ class MapComponentCtrl {
         this._loadModel();
         this._loadData();
       }
-      if (this._builder) {
-        this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
-      }
+      // if (this._builder) {
+      //   this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
+      // }
     }, true);
 
     $scope.$watch('ctrl._mapOptions.getDataModelId()', (modelId) => {
@@ -150,12 +155,12 @@ class MapComponentCtrl {
       this.mapChanged();
     });
 
-    $scope.$watch('ctrl._mapOptions.getRemovedReactions()', () => {
-      let removedReactions = this._mapOptions.getRemovedReactions();
-      if (this._builder && removedReactions) {
-        this._builder.set_knockout_reactions(removedReactions);
-      }
-    }, true);
+    // $scope.$watch('ctrl._mapOptions.getRemovedReactions()', () => {
+    //   let removedReactions = this._mapOptions.getRemovedReactions();
+    //   if (this._builder && removedReactions) {
+    //     this._builder.set_knockout_reactions(removedReactions);
+    //   }
+    // }, true);
 
     this._mapOptions.addedReactionsObservable.subscribe((reactions) => {
       this._drawAddedReactions(reactions);
@@ -247,12 +252,13 @@ class MapComponentCtrl {
   }
 
   private _removeOpacity() {
-    const noOpacity = {};
-    let reactions = this._builder.map.cobra_model.reactions;
-    Object.keys(reactions).forEach((key) => {
-      noOpacity[key] = { 'lower_bound': 0, 'upper_bound': 0 };
-    });
-    this._builder.set_reaction_fva_data(noOpacity);
+    // TODO figure out typings
+    // const noOpacity = (<Map<string, types.FvaData>> {});
+    // const reactions = this._builder.map.cobra_model.reactions;
+    // Object.keys(reactions).forEach((key) => {
+    //   noOpacity[key] = { 'lower_bound': 0, 'upper_bound': 0 };
+    // });
+    // this._builder.set_reaction_fva_data(noOpacity);
   }
 
   /**
@@ -267,10 +273,10 @@ class MapComponentCtrl {
       metabolites: [...model.metabolites, ...item.model.metabolites],
       reactions: [...model.reactions, ...item.model.reactions],
     });
-    this._builder.load_model(this._mapOptions.getMapData().model);
+    // this._builder.load_model(this._mapOptions.getMapData().model);
 
-    const reactions = item.model.reactions.map(({id, metabolites}) => ({id, metabolites}));
-    this._builder.add_pathway(reactions);
+    // const reactions = item.model.reactions.map(({id, metabolites}) => ({id, metabolites}));
+    // this._builder.add_pathway(reactions);
   }
 
   private mapChanged(): void {
@@ -278,7 +284,7 @@ class MapComponentCtrl {
     if (mapObject.isComplete()) {
       this._removeOpacity();
       this._loadModel();
-      this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
+      // this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
       this._loadContextMenu();
     }
   }
@@ -314,9 +320,9 @@ class MapComponentCtrl {
   }
 
   private _drawAddedReactions(addedReactions) {
-    if (this._builder) {
-      this._builder.set_added_reactions(addedReactions.map((reaction) => reaction.bigg_id));
-    }
+    // if (this._builder) {
+    //   this._builder.set_added_reactions(addedReactions.map((reaction) => reaction.bigg_id));
+    // }
   }
 
   // This one should be moved to mapOption service.
@@ -409,16 +415,16 @@ class MapComponentCtrl {
     } else {
       d3.selectAll('#reactions > .reaction').style('filter', null);
       const model = this._mapOptions.getDataModel();
-      this._builder.load_model(model);
+      // this._builder.load_model(model);
       const reactionsToHighlight = model.notes.changes
         .measured.reactions.map((reaction) => reaction.id);
       reactionsToHighlight.forEach((reactionId) => {
-        this._builder.map.bigg_index
-          .getAll(reactionId)
-          .forEach(({reaction_id}) => {
-            d3.select(`#r${reaction_id}`)
-              .style("filter", "url(#escher-glow-filter)");
-          });
+        // this._builder.map.bigg_index
+        //   .getAll(reactionId)
+        //   .forEach(({reaction_id}) => {
+        //     d3.select(`#r${reaction_id}`)
+        //       .style("filter", "url(#escher-glow-filter)");
+        //   });
       });
     }
   }
@@ -436,20 +442,27 @@ class MapComponentCtrl {
     // Handle FVA method response
     let selected = this._mapOptions.getCurrentSelectedItems();
     if (selected.method.id === 'fva' || selected.method.id === 'pfba-fva') {
-
+      const reactionFvaData = <Map<string, types.FvaData>> reactionData;
       // const fvaData = reactionData;
-      const fvaData = _.pickBy(reactionData, (d) => Math.abs((d.upper_bound + d.lower_bound) / 2) > 1e-7);
+      const fvaData = <Map<string, types.FvaData>> _.pickBy<Map<string, types.FvaData>>(
+        reactionFvaData,
+        (d: types.FvaData) => Math.abs((d.upper_bound + d.lower_bound) / 2) > 1e-7,
+      );
 
-      reactionData = _.mapValues(fvaData, (d) => (d.upper_bound + d.lower_bound) / 2);
+      reactionData = utils.mapValues<types.FvaData, number>(
+        fvaData, (d) => ((d.upper_bound + d.lower_bound) / 2));
 
-      this._builder.set_reaction_data(reactionData);
-      this._builder.set_reaction_fva_data(fvaData);
+      // this._builder.set_reaction_fva_data(fvaData);
 
     } else {
+      reactionData = <Map<string, number>> reactionData;
       // Remove zero values
-      reactionData = _.pickBy(reactionData, (value: number) => Math.abs(value) > 1e-7);
-      this._builder.set_reaction_data(reactionData);
+      reactionData = (<Map<string, number>> _.pickBy(
+        reactionData,
+        (value: number) => Math.abs(value) > 1e-7)
+      );
     }
+    // this._builder.set_reaction_data(reactionData);
     this._loadContextMenu();
   }
 
@@ -457,7 +470,6 @@ class MapComponentCtrl {
    * Loads context menu and fetches list of actions for selected map element
    */
   private _loadContextMenu(): void {
-    const selection = this._builder.selection;
     const contextMenu = d3.select('.map-context-menu');
 
     d3.selectAll('.reaction, .reaction-label')
