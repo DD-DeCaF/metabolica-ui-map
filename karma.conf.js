@@ -18,12 +18,12 @@ module.exports = function (config) {
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
     frameworks: ['jasmine'],
 
-
+    // Source: https://github.com/webpack-contrib/karma-webpack#usage
     // list of files / patterns to load in the browser
     files: [
-      './src/index.js',
-      './node_modules/angular-mocks/angular-mocks.js',
-      './src/**/*.spec.ts',
+      { pattern: './src/index.js', watched: false },
+      { pattern: './node_modules/angular-mocks/angular-mocks.js', watched: false },
+      { pattern: './src/**/*.spec.ts', watched: false },
     ],
 
 
@@ -135,6 +135,13 @@ module.exports = function (config) {
           }
         ]
       }
+    },
+
+    // Source: https://github.com/webpack-contrib/karma-webpack#usage
+    webpackMiddleware: {
+      // webpack-dev-middleware configuration
+      // i. e.
+      stats: 'errors-only'
     },
 
     // Concurrency level
