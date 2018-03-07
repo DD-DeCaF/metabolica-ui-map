@@ -18,8 +18,6 @@ export class DataHandler {
     const object_type = type || ObjectType.Experiment;
 
     const selected = <SelectedItems> {
-      mapId: 'Central metabolism',
-      modelId: null,
       method: defaultMethod,
     };
 
