@@ -1,47 +1,47 @@
 import * as Rx from 'rxjs/Rx';
 
-import MapObject from '../models/MapObject';
-
 // What if multiple instances live next to each other?
-const nextId: () => number = ((): () => number => {
+const nextIdGen = (): () => number => {
   let id = 0;
   return (): number => id++;
-})();
+};
 
 enum direction {
   prev = -1,
   next = 1,
 }
 
+// TODO: add select by Id
 // TODO: make sure remove is not called when there are less than 2 items
-export class DataHandlerService {
-  private addSubject: Rx.Subject<MapObject> = new Rx.Subject();
+export class DataHandlerService<T> {
+  private addSubject: Rx.Subject<T> = new Rx.Subject();
   private removeSubject: Rx.Subject<number> = new Rx.Subject();
   private stepSubject: Rx.Subject<direction> = new Rx.Subject();
-
-  private cardsById: Rx.Observable<Map<number, MapObject>> = Rx.Observable.of(new Map());
+  private cardsById: Rx.Observable<Map<number, T>>;
+  private nextId = nextIdGen();
 
   public selectedId: Rx.Observable<number>;
-  public selectedCard: Rx.Observable<MapObject> = Rx.Observable.combineLatest(
+  public selectedCard: Rx.Observable<T> = Rx.Observable.combineLatest(
     this.selectedId,
     this.cardsById,
     (selectedId, cardsById) => cardsById.get(selectedId),
   );
 
-  public allCards: Rx.Observable<MapObject[]> = this.cardsById
-    .map((cardsById) =>
-      Array.from(cardsById.keys())
-        .map((id) => cardsById.get(id)),
-  );
+  public allCards: Rx.Observable<{id: number, item: T}[]>;
 
   constructor() {
-    const add = this.addSubject.map((dataCard) => (cardsById: Map<number, MapObject>) => {
+    const add = this.addSubject.map((dataCard) => (cardsById: Map<number, T>) => {
       const cardsByIdCopy = new Map(cardsById);
-      cardsByIdCopy.set(nextId(), dataCard);
+      cardsByIdCopy.set(this.nextId(), dataCard);
+      console.log('add', Array.from(cardsByIdCopy));
       return cardsByIdCopy;
     });
 
-    const remove = this.removeSubject.map((cardId) => (cardsById: Map<number, MapObject>) => {
+    const remove = this.removeSubject.map((cardId) => (cardsById: Map<number, T>) => {
+      console.log('remove', Array.from(cardsById));
+      if (cardsById.size < 2) {
+        throw new Error('You can\'t remove elements if there are less than 2 elements');
+      }
       const cardsByIdCopy = new Map(cardsById);
       cardsByIdCopy.delete(cardId);
       return cardsByIdCopy;
@@ -51,12 +51,23 @@ export class DataHandlerService {
       .merge(remove, add)
       .scan(
         (accumulator, func) => func(accumulator),
-        <Map<number, MapObject>> new Map(),
+        <Map<number, T>> new Map(),
       );
+
+    this.allCards = this.cardsById
+      .map((cardsById) =>
+        Array.from(cardsById.keys()).sort()
+          .map((id) => ({id, item: cardsById.get(id)})),
+    // ).publish();
+    // this.allCards.connect();
+
+    // ).shareReplay(1);
+
+    ).share();
 
     this.selectedId = Rx.Observable.combineLatest(
       Rx.Observable.merge(
-        this.removeSubject.map((cardId: number) => (prevSelectedCardId: number, cardsById: Map<number, MapObject>) => {
+        this.removeSubject.map((cardId: number) => (prevSelectedCardId: number, cardsById: Map<number, T>) => {
           if (prevSelectedCardId !== cardId) {
             return cardId;
           }
@@ -69,7 +80,7 @@ export class DataHandlerService {
           }
           return id;
         }),
-        this.stepSubject.map((step) => (prevSelectedCardId: number, cardsById: Map<number, MapObject>) => {
+        this.stepSubject.map((step) => (prevSelectedCardId: number, cardsById: Map<number, T>) => {
           const keys = Array.from(cardsById.keys());
           const prevIndex = keys.findIndex((index) => index === prevSelectedCardId);
           return keys[(keys.length + prevIndex + step) % keys.length];
@@ -80,7 +91,7 @@ export class DataHandlerService {
     ).scan((accumulator, {func, cardsById}) => func(accumulator, cardsById), 0);
   }
 
-  public add(dataCard: MapObject): void {
+  public add(dataCard: T): void {
     this.addSubject.next(dataCard);
   }
 
