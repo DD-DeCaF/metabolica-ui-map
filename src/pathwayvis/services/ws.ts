@@ -69,9 +69,11 @@ export class WSService {
     localWs.onmessage = (event) => {
       const result = JSON.parse(event.data);
       const requestId = result['request-id'];
-      const callback = _.find(this._callbacks, 'id', requestId);
-
-      _.remove(this._callbacks, (cb) => cb.id === requestId);
+      const callback = this._callbacks.find((obj) => obj.id === requestId);
+      this._callbacks = this._callbacks.filter((cb) => cb.id !== requestId);
+      if (!callback) {
+        throw new Error(`No callback was found for request ${requestId}`);
+      }
       return callback.deffered.resolve(result);
     };
 
@@ -89,14 +91,12 @@ export class WSService {
     }
     const requestId = this._generateID();
 
-    _.assign(data, {
-      'request-id': requestId,
-    });
+    const payload = JSON. stringify(Object.assign({}, data, {'request-id': requestId}));
 
     const callback = {
       id: requestId,
       deffered: this._q.defer(),
-      data: JSON.stringify(data),
+      data: payload,
     };
 
     this._callbacks.push(callback);

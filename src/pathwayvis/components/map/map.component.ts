@@ -15,6 +15,7 @@ import * as template from './views/map.component.html';
 import { ToastService } from "../../services/toastservice";
 import { MapOptionService } from "../../services/mapoption.service";
 import { ObjectType } from "../../types";
+import * as utils from "../../utils";
 
 class MapComponentCtrl {
   public shared: SharedService;
@@ -411,18 +412,14 @@ class MapComponentCtrl {
     // Handle FVA method response
     let selected = this._mapOptions.getCurrentSelectedItems();
     if (selected.method.id === 'fva' || selected.method.id === 'pfba-fva') {
-
-      // const fvaData = reactionData;
-      const fvaData = _.pickBy(reactionData, (d) => Math.abs((d.upper_bound + d.lower_bound) / 2) > 1e-7);
-
-      reactionData = _.mapValues(fvaData, (d) => (d.upper_bound + d.lower_bound) / 2);
-
+      const fvaData = utils._pickBy(reactionData, (d) => Math.abs((d.upper_bound + d.lower_bound) / 2) > 1e-7);
+      reactionData = utils._mapValues(fvaData, (d) => (d.upper_bound + d.lower_bound) / 2);
       this._builder.set_reaction_data(reactionData);
       this._builder.set_reaction_fva_data(fvaData);
 
     } else {
       // Remove zero values
-      reactionData = _.pickBy(reactionData, (value: number) => Math.abs(value) > 1e-7);
+      reactionData = utils._pickBy(reactionData, (value: number) => Math.abs(value) > 1e-7);
       this._builder.set_reaction_data(reactionData);
     }
     this._loadContextMenu();

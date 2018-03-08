@@ -43,7 +43,8 @@ export class ActionsService {
    * @return {types.Action} Action
    */
   public getAction(type: string): types.Action {
-    return _.first(actionsList.filter((action: types.Action) => action.type === type));
+    actionsList = actionsList.filter((action: types.Action) => action.type === type);
+    return actionsList[0] || null;
   }
 
   /**
@@ -65,7 +66,7 @@ class Knockout extends ReactionAction implements Action {
 
 
   public canDisplay(context) {
-    const isRemoved = !_.includes(context.shared.removedReactions, context.element.bigg_id);
+    const isRemoved = !context.shared.removedReactions.includes(context.element.bigg_id);
     return context.type === 'map:reaction' && isRemoved;
   }
 }
@@ -78,7 +79,7 @@ class UndoKnockout extends Knockout {
 
   public canDisplay(context) {
     if (context.shared.removedReactions) {
-      const isRemoved = _.includes(context.shared.removedReactions, context.element.bigg_id);
+      const isRemoved = context.shared.removedReactions.includes(context.element.bigg_id);
       return context.type === 'map:reaction' && isRemoved;
     }
 

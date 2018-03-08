@@ -199,7 +199,7 @@ export class MapOptionService {
     // Return value is not obvious.
     if (experimentId) {
       return this.apiService
-        .get('experiments/:experimentId/samples', { experimentId });
+        .get(`experiments/${experimentId}/samples`);
     }
   }
 
