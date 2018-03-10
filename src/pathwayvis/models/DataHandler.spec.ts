@@ -20,9 +20,9 @@ describe('DataHandler', () => {
     });
 
     it('should create en reference if passed as argument', () => {
-      const id = dataHandler.addObject(ObjectType.Reference);
+      const id = dataHandler.addObject(ObjectType.WildType);
       const newObject = dataHandler.getObject(id);
-      expect(newObject.type).toBe(ObjectType.Reference);
+      expect(newObject.type).toBe(ObjectType.WildType);
     });
   });
 

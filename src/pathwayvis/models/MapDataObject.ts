@@ -25,13 +25,6 @@ export class MapDataObject implements MapObject {
     return !!(this.mapData.map.reactionData && this.mapData.model);
   }
 
-  public compareSelectedItems(other: MapDataObject): boolean {
-    return this.selected.method === other.selected.method &&
-      this.selected.experiment === other.selected.experiment &&
-      this.selected.sample === other.selected.sample &&
-      this.selected.phase === other.selected.phase;
-  }
-
   private _experimentName(item: SelectedItems): string {
     return [
       item.method,
@@ -42,7 +35,7 @@ export class MapDataObject implements MapObject {
 
   public getName(): string {
     return this.name ? this.name :
-      this.type === ObjectType.Reference ? 'Wild type' :
+      this.type === ObjectType.WildType ? 'Wild type' :
         this.type === ObjectType.Experiment ? this._experimentName(this.selected) :
           undefined;
   }

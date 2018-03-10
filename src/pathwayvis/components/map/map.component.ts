@@ -222,7 +222,7 @@ class MapComponentCtrl {
     //       this._loadData();
     //     } else {
     //       const type = this._mapOptions.getType();
-    //       if (type === ObjectType.Reference) {
+    //       if (type === ObjectType.WildType) {
     //         this._loadMap(type, this._mapOptions.getDataObject().selected, this._mapOptions.getSelectedId());
     //         reactionData = this._mapOptions.getReactionData();
     //       }
@@ -360,7 +360,7 @@ class MapComponentCtrl {
         }, (error) => {
           this.toastService.showErrorToast('Oops! Sorry, there was a problem with fetching the data.');
         }), 'Experiment');
-    } else if (type === ObjectType.Reference) {
+    } else if (type === ObjectType.WildType) {
       if (!mapSettings.model_id) return;
       const addedReactions = this._mapOptions.getAddedReactions();
       const url = `models/${mapSettings.model_id}`;

@@ -137,7 +137,7 @@ class DataCardComponentCtrl {
   }
 
   public isRef(): boolean {
-    return this.mapOptions.getType(this.id) === ObjectType.Reference;
+    return this.mapOptions.getType(this.id) === ObjectType.WildType;
   }
 
   public showHelp(event) {

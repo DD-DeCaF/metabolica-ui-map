@@ -53,7 +53,7 @@ export class MapOptionService {
     this.mapSettingsService = mapSettingsService;
 
     this.dataHandler = new DataHandler();
-    this.selectedCardId = this.dataHandler.addObject(ObjectType.Reference);
+    this.selectedCardId = this.dataHandler.addObject(ObjectType.WildType);
 
     this.reactionsSubject = new Rx.Subject();
     this.reactionsObservable = this.reactionsSubject.asObservable();
@@ -220,7 +220,7 @@ export class MapOptionService {
   }
 
   public addRefMapObject(): void {
-    this.selectedCardId = this.dataHandler.addObject(ObjectType.Reference);
+    this.selectedCardId = this.dataHandler.addObject(ObjectType.WildType);
   }
 
   public addExpMapObject(): void {

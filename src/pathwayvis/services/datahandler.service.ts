@@ -14,9 +14,9 @@ enum direction {
 // TODO: add select by Id
 // TODO: make sure remove is not called when there are less than 2 items
 export class DataHandlerService<T> {
-  private addSubject: Rx.Subject<T> = new Rx.Subject();
-  private removeSubject: Rx.Subject<number> = new Rx.Subject();
-  private stepSubject: Rx.Subject<direction> = new Rx.Subject();
+  private addSubject: Rx.ReplaySubject<T> = new Rx.ReplaySubject();
+  private removeSubject: Rx.ReplaySubject<number> = new Rx.ReplaySubject();
+  private stepSubject: Rx.ReplaySubject<direction> = new Rx.ReplaySubject();
   private cardsById: Rx.Observable<Map<number, T>>;
   private nextId = nextIdGen();
 
@@ -52,7 +52,7 @@ export class DataHandlerService<T> {
       .scan(
         (accumulator, func) => func(accumulator),
         <Map<number, T>> new Map(),
-      );
+      ).share();
 
     this.allCards = this.cardsById
       .map((cardsById) =>
@@ -61,9 +61,9 @@ export class DataHandlerService<T> {
     // ).publish();
     // this.allCards.connect();
 
-    // ).shareReplay(1);
-
     ).share();
+    // ).share();
+    // this.allCards.subscribe(() => {});
 
     this.selectedId = Rx.Observable.combineLatest(
       Rx.Observable.merge(

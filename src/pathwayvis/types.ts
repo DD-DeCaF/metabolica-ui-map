@@ -81,8 +81,6 @@ export interface SelectedItems {
   sample?: Sample;
   phase?: Phase;
   method?: Method;
-  map?: string;
-  model?: string;
 }
 
 export interface Message {
@@ -122,7 +120,7 @@ export interface Species {
 
 export enum ObjectType {
   Experiment,
-  Reference,
+  WildType,
 }
 
 export interface BiggReaction {

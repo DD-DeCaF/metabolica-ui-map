@@ -42,10 +42,11 @@ export class MapSettings {
     )
       .scan((accumulatedObservables, {func, maps}) =>
           accumulatedObservables.flatMap((accumulatedSettings) =>
-          func(accumulatedSettings, maps)), Rx.Observable.of({
-        map_id: 'Central metabolism',
-        model_id: null,
-        map: (<types.MetabolicMap> {}),
+            func(accumulatedSettings, maps)),
+        Rx.Observable.of({
+          map_id: 'Central metabolism',
+          model_id: null,
+          map: (<types.MetabolicMap> {}),
       }))
       .flatMap((a) => a);
 

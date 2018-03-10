@@ -3,6 +3,10 @@ import * as angular from 'angular';
 import {DataHandlerService} from './datahandler.service';
 import * as types from '../types';
 
+const consoleLog = (prefix) => (...rest) => {
+  console.log(prefix, ...rest);
+};
+
 describe('DataHandlerService', () => {
   let dataHandlerService: DataHandlerService<string>;
 
@@ -45,8 +49,11 @@ describe('DataHandlerService', () => {
 
   describe('remove', () => {
     it('removes the first element', () => {
+      // dataHandlerService.allCards.subscribe(consoleLog('first'));
       dataHandlerService.add('foo');
+      // dataHandlerService.allCards.subscribe(consoleLog('second'));
       dataHandlerService.add('bar');
+      // dataHandlerService.allCards.subscribe(consoleLog('third'));
 
       // dataHandlerService.allCards.subscribe((cards) => {
       //   expect(cards[0].item).toBe('bar');
@@ -55,25 +62,35 @@ describe('DataHandlerService', () => {
       dataHandlerService.remove(0);
     });
 
+    fit('works as expected', () => {
+      dataHandlerService.add('foo');
+      dataHandlerService.add('bar');
+      dataHandlerService.remove(0);
+      dataHandlerService.allCards.subscribe((cards) => {
+        expect(cards.map((card) => card.item)).toEqual(['bar', 'baz']);
+      });
+      dataHandlerService.add('baz');
+    });
+
     it('should fail if there\'s only one item left', () => {
       dataHandlerService.add('foo');
-      dataHandlerService.allCards.subscribe(() => {});
+      dataHandlerService.allCards.subscribe();
       expect(() => {
         dataHandlerService.remove(0);
       }).toThrowError();
     });
 
     it('should fail but then it should work again', () => {
+      dataHandlerService.allCards.subscribe();
       dataHandlerService.add('foo');
-      dataHandlerService.allCards.subscribe(() => {});
-      expect(() => {
-        dataHandlerService.remove(0);
-      }).toThrowError();
+      // expect(() => {
+      //   dataHandlerService.remove(0);
+      // }).toThrowError();
       dataHandlerService.add('bar');
-      // dataHandlerService.allCards.subscribe((cards) => {
-      //   expect(cards[0].item).toBe('bar');
-      // });
-      // dataHandlerService.remove(0);
+      dataHandlerService.allCards.subscribe((cards) => {
+        expect(cards[0].item).toBe('bar');
+      });
+      dataHandlerService.remove(0);
     });
   });
 
