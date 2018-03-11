@@ -67,7 +67,7 @@ class AddedReactionsController {
   }
 }
 
-export const AddedReactionsComponent = {
+export const AddedReactionsComponent: angular.IComponentOptions = {
   controller: AddedReactionsController,
   template: `
   <rp-panel-item

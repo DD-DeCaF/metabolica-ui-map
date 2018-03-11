@@ -1,0 +1,13 @@
+/.vscode
+/img
+/src
+.babelrc
+.editorconfig
+.gitattributes
+.gitignore
+.npmignore
+eslint.json
+karma.conf
+tsconfig.json
+tsling.json
+webpack.*

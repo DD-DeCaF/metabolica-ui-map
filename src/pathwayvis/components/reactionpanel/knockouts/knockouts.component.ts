@@ -61,7 +61,7 @@ class KnockoutsController {
   }
 }
 
-export const KnockoutsComponent = {
+export const KnockoutsComponent: angular.IComponentOptions = {
   controller: KnockoutsController,
   template: `
   <rp-panel-item

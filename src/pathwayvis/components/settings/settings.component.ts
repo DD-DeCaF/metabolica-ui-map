@@ -1,6 +1,7 @@
+import * as angular from "angular";
+
 import * as types from '../../types';
 import * as template from './settings.component.html';
-import * as angular from "angular";
 import './settings.component.scss';
 import { MapOptionService } from "../../services/mapoption.service";
 
@@ -34,7 +35,7 @@ class SettingsComponentController {
   }
 }
 
-export const SettingsComponent = {
+export const SettingsComponent: angular.IComponentOptions = {
   controller: SettingsComponentController,
   controllerAs: 'ctrl',
   template: template.toString(),

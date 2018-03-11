@@ -87,7 +87,7 @@ class CardControllerComponentCtrl {
   }
 }
 
-export const CardControllerComponent = {
+export const CardControllerComponent: angular.IComponentOptions = {
   controller: CardControllerComponentCtrl,
   controllerAs: 'ctrl',
   template: template.toString(),

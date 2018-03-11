@@ -95,7 +95,7 @@ export interface Method {
   name: string;
 }
 
-interface APIitem {
+export interface APIitem {
   id: number;
   name: string;
 }

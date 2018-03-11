@@ -1,3 +1,5 @@
+import * as angular from "angular";
+
 import { Experiment, CallbackEmbeddedResponse } from "../types";
 import { APIService } from "./api";
 
@@ -11,7 +13,7 @@ export class ExperimentService {
     this.setExperiments();
   }
 
-  public setExperiments(speciesCode: string = null) {
+  public setExperiments(speciesCode: string = null): angular.IPromise<any> {
     const url = speciesCode ? `experiments/${speciesCode}` : 'experiments';
     return this.api.get(url)
       .then((response: CallbackEmbeddedResponse<Experiment[]>) => {

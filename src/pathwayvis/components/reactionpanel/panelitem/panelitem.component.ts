@@ -20,7 +20,7 @@ class PanelItemCtrl {
   }
 }
 
-export const PanelItemComponent = {
+export const PanelItemComponent: angular.IComponentOptions = {
   controller: PanelItemCtrl,
   template: template.toString(),
   bindings: {

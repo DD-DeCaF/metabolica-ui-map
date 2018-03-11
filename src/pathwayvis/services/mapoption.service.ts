@@ -61,7 +61,7 @@ export class MapOptionService {
   public init(): void {
     this.apiService.get('species/current').then((response: types.CallbackEmbeddedResponse<any>) => {
       const species = response.data.response;
-      this.speciesList = Object.entries(species).map(([id, name]) => ({ id, name }));
+      this.speciesList = Object.entries(<Species> species).map(([id, name]) => ({ id, name }));
 
       // Set selected species
       this.setModelsFromSpecies(this.selectedSpecies);

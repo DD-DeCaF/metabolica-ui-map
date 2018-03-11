@@ -155,7 +155,7 @@ class DataCardComponentCtrl {
   }
 }
 
-export const DataCardComponent = {
+export const DataCardComponent: angular.IComponentOptions = {
   controller: DataCardComponentCtrl,
   controllerAs: 'ctrl',
   template: template.toString(),
