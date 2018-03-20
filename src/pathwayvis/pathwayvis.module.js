@@ -1,7 +1,7 @@
 import angular from 'angular';
 import { AppModule } from 'metabolica';
 import { APIService } from './services/api';
-import { WSService } from './services/ws';
+import { ConnectionsService } from './services/connections';
 import { ToastService } from './services/toastservice'
 import { MapOptionService } from './services/mapoption.service';
 import { MapService } from './services/map.service';
@@ -33,7 +33,7 @@ export const PathwayVisModule = angular.module('pathwayvis', [
   .provider('modelAPI', ModelAPIProvider)
   .provider('modelWS', ModelWSProvider)
   .service('api', APIService)
-  .service('ws', WSService)
+  .service('connections', ConnectionsService)
   .service('actions', ActionsService)
   .service('toastService', ToastService)
   .service('mapService', MapService)

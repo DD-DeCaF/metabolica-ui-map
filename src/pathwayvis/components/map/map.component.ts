@@ -5,7 +5,8 @@ import * as _ from 'lodash';
 import * as tinier from 'tinier';
 
 import { APIService } from '../../services/api';
-import { WSService } from '../../services/ws';
+import { ConnectionsService } from '../../services/connections';
+
 import { ActionsService } from '../../services/actions/actions.service';
 import { SharedService } from '../../services/shared.service';
 import * as types from '../../types';
@@ -28,8 +29,9 @@ class MapComponentCtrl {
   private _mapElement: d3.Selection<any>;
   private _builder: any;
   private _api: APIService;
-  private _ws: WSService;
+  private _connections: ConnectionsService;
   private $scope: angular.IScope;
+  private $rootscope: angular.IRootScopeService;
   private toastService: ToastService;
   private _q: any;
   private $window: angular.IWindowService;
@@ -38,16 +40,17 @@ class MapComponentCtrl {
   constructor($scope: angular.IScope,
     api: APIService,
     actions: ActionsService,
-    ws: WSService,
+    connections: ConnectionsService,
     toastService: ToastService,
     $q: angular.IQService,
     mapOptions: MapOptionService,
     $window: angular.IWindowService,
     shared: SharedService,
+    $rootScope: angular.IRootScopeService,
   ) {
     this.$window = $window;
     this._api = api;
-    this._ws = ws;
+    this._connections = connections;
     this._mapElement = d3.select('.map-container');
     this.toastService = toastService;
     this._q = $q;
@@ -55,6 +58,7 @@ class MapComponentCtrl {
     this.shared = shared;
     this.actions = actions;
     this.$scope = $scope;
+    this.$rootscope = $rootScope;
 
     // TODO @matyasfodor watch expressions consume too much memory
     // see https://docs.angularjs.org/api/ng/type/$rootScope.Scope#$watch
@@ -113,10 +117,7 @@ class MapComponentCtrl {
 
     $scope.$watch('ctrl._mapOptions.getDataModel().uid', (modelUid: string) => {
       if (!modelUid) return;
-      // Open WS connection for model if it is not opened
-      if (!this._ws.isActive(modelUid)) {
-        this._ws.connect(modelUid, true);
-      }
+      this._connections.connect(modelUid, true);
     });
 
     $scope.$watch('ctrl._mapOptions.getDataModel().notes.changes', (changes: any) => {
@@ -186,8 +187,12 @@ class MapComponentCtrl {
     }, true);
 
     $scope.$on('$destroy', () => {
-      ws.close(this._mapOptions.getDataModelId());
+      this._connections.close(this._mapOptions.getDataModelId());
     });
+  }
+
+  private _loaded() {
+    this.$rootscope.$broadcast('modelLoaded');
   }
 
   private _removeOpacity() {
@@ -288,12 +293,13 @@ class MapComponentCtrl {
       this.shared.async(this._q.all([modelPromise, infoPromise])
         .then(([modelResponse, infoResponse]: any) => {
           const phase = modelResponse.data.response[phaseId.toString()];
+          // TODO use mapOptions.loadData
           this._mapOptions.setDataModel(phase.model, phase.modelId, id);
           this._mapOptions.setReactionData(phase.fluxes, id);
           this._mapOptions.setMapInfo(infoResponse.data.response[phaseId.toString()], id);
           this._mapOptions.setMethod(selectedItem.method);
           this._mapOptions.setCurrentGrowthRate(parseFloat(phase['growthRate']));
-
+          this._loaded();
         }, (error) => {
           this.toastService.showErrorToast('Oops! Sorry, there was a problem with fetching the data.');
         }), 'Experiment');
@@ -314,9 +320,11 @@ class MapComponentCtrl {
         },
       });
       this.shared.async(modelPromise.then(({ data }: any) => {
+        // TODO use mapOptions.loadData
         this._mapOptions.setDataModel(data.model, data.model.id, id);
         this._mapOptions.setReactionData(data.fluxes, id);
         this._mapOptions.setCurrentGrowthRate(parseFloat(data['growth-rate']));
+        this._loaded();
       }), 'Reference');
       this._api.getWildTypeInfo(settings.model_id).then(({ data: mapInfo }: any) => {
         this._mapOptions.setMapInfo(mapInfo, id);

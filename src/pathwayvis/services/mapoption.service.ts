@@ -13,15 +13,22 @@ import { ExperimentService } from "./experiment.service";
 
 export class MapOptionService {
   private experimentService: ExperimentService;
-  public shouldUpdateData: boolean;
-  public modelsIds: string[];
   private apiService: APIService;
   private dataHandler: DataHandler;
-  public shouldLoadMap: boolean;
+  private $q: angular.IQService;
 
+  public shouldUpdateData: boolean = false;
+  public shouldLoadMap: boolean = false;
+  public modelsIds: string[];
+
+  public loaded: angular.IPromise<void>;
   public selectedCardId: number;
 
-  public mapSettings: types.MapSettings;
+  public mapSettings: types.MapSettings = {
+    map_id: 'Central metabolism',
+    model_id: null,
+    map: <types.MetabolicMap> {},
+  };
 
   private speciesList: Species[] = [];
 
@@ -42,13 +49,17 @@ export class MapOptionService {
   public objectiveReactionObservable: Rx.Observable<any>;
   private objectiveReactionSubject: Rx.Subject<any>;
   // TODO rename services to lowercase
-  constructor(api: APIService, toastService: ToastService,
-    actions: ActionsService,
-    experimentService: ExperimentService) {
+  constructor(
+      api: APIService,
+      toastService: ToastService,
+      actions: ActionsService,
+      experimentService: ExperimentService,
+      $q: angular.IQService) {
     this.apiService = api;
     this.toastService = toastService;
     this.actions = actions;
     this.experimentService = experimentService;
+    this.$q = $q;
 
     this.reactionsSubject = new Rx.Subject();
     this.reactionsObservable = this.reactionsSubject.asObservable();
@@ -61,34 +72,25 @@ export class MapOptionService {
 
     this.objectiveReactionSubject = new Rx.Subject();
     this.objectiveReactionObservable = this.objectiveReactionSubject.asObservable();
-    this.init();
-  }
 
-  public init(): void {
-    this.apiService.get('species/current').then((response: types.CallbackEmbeddedResponse<any>) => {
-      const species = response.data.response;
-      this.speciesList = Object.entries(species).map(([id, name]) => ({ id, name }));
-
-      // Set selected species
-      this.setModelsFromSpecies(this.selectedSpecies);
-    });
     this.dataHandler = new DataHandler();
-    this.selectedCardId = this.dataHandler.addObject(ObjectType.Reference);
-
-    this.mapSettings = <types.MapSettings> {
-      map_id: 'Central metabolism',
-      model_id: null,
-      map: {},
-    };
-
-    this.shouldLoadMap = false;
-    this.shouldUpdateData = false;
-
-    this.setExperimentsFromSpecies();
+    this.loaded = this.init();
   }
 
-  private setExperimentsFromSpecies(speciesCode = this.selectedSpecies): void {
-    this.experimentService.setExperiments(speciesCode);
+  public init(): angular.IPromise<void> {
+    return this.$q.all([
+      this.apiService.get('species/current').then((response: types.CallbackEmbeddedResponse<any>) => {
+        this.speciesList = Object.entries(response.data.response)
+          .map(([id, name]) => (<Species> { id, name }));
+        // Set selected species
+        return this.setModelsFromSpecies(this.selectedSpecies);
+      }),
+      this.setExperimentsFromSpecies(),
+    ]).then(() => {/* */});
+  }
+
+  private setExperimentsFromSpecies(speciesCode = this.selectedSpecies): angular.IPromise<void> {
+    return this.experimentService.setExperiments(speciesCode);
   }
 
   public getSelectedSpecies(): string {
@@ -234,20 +236,20 @@ export class MapOptionService {
       });
   }
 
-  public speciesChanged(species: string): void {
-    this.setModelsFromSpecies(species);
-    this.setExperimentsFromSpecies(species);
+  public speciesChanged(species: string): any {
+    return this.$q.all([
+      this.setModelsFromSpecies(species),
+      this.setExperimentsFromSpecies(species),
+    ]);
   }
 
-  public setModelsFromSpecies(species: string): void {
-    if (species) {
-      let url = 'model-options/' + species;
-      this.apiService.getModel(url, {}).then((response: angular.IHttpPromiseCallbackArg<any>) => {
+  public setModelsFromSpecies(species: string): angular.IPromise<void> {
+    return this.apiService.getModel(`model-options/${species}`)
+      .then((response: angular.IHttpPromiseCallbackArg<any>) => {
         this.modelsIds = response.data;
         this.shouldUpdateData = true;
         this.mapSettings.model_id = this.modelsIds[0];
-      });
-    }
+    });
   }
 
   public getModels(): string[] {
@@ -308,7 +310,7 @@ export class MapOptionService {
 
   public actionHandler(
     action,
-    {id = null, reaction = null, reactions = null}: {id?: string, reaction?: AddedReaction, reactions?: AddedReaction[]}): any {
+    {id = null, reactions = null}: {id?: string, reactions?: AddedReaction[]}): any {
     const shared = angular.copy(this.getMapData());
 
     // TODO write a nice, functional switch-case statement
@@ -325,7 +327,7 @@ export class MapOptionService {
         shared.removedReactions.splice(index, 1);
       }
     } else if (action.type === 'reaction:update') {
-      if (reaction) shared.addedReactions.push(reaction);
+      shared.addedReactions = [...shared.addedReactions, ...reactions];
     } else if (action.type === 'reaction:objective:do') {
       if (id) {
         shared.objectiveReaction = id;
@@ -333,7 +335,7 @@ export class MapOptionService {
     } else if (action.type === 'reaction:objective:undo') {
       shared.objectiveReaction = null;
     }
-    return this.actions.callAction(action, { shared: shared });
+    return this.actions.callAction(action, { shared });
   }
 
   public dataUpdated(): void {
@@ -346,11 +348,6 @@ export class MapOptionService {
 
   public setMap(map: object): void {
     this.mapSettings.map.map = map;
-  }
-
-  public setModel(model: types.Model, id: number = this.selectedCardId) {
-    this.shouldUpdateData = true;
-    this.getDataObject(id).mapData.model = model;
   }
 
   public setModelId(modelId: string): void {
@@ -395,8 +392,12 @@ export class MapOptionService {
     this.addedReactionsSubject.next(reactions);
   }
 
-  public addReaction(addedReaction: AddedReaction): any {
-    return this.actionHandler(this.actions.getAction('reaction:update'), {reaction: addedReaction});
+  public addReactions(reactions: AddedReaction[]): any {
+    return this.actionHandler(this.actions.getAction('reaction:update'), {reactions});
+  }
+
+  public addReaction(reaction: AddedReaction): any {
+    return this.addReactions([reaction]);
   }
 
   public removeReaction(bigg_id: string): any {
@@ -416,6 +417,9 @@ export class MapOptionService {
   }
 
   public updateMapData(data) {
+    // Bug: If a ws computation is triggered
+    // and the user navigates to a different card
+    // then the changes will be present there.
     this.setCurrentGrowthRate(parseFloat(data['growth-rate']));
     this.setReactionData(data.fluxes);
     this.setDataModel(data.model);

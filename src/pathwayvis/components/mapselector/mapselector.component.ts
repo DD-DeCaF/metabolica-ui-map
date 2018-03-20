@@ -18,7 +18,7 @@ class MapSelectorComponentCtrl {
     this._selectedMap = mapOptions.getSelectedMap();
     this.allMaps = mapService.allMaps;
 
-    $scope.$watch('ctrl.mapOptions.getModelId()', (modelId: string) => {
+    $scope.$watch('$ctrl.mapOptions.getModelId()', (modelId: string) => {
       this.model = modelId;
       this.setMapsFromModel(modelId);
     }, true);
@@ -37,19 +37,16 @@ class MapSelectorComponentCtrl {
   }
 
   public setMapsFromModel(model): void {
-    // TODO flatten logic
-    if (model) {
-      let map_id = this.mapOptions.getSelectedMap();
-      this.maps = this.mapService.getMapsFromModel(model);
-      if (!this.mapService.usableMap(map_id, model)) {
-        this.mapOptions.setSelectedMap(this.maps[0]);
-      }
+    if (!model) return;
+    let map_id = this.mapOptions.getSelectedMap();
+    this.maps = this.mapService.getMapsFromModel(model);
+    if (!this.mapService.usableMap(map_id, model)) {
+      this.mapOptions.setSelectedMap(this.maps[0]);
     }
   }
 }
 
 export const MapSelectorComponent = {
   controller: MapSelectorComponentCtrl,
-  controllerAs: 'ctrl',
   template: template.toString(),
 };
