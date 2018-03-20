@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 
-import { Action, ReactionAction, ReactionSetAsObjectiveAction } from './base';
+import { Action, ReactionAction } from './base';
 import { SharedService } from '../shared.service';
 import * as types from '../../types';
 
@@ -88,7 +88,7 @@ class UndoKnockout extends Knockout {
 
 @registerAction
 // tslint:disable-next-line
-class SetObjective extends ReactionSetAsObjectiveAction implements Action {
+class SetObjective extends ReactionAction implements Action {
   public label = 'Set as objective';
   public type: string = 'reaction:objective:do';
   public shared: types.MapData;
@@ -101,7 +101,7 @@ class SetObjective extends ReactionSetAsObjectiveAction implements Action {
 
 @registerAction
 // tslint:disable-next-line
-class UndoSetObjective extends ReactionAction {
+class UndoSetObjective extends SetObjective {
   public label = 'Undo set as objective';
   public type: string = 'reaction:objective:undo';
 

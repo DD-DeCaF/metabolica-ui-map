@@ -2,8 +2,8 @@
   <md-card>
     <md-input-container style="margin-left: 10px;">
       <label>Model</label>
-      <md-select name="model" ng-model="ctrl.model" ng-change="ctrl.changeModel()" flex>
-        <md-option ng-repeat="model in ctrl.getModels()" ng-value="model">{{ model }}</md-option>
+      <md-select name="model" ng-model="$ctrl.model" ng-change="$ctrl.changeModel()" flex>
+        <md-option ng-repeat="model in $ctrl.getModels()" ng-value="model">{{ model }}</md-option>
       </md-select>
     </md-input-container>
   </md-card>
@@ -12,7 +12,7 @@
     <md-content>
       <md-subheader class="md-primary">Pathway Maps</md-subheader>
       <md-list>
-        <md-list-item ng-repeat="map in ctrl.maps" ng-click="ctrl.setMap(map)">
+        <md-list-item ng-repeat="map in $ctrl.maps" ng-click="$ctrl.setMap(map)">
           {{map}}
         </md-list-item>
       </md-list>

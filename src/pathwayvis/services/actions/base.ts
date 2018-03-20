@@ -1,4 +1,4 @@
-import { WSService } from "../ws";
+import { ConnectionsService } from '../connections';
 import { SharedService } from '../shared.service';
 
 import { MapData } from "../../types";
@@ -18,34 +18,31 @@ export abstract class Action {
 export abstract class ReactionAction extends Action {
   public shared: MapData;
 
-  public callback(ws: WSService, $timeout: angular.ITimeoutService, shared: SharedService): any {
-
+  public callback(
+    connections: ConnectionsService,
+    $timeout: angular.ITimeoutService,
+    shared: SharedService,
+  ): any {
     const data = {
       'to-return': ['fluxes', 'growth-rate', 'removed-reactions', 'added-reactions', 'model'],
       'simulation-method': this.shared.method,
       'reactions-knockout': this.shared.removedReactions,
       'reactions-add': this.shared.addedReactions.map((r) => ({
-        id: r.bigg_id,
-        metabolites: r.metabolites,
-      })),
+          id: r.bigg_id,
+          metabolites: r.metabolites,
+        })),
+      // 'objective': this.shared.objectiveReaction,
     };
-    return ws.send(this.shared.model.uid, data);
-  }
 
-  public canDisplay(context) {
-    return context.type === 'map:reaction';
-  }
-}
-/**
- * Abstract class for Reaction actions with predefined context type
- */
-export abstract class ReactionSetAsObjectiveAction extends Action {
-  public shared: MapData;
+    // this one is needed, because the backend cannot handle null as objective atm.
+    if (this.shared.objectiveReaction) {
+      data['objective'] = this.shared.objectiveReaction;
+    }
 
-  public callback(ws: WSService, $timeout: angular.ITimeoutService, shared: SharedService): any {
-
-    const data = {'objective': this.shared.objectiveReaction};
-    return ws.send(this.shared.model.uid, data);
+    if (!this.shared.model.uid) {
+      throw new Error('Model uid is required');
+    }
+    return connections.send(this.shared.model.uid, data);
   }
 
   public canDisplay(context) {
