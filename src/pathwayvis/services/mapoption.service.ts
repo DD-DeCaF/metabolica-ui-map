@@ -321,6 +321,10 @@ export class MapOptionService {
           this.setObjectiveReaction(null);
         }
       }
+      window['gtag']('event', 'knockout', {
+        event_category: 'PathwayMap',
+        event_label: id,
+      });
     } else if (action.type === 'reaction:knockout:undo') {
       let index = shared.removedReactions.indexOf(id);
       if (index > -1) {
