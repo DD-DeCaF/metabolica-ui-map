@@ -36,3 +36,19 @@ export abstract class ReactionAction extends Action {
     return context.type === 'map:reaction';
   }
 }
+/**
+ * Abstract class for Reaction actions with predefined context type
+ */
+export abstract class ReactionSetAsObjectiveAction extends Action {
+  public shared: MapData;
+
+  public callback(ws: WSService, $timeout: angular.ITimeoutService, shared: SharedService): any {
+
+    const data = {'objective': this.shared.objectiveReaction};
+    return ws.send(this.shared.model.uid, data);
+  }
+
+  public canDisplay(context) {
+    return context.type === 'map:reaction';
+  }
+}

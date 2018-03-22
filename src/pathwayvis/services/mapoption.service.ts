@@ -38,6 +38,9 @@ export class MapOptionService {
 
   public removedReactionsObservable: Rx.Observable<any>;
   private removedReactionsSubject: Rx.Subject<any>;
+
+  public objectiveReactionObservable: Rx.Observable<any>;
+  private objectiveReactionSubject: Rx.Subject<any>;
   // TODO rename services to lowercase
   constructor(api: APIService, toastService: ToastService,
     actions: ActionsService,
@@ -55,6 +58,9 @@ export class MapOptionService {
 
     this.removedReactionsSubject = new Rx.Subject();
     this.removedReactionsObservable = this.removedReactionsSubject.asObservable();
+
+    this.objectiveReactionSubject = new Rx.Subject();
+    this.objectiveReactionObservable = this.objectiveReactionSubject.asObservable();
     this.init();
   }
 
@@ -155,6 +161,15 @@ export class MapOptionService {
   public setRemovedReactions(reactions: string[]) {
     this.getDataObject().setRemovedReactions(reactions);
     this.removedReactionsSubject.next(reactions);
+  }
+
+  public getObjectiveReaction(): string {
+    return this.getDataObject().mapData.objectiveReaction;
+  }
+
+  public setObjectiveReaction(reaction: string) {
+    this.getDataObject().setObjectiveReaction(reaction);
+    this.objectiveReactionSubject.next(reaction);
   }
 
   public getCurrentGrowthRate(): number {
@@ -298,7 +313,12 @@ export class MapOptionService {
 
     // TODO write a nice, functional switch-case statement
     if (action.type === 'reaction:knockout:do') {
-      if (id) shared.removedReactions.push(id);
+      if (id) {
+        shared.removedReactions.push(id);
+        if (id === this.getObjectiveReaction()) {
+          this.setObjectiveReaction(null);
+        }
+      }
     } else if (action.type === 'reaction:knockout:undo') {
       let index = shared.removedReactions.indexOf(id);
       if (index > -1) {
@@ -306,6 +326,12 @@ export class MapOptionService {
       }
     } else if (action.type === 'reaction:update') {
       if (reaction) shared.addedReactions.push(reaction);
+    } else if (action.type === 'reaction:objective:do') {
+      if (id) {
+        shared.objectiveReaction = id;
+      }
+    } else if (action.type === 'reaction:objective:undo') {
+      shared.objectiveReaction = null;
     }
     return this.actions.callAction(action, { shared: shared });
   }
@@ -387,5 +413,12 @@ export class MapOptionService {
 
   public getSharedPathway(): any {
     return this.getMapData().pathwayData;
+  }
+
+  public updateMapData(data) {
+    this.setCurrentGrowthRate(parseFloat(data['growth-rate']));
+    this.setReactionData(data.fluxes);
+    this.setDataModel(data.model);
+    this.setRemovedReactions(data['removed-reactions']);
   }
 }

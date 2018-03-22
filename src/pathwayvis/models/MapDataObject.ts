@@ -21,6 +21,10 @@ export class MapDataObject implements MapObject {
     this.mapData.removedReactions = reactions;
   }
 
+  public setObjectiveReaction(reaction: string): void {
+    this.mapData.objectiveReaction = reaction;
+  }
+
   public isComplete(): boolean {
     return !!(this.mapData.map.reactionData && this.mapData.model);
   }

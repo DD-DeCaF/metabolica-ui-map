@@ -31,8 +31,9 @@ class KnockoutsController {
   public removeReactionSelectedItem(item) {
     if (!item) return;
     const doKnockoutAction = this._actions.getAction('reaction:knockout:do');
+
     this._mapOptions.actionHandler(doKnockoutAction, { id: item.id })
-      .then(this.updateMapData.bind(this));
+    .then((response) => { this._mapOptions.updateMapData(response); });
   }
 
   public queryModelReactions(query: string): any[] {
@@ -46,19 +47,9 @@ class KnockoutsController {
   public onUndoClick(selectedReaction: string): void {
     const undoKnockoutAction = this._actions.getAction('reaction:knockout:undo');
     this._mapOptions.actionHandler(undoKnockoutAction, { id: selectedReaction })
-      .then(this.updateMapData.bind(this));
+      .then((response) => { this._mapOptions.updateMapData(response); });
   }
 
-  public knockoutDisplay(item) {
-    return item;
-  }
-
-  private updateMapData(response) {
-    this._mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
-    this._mapOptions.setReactionData(response.fluxes);
-    this._mapOptions.setDataModel(response.model);
-    this._mapOptions.setRemovedReactions(response['removed-reactions']);
-  }
 }
 
 export const KnockoutsComponent = {
@@ -71,8 +62,7 @@ export const KnockoutsComponent = {
     missing-items="'No knocked out reactions'"
     header="'Removed reactions:'"
     items="$ctrl.removedReactions"
-    on-remove-item="$ctrl.onUndoClick(item)"
-    item-display="$ctrl.knockoutDisplay(item)">
+    on-remove-item="$ctrl.onUndoClick(item)">
     id-property="'id'">
   </rp-panel-item>`,
 };

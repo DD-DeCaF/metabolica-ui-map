@@ -43,7 +43,7 @@ class AddedReactionsController {
       metabolites,
       metanetx_id,
     };
-    this._mapOptions.addReaction(reaction).then(this.updateMapData.bind(this));
+    this._mapOptions.addReaction(reaction).then((response) => { this._mapOptions.updateMapData(response); });
   }
 
   public querySearch(query: string) {
@@ -52,18 +52,11 @@ class AddedReactionsController {
   }
 
   public onReactionRemoveClick({bigg_id}) {
-    this._mapOptions.removeReaction(bigg_id).then(this.updateMapData.bind(this));
+    this._mapOptions.removeReaction(bigg_id).then((response) => { this._mapOptions.updateMapData(response); });
   }
 
   public addedReactionDisplay(item) {
     return item.name || item.id;
-  }
-
-  private updateMapData(response) {
-    this._mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
-    this._mapOptions.setReactionData(response.fluxes);
-    this._mapOptions.setDataModel(response.model);
-    this._mapOptions.setRemovedReactions(response['removed-reactions']);
   }
 }
 

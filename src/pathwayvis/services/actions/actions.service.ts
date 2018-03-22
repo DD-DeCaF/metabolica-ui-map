@@ -1,8 +1,7 @@
 import * as _ from 'lodash';
 
-import { Action, ReactionAction } from './base';
+import { Action, ReactionAction, ReactionSetAsObjectiveAction } from './base';
 import { SharedService } from '../shared.service';
-
 import * as types from '../../types';
 
 /**
@@ -43,8 +42,8 @@ export class ActionsService {
    * @return {types.Action} Action
    */
   public getAction(type: string): types.Action {
-    actionsList = actionsList.filter((action: types.Action) => action.type === type);
-    return actionsList[0] || null;
+    const actionSelected = actionsList.filter((action: types.Action) => action.type === type);
+    return actionSelected[0] || null;
   }
 
   /**
@@ -84,6 +83,32 @@ class UndoKnockout extends Knockout {
     }
 
     return false;
+  }
+}
+
+@registerAction
+// tslint:disable-next-line
+class SetObjective extends ReactionSetAsObjectiveAction implements Action {
+  public label = 'Set as objective';
+  public type: string = 'reaction:objective:do';
+  public shared: types.MapData;
+
+  public canDisplay(context) {
+    const isRemoved = context.shared.objectiveReaction !== context.element.bigg_id;
+    return context.type === 'map:reaction' && isRemoved;
+  }
+}
+
+@registerAction
+// tslint:disable-next-line
+class UndoSetObjective extends ReactionAction {
+  public label = 'Undo set as objective';
+  public type: string = 'reaction:objective:undo';
+
+  public canDisplay({type, shared, element}) {
+    return shared.objectiveReaction &&
+      shared.objectiveReaction === element.bigg_id &&
+      type === 'map:reaction';
   }
 }
 
