@@ -30,6 +30,7 @@ export class DataHandler {
       info: {},
       removedReactions: [],
       addedReactions: [],
+      objectiveReaction: null,
     };
 
     const obj = new MapDataObject(id, object_type, mapData, selected);

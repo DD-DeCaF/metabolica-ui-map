@@ -9,14 +9,18 @@ class PanelItemCtrl {
   public placeholder: string;
   public header: string;
   public missingItems: string;
-  public items = [];
+  public items;
   public onRemoveItem: (item: any) => void;
   public itemDisplay: (item: any) => string;
   public idProperty: string;
-
   public selectedItemChange(item) {
     this.onItemSelect({item});
     this.searchText = '';
+  }
+  public $onInit() {
+    this.itemDisplay = ((original: ({item}: {item: any}) => string) => (item: any) =>
+      original ? original({item}) : item
+    )(this.itemDisplay);
   }
 }
 
@@ -29,9 +33,10 @@ export const PanelItemComponent = {
     placeholder: '<',
     missingItems: '<',
     header: '<',
-    items: '<',
+    items: '<?',
+    item: '<?',
     onRemoveItem: '&',
-    itemDisplay: '&',
+    itemDisplay: '&?',
     idProperty: '<',
   },
 };

@@ -1,21 +1,21 @@
 import * as escher from '@dd-decaf/escher';
 import * as d3 from 'd3';
-import {event as currentEvent} from 'd3';
+import { event as currentEvent } from 'd3';
 import * as _ from 'lodash';
+import * as tinier from 'tinier';
 
 import { APIService } from '../../services/api';
 import { WSService } from '../../services/ws';
 import { ActionsService } from '../../services/actions/actions.service';
 import { SharedService } from '../../services/shared.service';
-
 import * as types from '../../types';
-
 import './views/map.component.scss';
 import * as template from './views/map.component.html';
 import { ToastService } from "../../services/toastservice";
 import { MapOptionService } from "../../services/mapoption.service";
 import { ObjectType } from "../../types";
 import * as utils from "../../utils";
+import { Tooltip } from "../tooltip/escherTooltip";
 
 class MapComponentCtrl {
   public shared: SharedService;
@@ -143,12 +143,10 @@ class MapComponentCtrl {
             return reaction.id.startsWith(str);
           });
         })
-        .map((reaction) => {
-          return Object.assign({}, reaction, {
+          .map((reaction) => Object.assign({}, reaction, {
             bigg_id: reaction.id,
             metabolites: reaction.metabolites,
-          });
-        });
+          }));
         this._mapOptions.setAddedReactions(reactions);
       }
     });
@@ -215,7 +213,7 @@ class MapComponentCtrl {
     });
     this._builder.load_model(this._mapOptions.getMapData().model);
 
-    const reactions = item.model.reactions.map(({id, metabolites}) => ({id, metabolites}));
+    const reactions = item.model.reactions.map(({ id, metabolites }) => ({ id, metabolites }));
     this._builder.add_pathway(reactions);
   }
 
@@ -231,7 +229,7 @@ class MapComponentCtrl {
 
   private _setMap(map: string): void {
     if (!map) return;
-    const {model_id, map_id} = this._mapOptions.getMapSettings();
+    const { model_id, map_id } = this._mapOptions.getMapSettings();
     this.shared.async(this._api.getModel('map', {
       'model': model_id,
       'map': map_id,
@@ -266,7 +264,6 @@ class MapComponentCtrl {
 
   private _loadMap(type: ObjectType, selectedItem: types.SelectedItems, id: number): void {
     const settings = this._mapOptions.getMapSettings();
-
     if (type === ObjectType.Experiment) {
       const sampleIds = selectedItem.sample ? selectedItem.sample.id.slice() : null;
       const phaseId = selectedItem.phase ? selectedItem.phase.id : null;
@@ -316,12 +313,12 @@ class MapComponentCtrl {
           })),
         },
       });
-      this.shared.async(modelPromise.then(({data}: any) => {
+      this.shared.async(modelPromise.then(({ data }: any) => {
         this._mapOptions.setDataModel(data.model, data.model.id, id);
         this._mapOptions.setReactionData(data.fluxes, id);
         this._mapOptions.setCurrentGrowthRate(parseFloat(data['growth-rate']));
       }), 'Reference');
-      this._api.getWildTypeInfo(settings.model_id).then(({data: mapInfo}: any) => {
+      this._api.getWildTypeInfo(settings.model_id).then(({ data: mapInfo }: any) => {
         this._mapOptions.setMapInfo(mapInfo, id);
       });
     }
@@ -331,15 +328,20 @@ class MapComponentCtrl {
    * Callback function for clicked action button in context menu
    */
   public processActionClick(action, data) {
-
     if (action.type === 'reaction:link') {
       this.$window.open(`http://bigg.ucsd.edu/universal/reactions/${data.bigg_id}`);
     } else {
-      this._mapOptions.actionHandler(action, { id: data.bigg_id }).then((response) => {
-        this._mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
-        this._mapOptions.setReactionData(response.fluxes);
-        this._mapOptions.setRemovedReactions(response['removed-reactions']);
-      });
+      this.shared.async(this._mapOptions.actionHandler(action, { id: data.bigg_id }).then((response) => {
+        this._mapOptions.updateMapData(response);
+        if (action.type.startsWith('reaction:objective')) {
+          this._mapOptions.setObjectiveReaction(action.type.endsWith('undo') ? null : data.bigg_id);
+        } else if (data.bigg_id === this._mapOptions.getObjectiveReaction()) {
+          this._mapOptions.setObjectiveReaction(null);
+        }
+        this._getContext();
+      }, (error) => {
+        this.toastService.showErrorToast('Oops! Sorry, there was a problem.');
+      }), 'Objective');
     }
   }
 
@@ -359,6 +361,7 @@ class MapComponentCtrl {
       hide_all_labels: false,
       hide_secondary_metabolites: false,
       highlight_missing: true,
+      tooltip_component: Tooltip,
       reaction_scale: [
         { type: 'min', color: '#A841D0', size: 20 },
         { type: 'Q1', color: '#868BB2', size: 20 },
@@ -386,16 +389,18 @@ class MapComponentCtrl {
       d3.selectAll('#reactions > .reaction').style('filter', null);
       const model = this._mapOptions.getDataModel();
       this._builder.load_model(model);
-      const reactionsToHighlight = model.notes.changes
+      if (model.notes.changes) {
+        const reactionsToHighlight = model.notes.changes
         .measured.reactions.map((reaction) => reaction.id);
-      reactionsToHighlight.forEach((reactionId) => {
-        this._builder.map.bigg_index
-          .getAll(reactionId)
-          .forEach(({reaction_id}) => {
-            d3.select(`#r${reaction_id}`)
-              .style("filter", "url(#escher-glow-filter)");
-          });
-      });
+        reactionsToHighlight.forEach((reactionId) => {
+          this._builder.map.bigg_index
+            .getAll(reactionId)
+            .forEach(({ reaction_id }) => {
+              d3.select(`#r${reaction_id}`)
+                .style("filter", "url(#escher-glow-filter)");
+            });
+        });
+      }
     }
   }
 
@@ -426,43 +431,39 @@ class MapComponentCtrl {
   }
 
   /**
-   * Loads context menu and fetches list of actions for selected map element
+   * Loads context menu with _getContext method when you over a reaction.
    */
   private _loadContextMenu(): void {
-    const selection = this._builder.selection;
     const contextMenu = d3.select('.map-context-menu');
-
-    d3.selectAll('.reaction, .reaction-label')
-      .style('cursor', 'pointer')
-      .on('contextmenu', (d) => {
-        this.contextElement = d;
-        this.contextActions = this.actions.getList({
-          type: 'map:reaction',
-          shared: this._mapOptions.getMapData(),
-          element: this.contextElement,
+    const tooltipContainer = d3.select('div#tooltip-container');
+    d3.selectAll('text.reaction-label').on('mouseenter', (d) => {
+      if (tooltipContainer.select('#knockoutbutton')) {
+        this._getContext();
+        tooltipContainer.select('#knockoutbutton').on('click', () => {
+          this.processActionClick(this.contextActions[0], this.contextElement);
         });
-
-        if (this.contextElement) {
-          this._renderContextMenu(contextMenu);
-          (<MouseEvent> currentEvent).preventDefault();
-        }
-      });
-
-    d3.select(document).on('click', () => {
-      contextMenu.style('visibility', 'hidden');
+        tooltipContainer.select('#objectivebutton').on('click', () => {
+          this.processActionClick(this.contextActions[1], this.contextElement);
+        });
+      }
     });
   }
 
-    /**
-     * Renders and positions context menu based on selected element
-     */
-    private _renderContextMenu(contextMenu): void {
-        contextMenu.style('position', 'fixed')
-            .style('left', `${(<MouseEvent> currentEvent).clientX}px`)
-            .style('top', `${(<MouseEvent> currentEvent).clientY}px`)
-            .style('visibility', 'visible');
-        this.$scope.$apply();
-    }
+ /**
+  * Get context menu and fetches list of actions for selected map element
+  */
+  private _getContext(): void {
+    const tooltipContainer = d3.select('div#tooltip-container');
+    const {biggId, ...restData} = JSON.parse(d3.select('div#tooltip-container').select('#knockoutbutton').attr("data"));
+    this.contextElement = Object.assign({bigg_id: biggId}, ...restData);
+    this.contextActions = this.actions.getList({
+      type: 'map:reaction',
+      shared: this._mapOptions.getMapData(),
+      element: this.contextElement,
+    });
+    tooltipContainer.select('#knockoutbutton').text(this.contextActions[0].label);
+    tooltipContainer.select('#objectivebutton').text(this.contextActions[1].label);
+  }
 
   public showLegend(): boolean {
     return !!this._mapOptions.getReactionData();

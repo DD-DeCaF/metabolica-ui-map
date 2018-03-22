@@ -59,6 +59,7 @@ export interface MapData {
   method?: string;
   removedReactions?: string[];
   addedReactions?: AddedReaction[];
+  objectiveReaction?: string;
   info?: MapInfo;
   selected?: SelectedItems;
   pathwayData?: any;
