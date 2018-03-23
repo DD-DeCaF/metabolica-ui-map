@@ -152,6 +152,10 @@ class DataCardComponentCtrl {
           };
       },
     });
+    window['gtag']('event', 'open dialog', {
+      event_category: 'PathwayMap',
+      event_label: 'modeling methods',
+    });
   }
 }
 
