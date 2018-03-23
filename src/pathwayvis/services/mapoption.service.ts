@@ -332,6 +332,10 @@ export class MapOptionService {
       }
     } else if (action.type === 'reaction:update') {
       shared.addedReactions = [...shared.addedReactions, ...reactions];
+      window['gtag']('event', 'add reaction', {
+        event_category: 'PathwayMap',
+        event_label: id,
+      });
     } else if (action.type === 'reaction:objective:do') {
       if (id) {
         shared.objectiveReaction = id;
