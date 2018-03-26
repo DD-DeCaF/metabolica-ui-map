@@ -8,6 +8,7 @@ import { ActionsService } from "./actions/actions.service";
 import { MapDataObject } from "../models/MapDataObject";
 import { DataHandler } from "../models/DataHandler";
 import { SharedService } from '../services/shared.service';
+import { Logger } from '../providers/log.provider';
 
 // TODO @matyasfodor access these through types. (..)
 import { AddedReaction, Experiment, Method, ObjectType, Phase, Sample, Species, MapSettings } from "../types";
@@ -18,6 +19,7 @@ export class MapOptionService {
   private apiService: APIService;
   private dataHandler: DataHandler;
   private $q: angular.IQService;
+  private logger: Logger;
 
   public componentCB: () => void = null;
 
@@ -58,12 +60,14 @@ export class MapOptionService {
       toastService: ToastService,
       actions: ActionsService,
       experimentService: ExperimentService,
-      $q: angular.IQService) {
+      $q: angular.IQService,
+      logger: Logger) {
     this.apiService = api;
     this.toastService = toastService;
     this.actions = actions;
     this.experimentService = experimentService;
     this.$q = $q;
+    this.logger = logger;
 
     this.reactionsSubject = new Rx.Subject();
     this.reactionsObservable = this.reactionsSubject.asObservable();
@@ -336,7 +340,7 @@ export class MapOptionService {
           this.setObjectiveReaction(null);
         }
       }
-      window['gtag']('event', 'knockout', {
+      this.logger.log('event', 'knockout', {
         event_category: 'PathwayMap',
         event_label: id,
       });
@@ -347,7 +351,7 @@ export class MapOptionService {
       }
     } else if (action.type === 'reaction:update') {
       shared.addedReactions = [...shared.addedReactions, ...reactions];
-      window['gtag']('event', 'add reaction', {
+      this.logger.log('event', 'add reaction', {
         event_category: 'PathwayMap',
         event_label: id,
       });

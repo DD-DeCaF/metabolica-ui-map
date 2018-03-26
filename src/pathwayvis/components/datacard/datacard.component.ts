@@ -8,6 +8,7 @@ import { MapOptionService } from "../../services/mapoption.service";
 import { methods, defaultMethod } from "../../consts/methods";
 import { Method, ObjectType, Phase, Sample, Experiment } from "../../types";
 import { ExperimentService } from "../../services/experiment.service";
+import { Logger } from '../../providers/log.provider';
 
 
 interface SelectedIds {
@@ -33,14 +34,17 @@ class DataCardComponentCtrl {
   private _mdDialog: angular.material.IDialogService;
   private toastService;
   private experimentService: ExperimentService;
+  private logger: Logger;
 
   constructor($mdDialog: angular.material.IDialogService,
               toastService: ToastService,
               mapOptions: MapOptionService,
-              experimentService: ExperimentService) {
+              experimentService: ExperimentService,
+              logger: Logger) {
     this.mapOptions = mapOptions;
     this.toastService = toastService;
     this.experimentService = experimentService;
+    this.logger = logger;
 
     this.selected.method = defaultMethod;
     this.methods = methods;
@@ -152,7 +156,7 @@ class DataCardComponentCtrl {
           };
       },
     });
-    window['gtag']('event', 'open dialog', {
+    this.logger.log('event', 'open dialog', {
       event_category: 'PathwayMap',
       event_label: 'modeling methods',
     });
