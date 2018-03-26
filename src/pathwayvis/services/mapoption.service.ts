@@ -358,7 +358,7 @@ export class MapOptionService {
     } else if (action.type === 'reaction:objective:undo') {
       shared.objectiveReaction = null;
     }
-    return this.actions.callAction(action, { shared });
+    return this.actions.callAction(action, { shared, cardId: this.getSelectedId()});
   }
 
   public dataUpdated(): void {
