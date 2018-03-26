@@ -1,5 +1,4 @@
 import { ConnectionsService } from '../connections';
-import { SharedService } from '../shared.service';
 
 import { MapData } from "../../types";
 /**
@@ -17,11 +16,11 @@ export abstract class Action {
  */
 export abstract class ReactionAction extends Action {
   public shared: MapData;
+  public cardId: number;
 
   public callback(
     connections: ConnectionsService,
     $timeout: angular.ITimeoutService,
-    shared: SharedService,
   ): any {
     const data = {
       'to-return': ['fluxes', 'growth-rate', 'removed-reactions', 'added-reactions', 'model'],
@@ -42,7 +41,7 @@ export abstract class ReactionAction extends Action {
     if (!this.shared.model.uid) {
       throw new Error('Model uid is required');
     }
-    return connections.send(this.shared.model.uid, data);
+    return connections.send(this.shared.model.uid, data, this.cardId);
   }
 
   public canDisplay(context) {

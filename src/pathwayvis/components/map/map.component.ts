@@ -62,6 +62,8 @@ class MapComponentCtrl {
     this.$rootscope = $rootScope;
 
     this._mapOptions.componentCB = () => {
+      // This callback function could be the future of data loading.
+      // Less watchers -> More predictability.
       this._loadModel();
     };
 
@@ -131,18 +133,6 @@ class MapComponentCtrl {
         return;
       }
       this._loadModel();
-      // // Empty previously removed reactions
-      // if (this.resetKnockouts) this._mapOptions.setRemovedReactions([]);
-      // this.resetKnockouts = false;
-      // // @matyasfodor why only when there are no removed reactions?
-      // if (this._mapOptions.getRemovedReactions().length === 0) {
-      //   // this.shared.removedReactions
-      //   let reactions = changes.removed.reactions.map((reaction: types.Reaction) => {
-      //     return reaction.id;
-      //   });
-      //   this._mapOptions.setRemovedReactions(reactions);
-      // }
-
       if (changes.added.reactions) {
         // TODO filter out adapter and DM reactions
         const reactions = changes.added.reactions.filter((reaction) => {
