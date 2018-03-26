@@ -19,10 +19,10 @@
     <md-list>
       <md-list-item ng-hide="$ctrl.item || $ctrl.items.length > 0">{{ $ctrl.missingItems }}</md-list-item>
       <md-list-item ng-if="$ctrl.item">
-        <span class="md-caption">{{ $ctrl.item }}</span>
-        <md-button class="md-icon-button md-secondary" ng-click="$ctrl.onRemoveItem({item: item})">
-          <md-icon md-font-icon="close">close</md-icon>
-        </md-button>
+        <span class="md-caption">{{ $ctrl.itemDisplay($ctrl.item) }}</span>
+        <md-button class="md-icon-button md-secondary" ng-click="$ctrl.onRemoveItem({item: $ctrl.item})">
+            <md-icon md-font-icon="close">close</md-icon>
+          </md-button>
       </md-list-item>
       <md-list-item ng-if="$ctrl.items" ng-repeat="item in $ctrl.items">
         <span class="md-caption">{{ $ctrl.itemDisplay(item) }}</span>

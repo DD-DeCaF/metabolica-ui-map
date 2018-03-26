@@ -14,6 +14,7 @@ import { DataCardComponent } from './components/datacard/datacard.component';
 import { ActionsService } from './services/actions/actions.service';
 import MAP_ICON from '../../img/icons/map_icon.svg';
 import { DecafAPIProvider } from './providers/decafapi.provider';
+import { LoggerProvider } from './providers/log.provider';
 import { ModelAPIProvider } from './providers/modelapi.provider';
 import { ModelWSProvider } from './providers/modelws.provider';
 import { LegendComponent } from './components/legend/legend.component';
@@ -30,6 +31,7 @@ export const PathwayVisModule = angular.module('pathwayvis', [
   ReactionsPanelModule.name,
 ])
   .provider('decafAPI', DecafAPIProvider)
+  .provider('logger', LoggerProvider)
   .provider('modelAPI', ModelAPIProvider)
   .provider('modelWS', ModelWSProvider)
   .service('api', APIService)
