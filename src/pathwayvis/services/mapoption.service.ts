@@ -313,6 +313,14 @@ export class MapOptionService {
   public setSelectedId(id: number) {
     this.shouldLoadMap = false;
     this.selectedCardId = id;
+
+    const newMapData = this.getDataObject().mapData;
+    this.addedReactionsSubject.next(newMapData.addedReactions);
+    this.removedReactionsSubject.next(newMapData.removedReactions);
+    this.objectiveReactionSubject.next(newMapData.objectiveReaction);
+    this.reactionsSubject
+      .next(newMapData.model.reactions
+        .map((r) => ({id: r.id, name: r.name})));
   }
 
   public actionHandler(

@@ -8,7 +8,7 @@ export class SharedService {
     }
   }
 
-  public async(promise, message?): void {
+  public async(promise, message?): Promise<any> {
     this.increment(message);
     promise.finally(() => {
       this.decrement(message);
