@@ -1,4 +1,5 @@
 import * as angular from "angular";
+import * as Rx from 'rxjs/Rx';
 
 import { MapOptionService } from "../../../services/mapoption.service";
 import { ActionsService } from "../../../services/actions/actions.service";
@@ -9,18 +10,25 @@ class ObjectivesController {
   private _mapOptions: MapOptionService;
   private _actions: ActionsService;
 
-  constructor(mapOptions: MapOptionService,
-    actions: ActionsService) {
-    this._mapOptions = mapOptions;
-    this._actions = actions;
+  constructor(
+    mapOptions: MapOptionService,
+    actions: ActionsService,
+    $scope: angular.IScope) {
+      this._mapOptions = mapOptions;
+      this._actions = actions;
 
-    mapOptions.reactionsObservable.subscribe((reactions) => {
-      this.modelReactions = reactions;
-    });
+      const subscription = new Rx.Subscription();
+      subscription.add(mapOptions.reactionsObservable.subscribe((reactions) => {
+        this.modelReactions = reactions;
+      }));
 
-    mapOptions.objectiveReactionObservable.subscribe((reaction) => {
-      this.objectiveReaction = reaction;
-    });
+      subscription.add(mapOptions.objectiveReactionObservable.subscribe((reaction) => {
+        this.objectiveReaction = reaction;
+      }));
+
+      $scope.$on('$destroy', () => {
+        subscription.unsubscribe();
+      });
   }
 
   public queryModelReactions(query: string): any[] {
@@ -36,7 +44,9 @@ class ObjectivesController {
     const doObjectiveAction = this._actions.getAction('reaction:objective:do');
     this._mapOptions.setObjectiveReaction(item.id);
     this._mapOptions.actionHandler(doObjectiveAction, { id: item.id })
-    .then((response) => { this._mapOptions.updateMapData(response); });
+      .then((response) => {
+        this._mapOptions.updateMapData(response, this._mapOptions.getSelectedId());
+      });
   }
 
   public onUndoClick(selectedReaction: string): void {
@@ -44,7 +54,9 @@ class ObjectivesController {
     this._mapOptions.setObjectiveReaction(null);
     this.objectiveReaction = null;
     this._mapOptions.actionHandler(undoObjectiveAction, { id: selectedReaction })
-    .then((response) => { this._mapOptions.updateMapData(response); });
+      .then((response) => {
+        this._mapOptions.updateMapData(response, this._mapOptions.getSelectedId());
+      });
   }
 
 

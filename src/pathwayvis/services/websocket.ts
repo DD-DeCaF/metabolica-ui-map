@@ -2,6 +2,7 @@ interface Request {
   id: string;
   deferred: angular.IDeferred<any>;
   data: object;
+  cardId: number;
 }
 
 interface WebsocketOptions {
@@ -17,7 +18,7 @@ export class PvWebSocket {
   private _ws: WebSocket;
   private _forcedClose: boolean = false;
   private _queued: Request[] = [];
-  private _pending: Map<string, angular.IDeferred<any>> = new Map();
+  private _pending: Map<string, Request> = new Map();
   private _running: boolean = false;
 
   constructor(
@@ -48,12 +49,12 @@ export class PvWebSocket {
     this._ws.onmessage = (event) => {
       const result = JSON.parse(event.data);
       const requestId = result['request-id'];
-      const promise = this._pending.get(requestId);
+      const request = this._pending.get(requestId);
       this._pending.delete(requestId);
-      if (!promise) {
+      if (!request.deferred.promise) {
         throw new Error(`No promise was found for request ${requestId}`);
       }
-      return promise.resolve(result);
+      return request.deferred.resolve({...result, cardId: request.cardId});
     };
 
     this._ws.onerror = (event: ErrorEvent) => {
@@ -61,11 +62,12 @@ export class PvWebSocket {
     };
   }
 
-  public send(data, deferred) {
+  public send(data, deferred, cardId: number) {
     this._queued.push({
       id: this._generateID(),
       deferred,
       data,
+      cardId,
     });
     if (!this._running) {
       this._processRequests();
@@ -87,7 +89,7 @@ export class PvWebSocket {
         'request-id': id,
       }));
       this._processRequests();
-      this._pending.set(id, deferred);
+      this._pending.set(id, request);
     } else {
       this._running = false;
     }

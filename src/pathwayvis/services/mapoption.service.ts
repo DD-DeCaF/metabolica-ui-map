@@ -7,6 +7,8 @@ import { ToastService } from "./toastservice";
 import { ActionsService } from "./actions/actions.service";
 import { MapDataObject } from "../models/MapDataObject";
 import { DataHandler } from "../models/DataHandler";
+import { SharedService } from '../services/shared.service';
+
 // TODO @matyasfodor access these through types. (..)
 import { AddedReaction, Experiment, Method, ObjectType, Phase, Sample, Species, MapSettings } from "../types";
 import { ExperimentService } from "./experiment.service";
@@ -16,6 +18,8 @@ export class MapOptionService {
   private apiService: APIService;
   private dataHandler: DataHandler;
   private $q: angular.IQService;
+
+  public componentCB: () => void = null;
 
   public shouldUpdateData: boolean = false;
   public shouldLoadMap: boolean = false;
@@ -89,6 +93,10 @@ export class MapOptionService {
     ]).then(() => {/* */});
   }
 
+  public resetCards() {
+    this.dataHandler = new DataHandler();
+  }
+
   private setExperimentsFromSpecies(speciesCode = this.selectedSpecies): angular.IPromise<void> {
     return this.experimentService.setExperiments(speciesCode);
   }
@@ -160,8 +168,8 @@ export class MapOptionService {
     return this.getDataObject().mapData.removedReactions;
   }
 
-  public setRemovedReactions(reactions: string[]) {
-    this.getDataObject().setRemovedReactions(reactions);
+  public setRemovedReactions(reactions: string[], id: number) {
+    this.getDataObject(id).setRemovedReactions(reactions);
     this.removedReactionsSubject.next(reactions);
   }
 
@@ -178,8 +186,8 @@ export class MapOptionService {
     return this.getDataObject().mapData.map.growthRate;
   }
 
-  public setCurrentGrowthRate(growthRate: number) {
-    this.getDataObject().mapData.map.growthRate = growthRate;
+  public setCurrentGrowthRate(growthRate: number, id: number) {
+    this.getDataObject(id).mapData.map.growthRate = growthRate;
   }
 
   // @matyasfodor no check for undefined
@@ -221,10 +229,7 @@ export class MapOptionService {
   }
 
   public getPhases(sampleIds: number[]): angular.IPromise<Object> {
-    // Check should not happen here
-    if (sampleIds) {
-      return this.apiService.post('samples/phases', { sampleIds });
-    }
+    return this.apiService.post('samples/phases', { sampleIds });
   }
 
   public setModelsFromSample(sample: string): void {
@@ -276,8 +281,10 @@ export class MapOptionService {
     return id === this.selectedCardId;
   }
 
-  public addRefMapObject(): void {
-    this.selectedCardId = this.dataHandler.addObject(ObjectType.Reference);
+  public addRefMapObject(): number {
+    const id = this.dataHandler.addObject(ObjectType.Reference);
+    this.selectedCardId = id;
+    return id;
   }
 
   public addExpMapObject(): void {
@@ -424,13 +431,16 @@ export class MapOptionService {
     return this.getMapData().pathwayData;
   }
 
-  public updateMapData(data) {
+  public updateMapData(data, id: number) {
     // Bug: If a ws computation is triggered
     // and the user navigates to a different card
     // then the changes will be present there.
-    this.setCurrentGrowthRate(parseFloat(data['growth-rate']));
-    this.setReactionData(data.fluxes);
-    this.setDataModel(data.model);
-    this.setRemovedReactions(data['removed-reactions']);
+    this.setCurrentGrowthRate(parseFloat(data['growth-rate']), id);
+    this.setReactionData(data.fluxes, id);
+    this.setDataModel(data.model, null, id);
+    this.setRemovedReactions(data['removed-reactions'], id);
+    if (this.getSelectedId() === id) {
+      this.componentCB();
+    }
   }
 }

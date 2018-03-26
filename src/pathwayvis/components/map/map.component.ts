@@ -1,7 +1,7 @@
 import * as escher from '@dd-decaf/escher';
 import * as d3 from 'd3';
 import { event as currentEvent } from 'd3';
-import * as _ from 'lodash';
+import * as Rx from 'rxjs/Rx';
 import * as tinier from 'tinier';
 
 import { APIService } from '../../services/api';
@@ -36,6 +36,7 @@ class MapComponentCtrl {
   private _q: any;
   private $window: angular.IWindowService;
   private pathwayAdded = false;
+  private subscription: Rx.Subscription = new Rx.Subscription();
 
   constructor($scope: angular.IScope,
     api: APIService,
@@ -59,6 +60,10 @@ class MapComponentCtrl {
     this.actions = actions;
     this.$scope = $scope;
     this.$rootscope = $rootScope;
+
+    this._mapOptions.componentCB = () => {
+      this._loadModel();
+    };
 
     // TODO @matyasfodor watch expressions consume too much memory
     // see https://docs.angularjs.org/api/ng/type/$rootScope.Scope#$watch
@@ -111,9 +116,10 @@ class MapComponentCtrl {
       }
     }, true);
 
-    this._mapOptions.addedReactionsObservable.subscribe((reactions) => {
-      this._drawAddedReactions(reactions);
-    });
+    this.subscription.add(this._mapOptions.addedReactionsObservable
+      .subscribe((reactions) => {
+        this._drawAddedReactions(reactions);
+    }));
 
     $scope.$watch('ctrl._mapOptions.getDataModel().uid', (modelUid: string) => {
       if (!modelUid) return;
@@ -125,17 +131,17 @@ class MapComponentCtrl {
         return;
       }
       this._loadModel();
-      // Empty previously removed reactions
-      if (this.resetKnockouts) this._mapOptions.setRemovedReactions([]);
-      this.resetKnockouts = false;
-      // @matyasfodor why only when there are no removed reactions?
-      if (this._mapOptions.getRemovedReactions().length === 0) {
-        // this.shared.removedReactions
-        let reactions = changes.removed.reactions.map((reaction: types.Reaction) => {
-          return reaction.id;
-        });
-        this._mapOptions.setRemovedReactions(reactions);
-      }
+      // // Empty previously removed reactions
+      // if (this.resetKnockouts) this._mapOptions.setRemovedReactions([]);
+      // this.resetKnockouts = false;
+      // // @matyasfodor why only when there are no removed reactions?
+      // if (this._mapOptions.getRemovedReactions().length === 0) {
+      //   // this.shared.removedReactions
+      //   let reactions = changes.removed.reactions.map((reaction: types.Reaction) => {
+      //     return reaction.id;
+      //   });
+      //   this._mapOptions.setRemovedReactions(reactions);
+      // }
 
       if (changes.added.reactions) {
         // TODO filter out adapter and DM reactions
@@ -152,25 +158,23 @@ class MapComponentCtrl {
       }
     });
 
-    $scope.$watch('ctrl._mapOptions.getReactionData()', () => {
-      let reactionData = this._mapOptions.getReactionData();
+    $scope.$watch('ctrl._mapOptions.getReactionData()', (reactionData) => {
       let model = this._mapOptions.getDataModelId();
-      if (this._builder) {
-        if (model) {
-          this._loadModel();
+      if (!this._builder) return;
+      if (model) {
+        this._loadModel();
+      }
+      if (reactionData) {
+        this._loadData();
+      } else {
+        const type = this._mapOptions.getType();
+        if (type === ObjectType.Reference) {
+          this._loadMap(type, this._mapOptions.getDataObject().selected, this._mapOptions.getSelectedId());
+          reactionData = this._mapOptions.getReactionData();
         }
-        if (reactionData) {
-          this._loadData();
-        } else {
-          const type = this._mapOptions.getType();
-          if (type === ObjectType.Reference) {
-            this._loadMap(type, this._mapOptions.getDataObject().selected, this._mapOptions.getSelectedId());
-            reactionData = this._mapOptions.getReactionData();
-          }
-          this._removeOpacity();
+        this._removeOpacity();
 
-          this._builder.set_reaction_data(reactionData);
-        }
+        this._builder.set_reaction_data(reactionData);
       }
     }, true);
 
@@ -188,6 +192,7 @@ class MapComponentCtrl {
 
     $scope.$on('$destroy', () => {
       this._connections.close(this._mapOptions.getDataModelId());
+      this.subscription.unsubscribe();
     });
   }
 
@@ -197,6 +202,7 @@ class MapComponentCtrl {
 
   private _removeOpacity() {
     const noOpacity = {};
+    if (this._builder.map.cobra_model === null) return;
     let reactions = this._builder.map.cobra_model.reactions;
     Object.keys(reactions).forEach((key) => {
       noOpacity[key] = { 'lower_bound': 0, 'upper_bound': 0 };
@@ -298,7 +304,7 @@ class MapComponentCtrl {
           this._mapOptions.setReactionData(phase.fluxes, id);
           this._mapOptions.setMapInfo(infoResponse.data.response[phaseId.toString()], id);
           this._mapOptions.setMethod(selectedItem.method);
-          this._mapOptions.setCurrentGrowthRate(parseFloat(phase['growthRate']));
+          this._mapOptions.setCurrentGrowthRate(parseFloat(phase['growthRate']), id);
           this._loaded();
         }, (error) => {
           this.toastService.showErrorToast('Oops! Sorry, there was a problem with fetching the data.');
@@ -323,7 +329,7 @@ class MapComponentCtrl {
         // TODO use mapOptions.loadData
         this._mapOptions.setDataModel(data.model, data.model.id, id);
         this._mapOptions.setReactionData(data.fluxes, id);
-        this._mapOptions.setCurrentGrowthRate(parseFloat(data['growth-rate']));
+        this._mapOptions.setCurrentGrowthRate(parseFloat(data['growth-rate']), id);
         this._loaded();
       }), 'Reference');
       this._api.getWildTypeInfo(settings.model_id).then(({ data: mapInfo }: any) => {
@@ -340,7 +346,7 @@ class MapComponentCtrl {
       this.$window.open(`http://bigg.ucsd.edu/universal/reactions/${data.bigg_id}`);
     } else {
       this.shared.async(this._mapOptions.actionHandler(action, { id: data.bigg_id }).then((response) => {
-        this._mapOptions.updateMapData(response);
+        this._mapOptions.updateMapData(response, this._mapOptions.getSelectedId());
         if (action.type.startsWith('reaction:objective')) {
           this._mapOptions.setObjectiveReaction(action.type.endsWith('undo') ? null : data.bigg_id);
         } else if (data.bigg_id === this._mapOptions.getObjectiveReaction()) {

@@ -3,28 +3,35 @@ import * as template from './views/pathwayvis.component.html';
 import './views/pathwayvis.component.scss';
 import * as angular from "angular";
 import {MapOptionService} from "./services/mapoption.service";
+import { SharedService } from './services/shared.service';
 
 export class PathwayVisComponentController {
-    public shared: types.Shared;
     public showInfo: any;
     private $sharing: any;
     private $scope: angular.IScope;
     private mapOptions: MapOptionService;
     private $q: angular.IQService;
+    private $timeout: angular.ITimeoutService;
+    private shared: SharedService;
 
     constructor($scope: angular.IScope,
                 $sharing,
                 mapOptions: MapOptionService,
                 $q: angular.IQService,
+                $timeout: angular.ITimeoutService,
+                shared: SharedService,
     ) {
         this.$sharing = $sharing;
         this.$scope = $scope;
         this.mapOptions = mapOptions;
         this.showInfo = false;
         this.$q = $q;
+        this.$timeout = $timeout;
+        this.shared = shared;
     }
 
     public async $onInit() {
+        this.mapOptions.resetCards();
         let item = this.$sharing.item('experiment');
         if (item) {
             this.mapOptions.addExpMapObject();
@@ -32,7 +39,7 @@ export class PathwayVisComponentController {
             return;
         }
 
-        this.mapOptions.addRefMapObject();
+        const cardId = this.mapOptions.addRefMapObject();
         item = this.$sharing.item('pathwayPrediction');
         if (item) {
           // This is only temporary, before we add species to the pathway predictor
@@ -50,7 +57,8 @@ export class PathwayVisComponentController {
               cancel();
             });
           });
-          this.$q.all([
+
+          this.shared.async(this.$q.all([
             this.mapOptions.loaded,
             modelLoaded,
           ]).then(async () => {
@@ -60,9 +68,9 @@ export class PathwayVisComponentController {
               bigg_id: reaction,
               metabolites: item.model.reactions.find((r) => r.id === reaction).metabolites,
             }))).then((response) => {
-              this.mapOptions.updateMapData(response);
+              this.mapOptions.updateMapData(response, cardId);
             });
-          });
+          }));
         }
     }
 }

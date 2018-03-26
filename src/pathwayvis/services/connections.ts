@@ -46,10 +46,10 @@ export class ConnectionsService {
     }
   }
 
-  public send(path, data) {
+  public send(path, data, cardId: number) {
     this._assertHasConnection(path);
     const deferred = this._q.defer();
-    this._connections.get(path).send(data, deferred);
+    this._connections.get(path).send(data, deferred, cardId);
     return deferred.promise;
   }
 

@@ -1,4 +1,5 @@
 import * as angular from "angular";
+import * as Rx from 'rxjs/Rx';
 
 import { MapOptionService } from "../../../services/mapoption.service";
 import { AddedReaction, BiggReaction } from "../../../types";
@@ -11,21 +12,28 @@ class AddedReactionsController {
   private _$http: angular.IHttpService;
   private _mapOptions: MapOptionService;
 
-  constructor($http: angular.IHttpService,
-    mapOptions: MapOptionService) {
-    this._$http = $http;
-    this._mapOptions = mapOptions;
+  constructor(
+    $http: angular.IHttpService,
+    mapOptions: MapOptionService,
+    $scope: angular.IScope) {
+      this._$http = $http;
+      this._mapOptions = mapOptions;
 
-    mapOptions.addedReactionsObservable.subscribe((reactions) => {
-      this.addedReactions = reactions;
-    });
+      const subscription = new Rx.Subscription();
+      subscription.add(mapOptions.addedReactionsObservable.subscribe((reactions) => {
+        this.addedReactions = reactions;
+      }));
+
+      $scope.$on('$destroy', () => {
+        subscription.unsubscribe();
+      });
   }
 
   public async selectedItemChange(item: BiggReaction) {
     if (!item) return;
 
-    const response = await this._$http.get(`${DecafBiggProxy}${item.model_bigg_id.toLowerCase()}/reactions/${item.bigg_id}`);
-    const responseData = (<any> response.data);
+    const biggResponse = await this._$http.get(`${DecafBiggProxy}${item.model_bigg_id.toLowerCase()}/reactions/${item.bigg_id}`);
+    const responseData = (<any> biggResponse.data);
     let metanetx_id: string;
     try {
       metanetx_id = responseData.database_links['MetaNetX (MNX) Equation'][0].id;
@@ -43,7 +51,9 @@ class AddedReactionsController {
       metabolites,
       metanetx_id,
     };
-    this._mapOptions.addReaction(reaction).then((response) => { this._mapOptions.updateMapData(response); });
+    this._mapOptions.addReaction(reaction).then((response) => {
+      this._mapOptions.updateMapData(response, this._mapOptions.getSelectedId());
+    });
   }
 
   public querySearch(query: string) {
@@ -52,7 +62,9 @@ class AddedReactionsController {
   }
 
   public onReactionRemoveClick({bigg_id}) {
-    this._mapOptions.removeReaction(bigg_id).then((response) => { this._mapOptions.updateMapData(response); });
+    this._mapOptions.removeReaction(bigg_id).then((response) => {
+      this._mapOptions.updateMapData(response, this._mapOptions.getSelectedId());
+    });
   }
 
   public addedReactionDisplay(item) {
