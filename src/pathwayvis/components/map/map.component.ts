@@ -454,7 +454,7 @@ class MapComponentCtrl {
   private _loadContextMenu(): void {
     const contextMenu = d3.select('.map-context-menu');
     const tooltipContainer = d3.select('div#tooltip-container');
-    d3.selectAll('text.reaction-label').on('mouseenter', (d) => {
+    d3.selectAll('.reaction, .reaction-label').on('mouseenter', (d) => {
       if (tooltipContainer.select('#knockoutbutton')) {
         this._getContext();
         tooltipContainer.select('#knockoutbutton').on('click', () => {
