@@ -238,7 +238,7 @@ class MapComponentCtrl {
       this._removeOpacity();
       this._loadModel();
       this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
-      this._loadContextMenu();
+      this._setUpMapEventHandlers();
     }
   }
 
@@ -379,7 +379,17 @@ class MapComponentCtrl {
       hide_all_labels: false,
       hide_secondary_metabolites: false,
       highlight_missing: true,
-      tooltip_component: Tooltip,
+      tooltip_component: Tooltip({
+        knockout: (args) => { this.handleKnockout(args); },
+        setAsObjective: (args) => { this.handleSetAsObjective(args); },
+        newArgs: (args) => {
+          const {biggId, ...restData} = args;
+          this.contextElement = {
+            ...restData,
+            bigg_id: biggId,
+          };
+        },
+      }),
       reaction_scale: [
         { type: 'min', color: '#A841D0', size: 20 },
         { type: 'Q1', color: '#868BB2', size: 20 },
@@ -445,25 +455,15 @@ class MapComponentCtrl {
       reactionData = utils._pickBy(reactionData, (value: number) => Math.abs(value) > 1e-7);
       this._builder.set_reaction_data(reactionData);
     }
-    this._loadContextMenu();
+    this._setUpMapEventHandlers();
   }
 
   /**
    * Loads context menu with _getContext method when you over a reaction.
    */
-  private _loadContextMenu(): void {
-    const contextMenu = d3.select('.map-context-menu');
-    const tooltipContainer = d3.select('div#tooltip-container');
+  private _setUpMapEventHandlers(): void {
     d3.selectAll('.reaction, .reaction-label').on('mouseenter', (d) => {
-      if (tooltipContainer.select('#knockoutbutton')) {
         this._getContext();
-        tooltipContainer.select('#knockoutbutton').on('click', () => {
-          this.processActionClick(this.contextActions[0], this.contextElement);
-        });
-        tooltipContainer.select('#objectivebutton').on('click', () => {
-          this.processActionClick(this.contextActions[1], this.contextElement);
-        });
-      }
     });
   }
 
@@ -472,8 +472,6 @@ class MapComponentCtrl {
   */
   private _getContext(): void {
     const tooltipContainer = d3.select('div#tooltip-container');
-    const {biggId, ...restData} = JSON.parse(d3.select('div#tooltip-container').select('#knockoutbutton').attr("data"));
-    this.contextElement = Object.assign({bigg_id: biggId}, ...restData);
     this.contextActions = this.actions.getList({
       type: 'map:reaction',
       shared: this._mapOptions.getMapData(),
@@ -485,6 +483,18 @@ class MapComponentCtrl {
 
   public showLegend(): boolean {
     return !!this._mapOptions.getReactionData();
+  }
+
+  public handleKnockout(args) {
+    console.log('[knockout]', args);
+    this.$scope.$apply(() =>
+      this.processActionClick(this.contextActions[0], this.contextElement));
+  }
+
+  public handleSetAsObjective(args) {
+    console.log('[objective]', args);
+    this.$scope.$apply(() =>
+      this.processActionClick(this.contextActions[1], this.contextElement));
   }
 }
 

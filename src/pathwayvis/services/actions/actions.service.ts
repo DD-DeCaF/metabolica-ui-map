@@ -108,8 +108,8 @@ class SetObjective extends ReactionAction implements Action {
   public shared: types.MapData;
 
   public canDisplay(context) {
-    const isRemoved = context.shared.objectiveReaction !== context.element.bigg_id;
-    return context.type === 'map:reaction' && isRemoved;
+    return context.type === 'map:reaction' &&
+    context.shared.objectiveReaction !== context.element.bigg_id;
   }
 }
 
@@ -120,9 +120,8 @@ class UndoSetObjective extends SetObjective {
   public type: string = 'reaction:objective:undo';
 
   public canDisplay({type, shared, element}) {
-    return shared.objectiveReaction &&
-      shared.objectiveReaction === element.bigg_id &&
-      type === 'map:reaction';
+    return type === 'map:reaction' &&
+      shared.objectiveReaction === element.bigg_id;
   }
 }
 
