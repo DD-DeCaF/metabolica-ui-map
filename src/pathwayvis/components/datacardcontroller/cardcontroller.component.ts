@@ -31,8 +31,6 @@ class CardControllerComponentCtrl {
     this.mapOptions = mapOptions;
     this.$interval = $interval;
 
-    $mdSidenav('right').open();
-
     this.species = this.mapOptions.selectedSpecies;
 
     $scope.$watch('this.mapOptions.selectedSpecies', (selectedSpecies: string) => {

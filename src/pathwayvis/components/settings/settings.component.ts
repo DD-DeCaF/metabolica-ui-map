@@ -28,10 +28,15 @@ class SettingsComponentController {
   constructor($mdSidenav: angular.material.ISidenavService,
     mapOptions: MapOptionService,
     $interval: angular.IIntervalService,
+    $mdComponentRegistry,
   ) {
     this.mapOptions = mapOptions;
     this.$mdSidenav = $mdSidenav;
     this.$interval = $interval;
+
+    $mdComponentRegistry.when('right').then((sideNav) => {
+      sideNav.open();
+    });
   }
 
   public disableInfo(): boolean {
