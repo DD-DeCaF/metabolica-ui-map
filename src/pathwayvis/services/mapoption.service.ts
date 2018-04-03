@@ -111,7 +111,12 @@ export class MapOptionService {
     ]).then(() => {/* */});
   }
 
-  public resetCards() {
+  public reset() {
+    this.mapSettings = {
+      ...this.mapSettings,
+      map_id: 'Central metabolism',
+      model_id: null,
+    };
     this.dataHandler = new DataHandler();
   }
 
