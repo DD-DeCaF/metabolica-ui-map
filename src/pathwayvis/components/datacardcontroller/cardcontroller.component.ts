@@ -26,7 +26,7 @@ class CardControllerComponentCtrl {
 
   constructor(mapOptions: MapOptionService,
     $interval: angular.IIntervalService,
-    $mdSidenav: angular.material.ISidenavService,
+    $scope: angular.IScope,
   ) {
     this.mapOptions = mapOptions;
     this.$interval = $interval;
@@ -34,6 +34,12 @@ class CardControllerComponentCtrl {
     $mdSidenav('right').open();
 
     this.species = this.mapOptions.selectedSpecies;
+
+    $scope.$watch('this.mapOptions.selectedSpecies', (selectedSpecies: string) => {
+      if (selectedSpecies) {
+        this.species = selectedSpecies;
+      }
+    });
   }
 
   public speciesList(): Species[] {
