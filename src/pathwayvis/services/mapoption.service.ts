@@ -100,6 +100,13 @@ export class MapOptionService {
   }
 
   public init(): angular.IPromise<void> {
+    this.mapSettings = {
+      map: <types.MetabolicMap> {},
+      map_id: 'Central metabolism',
+      model_id: null,
+    };
+    this.dataHandler = new DataHandler();
+
     return this.$q.all([
       this.apiService.get('species/current').then((response: types.CallbackEmbeddedResponse<any>) => {
         this.speciesList = Object.entries(response.data.response)
@@ -109,15 +116,6 @@ export class MapOptionService {
       }),
       this.setExperimentsFromSpecies(),
     ]).then(() => {/* */});
-  }
-
-  public reset() {
-    this.mapSettings = {
-      ...this.mapSettings,
-      map_id: 'Central metabolism',
-      model_id: null,
-    };
-    this.dataHandler = new DataHandler();
   }
 
   private setExperimentsFromSpecies(speciesCode = this.selectedSpecies): angular.IPromise<void> {

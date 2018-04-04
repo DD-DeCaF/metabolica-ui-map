@@ -45,7 +45,7 @@ export class PathwayVisComponentController {
     }
 
     public async $onInit() {
-        this.mapOptions.reset();
+        this.mapOptions.init();
         let item = this.$sharing.item('experiment');
         if (item) {
             this.mapOptions.addExpMapObject();
