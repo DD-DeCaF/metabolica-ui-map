@@ -464,7 +464,6 @@ class MapComponentCtrl {
   private _setUpMapEventHandlers(): void {
     d3.selectAll('.reaction, .reaction-label').on('mouseenter', (d) => {
         this._getContext();
-         d3.select(d).style('stroke-width', parseFloat(d3.select(d).style('stroke-width')) * 3 + 'px');
     });
   }
 
