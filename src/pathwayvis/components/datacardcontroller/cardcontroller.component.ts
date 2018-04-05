@@ -27,6 +27,7 @@ class CardControllerComponentCtrl {
   constructor(mapOptions: MapOptionService,
     $interval: angular.IIntervalService,
     $scope: angular.IScope,
+    $rootScope: angular.IRootScopeService,
   ) {
     this.mapOptions = mapOptions;
     this.$interval = $interval;
@@ -37,6 +38,11 @@ class CardControllerComponentCtrl {
       if (selectedSpecies) {
         this.species = selectedSpecies;
       }
+    });
+
+    $rootScope.$on('sharing.species', (event, newSpecies) => {
+      this.species = newSpecies;
+      this.changeSpecies();
     });
   }
 

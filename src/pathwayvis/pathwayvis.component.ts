@@ -27,6 +27,7 @@ export class PathwayVisComponentController {
     private $q: angular.IQService;
     private $timeout: angular.ITimeoutService;
     private shared: SharedService;
+    private rootScope: angular.IRootScopeService;
 
     constructor($scope: angular.IScope,
                 $sharing,
@@ -34,6 +35,7 @@ export class PathwayVisComponentController {
                 $q: angular.IQService,
                 $timeout: angular.ITimeoutService,
                 shared: SharedService,
+                $rootScope: angular.IRootScopeService,
     ) {
         this.$sharing = $sharing;
         this.$scope = $scope;
@@ -42,15 +44,16 @@ export class PathwayVisComponentController {
         this.$q = $q;
         this.$timeout = $timeout;
         this.shared = shared;
+        this.rootScope = $rootScope;
     }
 
     public async $onInit() {
         this.mapOptions.init();
         let item = this.$sharing.item('experiment');
         if (item) {
-            this.mapOptions.addExpMapObject();
-            this.mapOptions.setExperiment(item);
-            return;
+          this.mapOptions.addExpMapObject();
+          this.mapOptions.setExperiment(item);
+          return;
         }
 
         const cardId = this.mapOptions.addRefMapObject();
@@ -76,7 +79,7 @@ export class PathwayVisComponentController {
             this.mapOptions.loaded,
             modelLoaded,
           ]).then(async () => {
-            await this.mapOptions.speciesChanged(speciesByModel[item.modelId]);
+            this.rootScope.$broadcast('sharing.species', speciesByModel[item.modelId]);
             this.mapOptions.setModelId(item.modelId);
             this.mapOptions.addReactions(item.pathway.map(({reaction}) => ({
               bigg_id: reaction,
