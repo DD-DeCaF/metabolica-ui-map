@@ -45,6 +45,8 @@ export class DataHandler {
       removedReactions: [],
       addedReactions: [],
       objectiveReaction: null,
+      bounds: [],
+      changedReactions: [],
     };
 
     const obj = new MapDataObject(id, object_type, mapData, selected);

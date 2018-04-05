@@ -71,6 +71,7 @@ export const Tooltip = (callbacks) =>
       },
       knockout: callbacks.knockout,
       setAsObjective: callbacks.setAsObjective,
+      changeBounds: callbacks.changeBounds,
     },
     render: function (args) {
       let decomp = decompartmentalizeCheck(args.state.biggId, args.state.type);
@@ -81,7 +82,7 @@ export const Tooltip = (callbacks) =>
         args.el,
         // the new tooltip element
         tinier.createElement('div',
-      ));
+        ));
       if (args.state.type === 'reaction') {
         torender = tinier.render(
           // parent node
@@ -89,7 +90,7 @@ export const Tooltip = (callbacks) =>
           // the new tooltip element
           tinier.createElement('div',
             // tooltip style
-            { class: 'container-style' },
+            { class: 'container-style-reaction' },
             // id
             tinier.createElement('span', { class: 'id-style' }, args.state.biggId),
             tinier.createElement('br'),
@@ -121,8 +122,35 @@ export const Tooltip = (callbacks) =>
                 onClick: args.methods.setAsObjective,
                 data: JSON.stringify(args.state),
               },
-                'Set as objective'),
-
+              'Set as objective'),
+            tinier.createElement('br'),
+            tinier.createElement('div',
+            // tooltip style
+            { class: 'container-bounds-style' },
+            tinier.createElement('span', {}, 'Upper bound'),
+            tinier.createElement('input',
+              {
+                class: 'input-style',
+                id: 'upperbound',
+                type: 'number',
+              }),
+            tinier.createElement('span', {}, 'Lower bound'),
+            tinier.createElement('input',
+              {
+                class: 'input-style',
+                id: 'lowerbound',
+                type: 'number',
+              }),
+            tinier.createElement('br'),
+            tinier.createElement('button',
+              {
+                class: 'button-bound-style',
+                id: 'boundbutton',
+                onClick: args.methods.changeBounds,
+                data: JSON.stringify(args.state),
+              },
+              'Change bounds'),
+            ),
             // type label
             tinier.createElement('div',
               { class: 'type-label-style' },

@@ -356,6 +356,9 @@ class MapComponentCtrl {
         } else if (data.bigg_id === this._mapOptions.getObjectiveReaction()) {
           this._mapOptions.setObjectiveReaction(null);
         }
+        if (action.type.startsWith('reaction:bounds')) {
+          this._mapOptions.setBounds(action.type.endsWith('undo') ? null : data.bounds);
+        }
         this._getContext();
       }, (error) => {
         this.toastService.showErrorToast('Oops! Sorry, there was a problem.');
@@ -382,6 +385,7 @@ class MapComponentCtrl {
       tooltip_component: Tooltip({
         knockout: (args) => { this.handleKnockout(args); },
         setAsObjective: (args) => { this.handleSetAsObjective(args); },
+        changeBounds: (args) => { this.handleChangeBounds(args); },
         newArgs: (args) => {
           const {biggId, ...restData} = args;
           this.contextElement = {
@@ -462,7 +466,14 @@ class MapComponentCtrl {
    * Loads context menu with _getContext method when you over a reaction.
    */
   private _setUpMapEventHandlers(): void {
+    const reactions = this._mapOptions.getDataModel().reactions;
     d3.selectAll('.reaction, .reaction-label').on('mouseenter', (d) => {
+      const currentReaction = reactions.filter((reaction) => {
+        return d.bigg_id === reaction.id;
+      });
+      const tooltipContainer = d3.select('div#tooltip-container');
+      tooltipContainer.select('#upperbound').property("value", currentReaction[0].upper_bound);
+      tooltipContainer.select('#lowerbound').property("value", currentReaction[0].lower_bound);
         this._getContext();
     });
   }
@@ -495,6 +506,19 @@ class MapComponentCtrl {
     console.log('[objective]', args);
     this.$scope.$apply(() =>
       this.processActionClick(this.contextActions[1], this.contextElement));
+  }
+
+  public handleChangeBounds(args) {
+    const bounds = [];
+    const tooltipContainer = d3.select('div#tooltip-container');
+    bounds.push(tooltipContainer.select('#lowerbound').property("value"));
+    bounds.push(tooltipContainer.select('#upperbound').property("value"));
+    console.log('[change-bounds]', bounds);
+    this.contextElement = Object.assign({}, this.contextElement, {
+      bounds: bounds,
+    });
+    this.$scope.$apply(() =>
+      this.processActionClick(this.contextActions[2], this.contextElement));
   }
 }
 
