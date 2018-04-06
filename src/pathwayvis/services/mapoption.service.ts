@@ -104,6 +104,9 @@ export class MapOptionService {
     this.changeBoundsReactionSubject = new Rx.Subject();
     this.changeBoundsObservable = this.changeBoundsReactionSubject.asObservable();
 
+    this.setBoundsReactionSubject = new Rx.Subject();
+    this.setBoundsObservable = this.setBoundsReactionSubject.asObservable();
+
     this.dataHandler = new DataHandler();
     this.loaded = this.init();
   }
@@ -209,21 +212,12 @@ export class MapOptionService {
     this.objectiveReactionSubject.next(reaction);
   }
 
-  public getBounds(): number[] {
-    return this.getDataObject().mapData.bounds;
-  }
-
-  public setBounds(bounds: number[]) {
-    this.getDataObject().setBounds(bounds);
-    this.setBoundsReactionSubject.next(bounds);
-  }
-
-  public setChangedReactions(reactions: string[], id) {
+  public setChangedReactions(reactions: types.ChangedReaction[]) {
     this.getDataObject().setChangedReactions(reactions);
     this.changeBoundsReactionSubject.next(reactions);
   }
 
-  public getChangedReactions(): string[] {
+  public getChangedReactions(): types.ChangedReaction[] {
     return this.getDataObject().mapData.changedReactions;
   }
 
@@ -370,7 +364,7 @@ export class MapOptionService {
 
   public actionHandler(
     action,
-    {id = null, reactions = null}: {id?: string, reactions?: AddedReaction[]}): any {
+    {id = null, reactions = null, bounds = null}: {id?: string, bounds?: number[], reactions?: AddedReaction[]}): any {
     const shared = angular.copy(this.getMapData());
 
     // TODO write a nice, functional switch-case statement
@@ -404,14 +398,13 @@ export class MapOptionService {
       shared.objectiveReaction = null;
     }
     if (action.type === 'reaction:bounds:do') {
+      console.log("SHARED", shared);
       if (id) {
-        shared.changedReactions.push(id);
+        shared.bounds = bounds;
+        shared.changedReactions.push({id: id, bounds: bounds});
       }
     } else if (action.type === 'reaction:bounds:undo') {
-      let index = shared.changedReactions.indexOf(id);
-      if (index > -1) {
-        shared.changedReactions.splice(index, 1);
-      }
+      shared.changedReactions.filter(reaction => reaction.id !== id);
     }
     return this.actions.callAction(action, { shared, cardId: this.getSelectedId()});
   }
@@ -501,7 +494,6 @@ export class MapOptionService {
     this.setCurrentGrowthRate(parseFloat(data['growth-rate']), id);
     this.setReactionData(data.fluxes, id);
     this.setDataModel(data.model, null, id);
-    this.setChangedReactions(data['changed/reactions'], id);
     this.setRemovedReactions(data['removed-reactions'], id);
     if (this.getSelectedId() === id) {
       this.componentCB();

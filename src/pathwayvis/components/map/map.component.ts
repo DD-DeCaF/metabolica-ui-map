@@ -17,6 +17,7 @@ import * as d3 from 'd3';
 import { event as currentEvent } from 'd3';
 import * as Rx from 'rxjs/Rx';
 import * as tinier from 'tinier';
+import * as angular from "angular";
 
 import { APIService } from '../../services/api';
 import { ConnectionsService } from '../../services/connections';
@@ -349,7 +350,7 @@ class MapComponentCtrl {
     if (action.type === 'reaction:link') {
       this.$window.open(`http://bigg.ucsd.edu/universal/reactions/${data.bigg_id}`);
     } else {
-      this.shared.async(this._mapOptions.actionHandler(action, { id: data.bigg_id }).then((response) => {
+      this.shared.async(this._mapOptions.actionHandler(action, { id: data.bigg_id, bounds: data.bounds }).then((response) => {
         this._mapOptions.updateMapData(response, this._mapOptions.getSelectedId());
         if (action.type.startsWith('reaction:objective')) {
           this._mapOptions.setObjectiveReaction(action.type.endsWith('undo') ? null : data.bigg_id);
@@ -357,7 +358,7 @@ class MapComponentCtrl {
           this._mapOptions.setObjectiveReaction(null);
         }
         if (action.type.startsWith('reaction:bounds')) {
-          this._mapOptions.setBounds(action.type.endsWith('undo') ? null : data.bounds);
+          this._mapOptions.setChangedReactions(action.type.endsWith('undo') ? null : data.changedReactions);
         }
         this._getContext();
       }, (error) => {
@@ -490,6 +491,7 @@ class MapComponentCtrl {
     });
     tooltipContainer.select('#knockoutbutton').text(this.contextActions[0].label);
     tooltipContainer.select('#objectivebutton').text(this.contextActions[1].label);
+    tooltipContainer.select('#boundbutton').text(this.contextActions[2].label);
   }
 
   public showLegend(): boolean {

@@ -75,7 +75,7 @@ export interface MapData {
   addedReactions?: AddedReaction[];
   objectiveReaction?: string;
   bounds?: number[];
-  changedReactions: string[];
+  changedReactions: ChangedReaction[];
   info?: MapInfo;
   selected?: SelectedItems;
   pathwayData?: any;
@@ -160,6 +160,11 @@ export interface AddedReaction extends BiggReaction {
   metanetx_id: string;
   reaction_string: string;
   metabolites: Map<String, Number>;
+}
+
+export interface ChangedReaction {
+  id: string;
+  bounds: number[];
 }
 
 export interface EmbeddedResponse<T> {
