@@ -84,7 +84,6 @@ export interface MapData {
 export interface MapSettings {
   map_id: string;
   model_id: string;
-  map: MetabolicMap;
 }
 
 export interface MapObject {

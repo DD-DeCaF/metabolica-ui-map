@@ -47,8 +47,9 @@ export class MapOptionService {
   public mapSettings: types.MapSettings = {
     map_id: 'Central metabolism',
     model_id: null,
-    map: <types.MetabolicMap> {},
   };
+
+  private map: types.MetabolicMap;
 
   private speciesList: Species[] = [];
 
@@ -113,7 +114,6 @@ export class MapOptionService {
 
   public init(): angular.IPromise<void> {
     this.mapSettings = {
-      map: <types.MetabolicMap> {},
       map_id: 'Central metabolism',
       model_id: null,
     };
@@ -446,11 +446,11 @@ export class MapOptionService {
   }
 
   public getMap(): object {
-    return this.mapSettings.map.map;
+    return this.map;
   }
 
-  public setMap(map: object): void {
-    this.mapSettings.map.map = map;
+  public setMap(map: types.MetabolicMap): void {
+    this.map = map;
   }
 
   public setModelId(modelId: string): void {
@@ -465,8 +465,8 @@ export class MapOptionService {
   }
 
   public getMapId(): string {
-    if (this.mapSettings.map.map) {
-      return this.mapSettings.map.map[0].map_id;
+    if (this.map) {
+      return this.map[0].map_id;
     }
     return null;
   }
