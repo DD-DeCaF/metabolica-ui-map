@@ -109,17 +109,16 @@ export class MapOptionService {
     this.setBoundsObservable = this.setBoundsReactionSubject.asObservable();
 
     this.dataHandler = new DataHandler();
-    this.loaded = this.init();
   }
 
-  public init(): angular.IPromise<void> {
+  public init() {
     this.mapSettings = {
       map_id: 'Central metabolism',
       model_id: null,
     };
     this.dataHandler = new DataHandler();
 
-    return this.$q.all([
+    this.loaded = this.$q.all([
       this.apiService.get('species/current').then((response: types.CallbackEmbeddedResponse<any>) => {
         this.speciesList = Object.entries(response.data.response)
           .map(([id, name]) => (<Species> { id, name }));
