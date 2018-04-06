@@ -12,14 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export function _mapValues (object, callback) {
-    return Object.assign({},
+export const _mapValues = (object, callback) =>
+    Object.assign({},
         ...Object.entries(object)
           .map(([key, value]) => ({[key]: callback(value)})));
-}
 
-export function _pickBy (object, callback) {
-    return Object.assign({},
+
+export const _pickBy = (object, callback) =>
+    Object.assign({},
         ...Object.entries(object).filter(([key, value]) => (callback(value)))
           .map(([key, value]) => ({[key]: value})));
-}
+
+export const sortObj = (obj) => (
+    obj === null || typeof obj !== 'object'
+    ? obj
+    : Array.isArray(obj)
+    ? obj.map(sortObj)
+    : Object.assign({},
+        ...Object.entries(obj)
+          .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+          .map(([k, v]) => ({ [k]: sortObj(v) }),
+      ))
+  );
+
+export const deterministicStringify = (obj) => JSON.stringify(sortObj(obj));

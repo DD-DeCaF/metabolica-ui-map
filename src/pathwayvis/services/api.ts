@@ -14,17 +14,24 @@
 
 import { DecafAPIProvider } from '../providers/decafapi.provider';
 import { ModelAPIProvider } from '../providers/modelapi.provider';
-
+import { deterministicStringify } from "../utils";
 
 export class APIService {
   private _http: angular.IHttpService;
+  private _q: angular.IQService;
   private api: DecafAPIProvider;
-  private model: ModelAPIProvider;
+  private modelAPI: ModelAPIProvider;
+  private modelCache = new Map();
 
-  constructor($http: angular.IHttpService, decafAPI: DecafAPIProvider, modelAPI: ModelAPIProvider) {
-    this._http = $http;
-    this.api = decafAPI;
-    this.model = modelAPI;
+  constructor(
+    $http: angular.IHttpService,
+    decafAPI: DecafAPIProvider,
+    modelAPI: ModelAPIProvider,
+    $q: angular.IQService) {
+      this._http = $http;
+      this._q = $q;
+      this.api = decafAPI;
+      this.modelAPI = modelAPI;
   }
 
   public get(path: string, parameters: Object = {}): angular.IPromise<Object> {
@@ -36,24 +43,38 @@ export class APIService {
   }
 
   public getModel(path: string, parameters: Object = {}): angular.IPromise<Object> {
-    return this._request('GET', path, undefined, parameters, this.model);
+    return this._request('GET', path, undefined, parameters, this.modelAPI);
   }
 
   public getWildTypeInfo(modelId: string, parameters: Object = {}): angular.IHttpPromise<Object> {
-    return this._request('GET', `v1/model-info/${modelId}`, undefined, parameters, this.model);
+    return this._request('GET', `v1/model-info/${modelId}`, undefined, parameters, this.modelAPI, {cache: true});
   }
 
   public postModel(path: string, data: Object, parameters: Object = {}): angular.IPromise<Object> {
-    return this._request('POST', path, data, parameters, this.model);
+    const key = btoa(deterministicStringify({path, data}));
+    return this.modelCache.has(key)
+      ? this._q.resolve(this.modelCache.get(key))
+      : this._request('POST', path, data, parameters, this.modelAPI)
+        .then((response) => {
+          this.modelCache.set(key, response);
+          return response;
+        });
   }
 
-  private _request(method: string, path: string, data: Object, params: Object, api): angular.IHttpPromise<any> {
-    return this._http({
-      method: method,
-      data: data,
-      url: `${api}/${path}`,
-      params: params,
-    });
+  private _request(
+    method: string,
+    path: string,
+    data: Object,
+    params: Object,
+    api,
+    settings: object = {}): angular.IHttpPromise<any> {
+      return this._http({
+        method,
+        url: `${api}/${path}`,
+        data,
+        params,
+        ...settings,
+      });
   }
 
 }
