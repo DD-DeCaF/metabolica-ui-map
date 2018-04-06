@@ -1,20 +1,36 @@
+// Copyright 2018 Novo Nordisk Foundation Center for Biosustainability, DTU.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import * as escher from '@dd-decaf/escher';
 import * as d3 from 'd3';
-import {event as currentEvent} from 'd3';
-import * as _ from 'lodash';
+import { event as currentEvent } from 'd3';
+import * as Rx from 'rxjs/Rx';
+import * as tinier from 'tinier';
 
 import { APIService } from '../../services/api';
-import { WSService } from '../../services/ws';
+import { ConnectionsService } from '../../services/connections';
+
 import { ActionsService } from '../../services/actions/actions.service';
 import { SharedService } from '../../services/shared.service';
-
 import * as types from '../../types';
-
 import './views/map.component.scss';
 import * as template from './views/map.component.html';
 import { ToastService } from "../../services/toastservice";
 import { MapOptionService } from "../../services/mapoption.service";
 import { ObjectType } from "../../types";
+import * as utils from "../../utils";
+import { Tooltip } from "../tooltip/escherTooltip";
 
 class MapComponentCtrl {
   public shared: SharedService;
@@ -27,26 +43,29 @@ class MapComponentCtrl {
   private _mapElement: d3.Selection<any>;
   private _builder: any;
   private _api: APIService;
-  private _ws: WSService;
+  private _connections: ConnectionsService;
   private $scope: angular.IScope;
+  private $rootscope: angular.IRootScopeService;
   private toastService: ToastService;
   private _q: any;
   private $window: angular.IWindowService;
   private pathwayAdded = false;
+  private subscription: Rx.Subscription = new Rx.Subscription();
 
   constructor($scope: angular.IScope,
     api: APIService,
     actions: ActionsService,
-    ws: WSService,
+    connections: ConnectionsService,
     toastService: ToastService,
     $q: angular.IQService,
     mapOptions: MapOptionService,
     $window: angular.IWindowService,
     shared: SharedService,
+    $rootScope: angular.IRootScopeService,
   ) {
     this.$window = $window;
     this._api = api;
-    this._ws = ws;
+    this._connections = connections;
     this._mapElement = d3.select('.map-container');
     this.toastService = toastService;
     this._q = $q;
@@ -54,6 +73,13 @@ class MapComponentCtrl {
     this.shared = shared;
     this.actions = actions;
     this.$scope = $scope;
+    this.$rootscope = $rootScope;
+
+    this._mapOptions.componentCB = () => {
+      // This callback function could be the future of data loading.
+      // Less watchers -> More predictability.
+      this._loadModel();
+    };
 
     // TODO @matyasfodor watch expressions consume too much memory
     // see https://docs.angularjs.org/api/ng/type/$rootScope.Scope#$watch
@@ -106,16 +132,14 @@ class MapComponentCtrl {
       }
     }, true);
 
-    this._mapOptions.addedReactionsObservable.subscribe((reactions) => {
-      this._drawAddedReactions(reactions);
-    });
+    this.subscription.add(this._mapOptions.addedReactionsObservable
+      .subscribe((reactions) => {
+        this._drawAddedReactions(reactions);
+    }));
 
     $scope.$watch('ctrl._mapOptions.getDataModel().uid', (modelUid: string) => {
       if (!modelUid) return;
-      // Open WS connection for model if it is not opened
-      if (!this._ws.isActive(modelUid)) {
-        this._ws.connect(modelUid, true);
-      }
+      this._connections.connect(modelUid, true);
     });
 
     $scope.$watch('ctrl._mapOptions.getDataModel().notes.changes', (changes: any) => {
@@ -123,18 +147,6 @@ class MapComponentCtrl {
         return;
       }
       this._loadModel();
-      // Empty previously removed reactions
-      if (this.resetKnockouts) this._mapOptions.setRemovedReactions([]);
-      this.resetKnockouts = false;
-      // @matyasfodor why only when there are no removed reactions?
-      if (this._mapOptions.getRemovedReactions().length === 0) {
-        // this.shared.removedReactions
-        let reactions = changes.removed.reactions.map((reaction: types.Reaction) => {
-          return reaction.id;
-        });
-        this._mapOptions.setRemovedReactions(reactions);
-      }
-
       if (changes.added.reactions) {
         // TODO filter out adapter and DM reactions
         const reactions = changes.added.reactions.filter((reaction) => {
@@ -142,35 +154,31 @@ class MapComponentCtrl {
             return reaction.id.startsWith(str);
           });
         })
-        .map((reaction) => {
-          return Object.assign({}, reaction, {
+          .map((reaction) => Object.assign({}, reaction, {
             bigg_id: reaction.id,
             metabolites: reaction.metabolites,
-          });
-        });
+          }));
         this._mapOptions.setAddedReactions(reactions);
       }
     });
 
-    $scope.$watch('ctrl._mapOptions.getReactionData()', () => {
-      let reactionData = this._mapOptions.getReactionData();
+    $scope.$watch('ctrl._mapOptions.getReactionData()', (reactionData) => {
       let model = this._mapOptions.getDataModelId();
-      if (this._builder) {
-        if (model) {
-          this._loadModel();
+      if (!this._builder) return;
+      if (model) {
+        this._loadModel();
+      }
+      if (reactionData) {
+        this._loadData();
+      } else {
+        const type = this._mapOptions.getType();
+        if (type === ObjectType.Reference) {
+          this._loadMap(type, this._mapOptions.getDataObject().selected, this._mapOptions.getSelectedId());
+          reactionData = this._mapOptions.getReactionData();
         }
-        if (reactionData) {
-          this._loadData();
-        } else {
-          const type = this._mapOptions.getType();
-          if (type === ObjectType.Reference) {
-            this._loadMap(type, this._mapOptions.getDataObject().selected, this._mapOptions.getSelectedId());
-            reactionData = this._mapOptions.getReactionData();
-          }
-          this._removeOpacity();
+        this._removeOpacity();
 
-          this._builder.set_reaction_data(reactionData);
-        }
+        this._builder.set_reaction_data(reactionData);
       }
     }, true);
 
@@ -187,12 +195,18 @@ class MapComponentCtrl {
     }, true);
 
     $scope.$on('$destroy', () => {
-      ws.close(this._mapOptions.getDataModelId());
+      this._connections.close(this._mapOptions.getDataModelId());
+      this.subscription.unsubscribe();
     });
+  }
+
+  private _loaded() {
+    this.$rootscope.$broadcast('modelLoaded');
   }
 
   private _removeOpacity() {
     const noOpacity = {};
+    if (this._builder.map.cobra_model === null) return;
     let reactions = this._builder.map.cobra_model.reactions;
     Object.keys(reactions).forEach((key) => {
       noOpacity[key] = { 'lower_bound': 0, 'upper_bound': 0 };
@@ -214,7 +228,7 @@ class MapComponentCtrl {
     });
     this._builder.load_model(this._mapOptions.getMapData().model);
 
-    const reactions = item.model.reactions.map(({id, metabolites}) => ({id, metabolites}));
+    const reactions = item.model.reactions.map(({ id, metabolites }) => ({ id, metabolites }));
     this._builder.add_pathway(reactions);
   }
 
@@ -224,13 +238,13 @@ class MapComponentCtrl {
       this._removeOpacity();
       this._loadModel();
       this._builder.set_knockout_reactions(this._mapOptions.getRemovedReactions());
-      this._loadContextMenu();
+      this._setUpMapEventHandlers();
     }
   }
 
   private _setMap(map: string): void {
     if (!map) return;
-    const {model_id, map_id} = this._mapOptions.getMapSettings();
+    const { model_id, map_id } = this._mapOptions.getMapSettings();
     this.shared.async(this._api.getModel('map', {
       'model': model_id,
       'map': map_id,
@@ -265,7 +279,6 @@ class MapComponentCtrl {
 
   private _loadMap(type: ObjectType, selectedItem: types.SelectedItems, id: number): void {
     const settings = this._mapOptions.getMapSettings();
-
     if (type === ObjectType.Experiment) {
       const sampleIds = selectedItem.sample ? selectedItem.sample.id.slice() : null;
       const phaseId = selectedItem.phase ? selectedItem.phase.id : null;
@@ -290,12 +303,13 @@ class MapComponentCtrl {
       this.shared.async(this._q.all([modelPromise, infoPromise])
         .then(([modelResponse, infoResponse]: any) => {
           const phase = modelResponse.data.response[phaseId.toString()];
+          // TODO use mapOptions.loadData
           this._mapOptions.setDataModel(phase.model, phase.modelId, id);
           this._mapOptions.setReactionData(phase.fluxes, id);
           this._mapOptions.setMapInfo(infoResponse.data.response[phaseId.toString()], id);
           this._mapOptions.setMethod(selectedItem.method);
-          this._mapOptions.setCurrentGrowthRate(parseFloat(phase['growthRate']));
-
+          this._mapOptions.setCurrentGrowthRate(parseFloat(phase['growthRate']), id);
+          this._loaded();
         }, (error) => {
           this.toastService.showErrorToast('Oops! Sorry, there was a problem with fetching the data.');
         }), 'Experiment');
@@ -315,12 +329,14 @@ class MapComponentCtrl {
           })),
         },
       });
-      this.shared.async(modelPromise.then(({data}: any) => {
+      this.shared.async(modelPromise.then(({ data }: any) => {
+        // TODO use mapOptions.loadData
         this._mapOptions.setDataModel(data.model, data.model.id, id);
         this._mapOptions.setReactionData(data.fluxes, id);
-        this._mapOptions.setCurrentGrowthRate(parseFloat(data['growth-rate']));
+        this._mapOptions.setCurrentGrowthRate(parseFloat(data['growth-rate']), id);
+        this._loaded();
       }), 'Reference');
-      this._api.getWildTypeInfo(settings.model_id).then(({data: mapInfo}: any) => {
+      this._api.getWildTypeInfo(settings.model_id).then(({ data: mapInfo }: any) => {
         this._mapOptions.setMapInfo(mapInfo, id);
       });
     }
@@ -330,15 +346,20 @@ class MapComponentCtrl {
    * Callback function for clicked action button in context menu
    */
   public processActionClick(action, data) {
-
     if (action.type === 'reaction:link') {
       this.$window.open(`http://bigg.ucsd.edu/universal/reactions/${data.bigg_id}`);
     } else {
-      this._mapOptions.actionHandler(action, { id: data.bigg_id }).then((response) => {
-        this._mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
-        this._mapOptions.setReactionData(response.fluxes);
-        this._mapOptions.setRemovedReactions(response['removed-reactions']);
-      });
+      this.shared.async(this._mapOptions.actionHandler(action, { id: data.bigg_id }).then((response) => {
+        this._mapOptions.updateMapData(response, this._mapOptions.getSelectedId());
+        if (action.type.startsWith('reaction:objective')) {
+          this._mapOptions.setObjectiveReaction(action.type.endsWith('undo') ? null : data.bigg_id);
+        } else if (data.bigg_id === this._mapOptions.getObjectiveReaction()) {
+          this._mapOptions.setObjectiveReaction(null);
+        }
+        this._getContext();
+      }, (error) => {
+        this.toastService.showErrorToast('Oops! Sorry, there was a problem.');
+      }), 'Objective');
     }
   }
 
@@ -358,6 +379,17 @@ class MapComponentCtrl {
       hide_all_labels: false,
       hide_secondary_metabolites: false,
       highlight_missing: true,
+      tooltip_component: Tooltip({
+        knockout: (args) => { this.handleKnockout(args); },
+        setAsObjective: (args) => { this.handleSetAsObjective(args); },
+        newArgs: (args) => {
+          const {biggId, ...restData} = args;
+          this.contextElement = {
+            ...restData,
+            bigg_id: biggId,
+          };
+        },
+      }),
       reaction_scale: [
         { type: 'min', color: '#A841D0', size: 20 },
         { type: 'Q1', color: '#868BB2', size: 20 },
@@ -385,16 +417,18 @@ class MapComponentCtrl {
       d3.selectAll('#reactions > .reaction').style('filter', null);
       const model = this._mapOptions.getDataModel();
       this._builder.load_model(model);
-      const reactionsToHighlight = model.notes.changes
+      if (model.notes.changes) {
+        const reactionsToHighlight = model.notes.changes
         .measured.reactions.map((reaction) => reaction.id);
-      reactionsToHighlight.forEach((reactionId) => {
-        this._builder.map.bigg_index
-          .getAll(reactionId)
-          .forEach(({reaction_id}) => {
-            d3.select(`#r${reaction_id}`)
-              .style("filter", "url(#escher-glow-filter)");
-          });
-      });
+        reactionsToHighlight.forEach((reactionId) => {
+          this._builder.map.bigg_index
+            .getAll(reactionId)
+            .forEach(({ reaction_id }) => {
+              d3.select(`#r${reaction_id}`)
+                .style("filter", "url(#escher-glow-filter)");
+            });
+        });
+      }
     }
   }
 
@@ -411,64 +445,56 @@ class MapComponentCtrl {
     // Handle FVA method response
     let selected = this._mapOptions.getCurrentSelectedItems();
     if (selected.method.id === 'fva' || selected.method.id === 'pfba-fva') {
-
-      // const fvaData = reactionData;
-      const fvaData = _.pickBy(reactionData, (d) => Math.abs((d.upper_bound + d.lower_bound) / 2) > 1e-7);
-
-      reactionData = _.mapValues(fvaData, (d) => (d.upper_bound + d.lower_bound) / 2);
-
+      const fvaData = utils._pickBy(reactionData, (d) => Math.abs((d.upper_bound + d.lower_bound) / 2) > 1e-7);
+      reactionData = utils._mapValues(fvaData, (d) => (d.upper_bound + d.lower_bound) / 2);
       this._builder.set_reaction_data(reactionData);
       this._builder.set_reaction_fva_data(fvaData);
 
     } else {
       // Remove zero values
-      reactionData = _.pickBy(reactionData, (value: number) => Math.abs(value) > 1e-7);
+      reactionData = utils._pickBy(reactionData, (value: number) => Math.abs(value) > 1e-7);
       this._builder.set_reaction_data(reactionData);
     }
-    this._loadContextMenu();
+    this._setUpMapEventHandlers();
   }
 
   /**
-   * Loads context menu and fetches list of actions for selected map element
+   * Loads context menu with _getContext method when you over a reaction.
    */
-  private _loadContextMenu(): void {
-    const selection = this._builder.selection;
-    const contextMenu = d3.select('.map-context-menu');
-
-    d3.selectAll('.reaction, .reaction-label')
-      .style('cursor', 'pointer')
-      .on('contextmenu', (d) => {
-        this.contextElement = d;
-        this.contextActions = this.actions.getList({
-          type: 'map:reaction',
-          shared: this._mapOptions.getMapData(),
-          element: this.contextElement,
-        });
-
-        if (this.contextElement) {
-          this._renderContextMenu(contextMenu);
-          (<MouseEvent> currentEvent).preventDefault();
-        }
-      });
-
-    d3.select(document).on('click', () => {
-      contextMenu.style('visibility', 'hidden');
+  private _setUpMapEventHandlers(): void {
+    d3.selectAll('.reaction, .reaction-label').on('mouseenter', (d) => {
+        this._getContext();
     });
   }
 
-    /**
-     * Renders and positions context menu based on selected element
-     */
-    private _renderContextMenu(contextMenu): void {
-        contextMenu.style('position', 'fixed')
-            .style('left', `${(<MouseEvent> currentEvent).clientX}px`)
-            .style('top', `${(<MouseEvent> currentEvent).clientY}px`)
-            .style('visibility', 'visible');
-        this.$scope.$apply();
-    }
+ /**
+  * Get context menu and fetches list of actions for selected map element
+  */
+  private _getContext(): void {
+    const tooltipContainer = d3.select('div#tooltip-container');
+    this.contextActions = this.actions.getList({
+      type: 'map:reaction',
+      shared: this._mapOptions.getMapData(),
+      element: this.contextElement,
+    });
+    tooltipContainer.select('#knockoutbutton').text(this.contextActions[0].label);
+    tooltipContainer.select('#objectivebutton').text(this.contextActions[1].label);
+  }
 
   public showLegend(): boolean {
     return !!this._mapOptions.getReactionData();
+  }
+
+  public handleKnockout(args) {
+    console.log('[knockout]', args);
+    this.$scope.$apply(() =>
+      this.processActionClick(this.contextActions[0], this.contextElement));
+  }
+
+  public handleSetAsObjective(args) {
+    console.log('[objective]', args);
+    this.$scope.$apply(() =>
+      this.processActionClick(this.contextActions[1], this.contextElement));
   }
 }
 

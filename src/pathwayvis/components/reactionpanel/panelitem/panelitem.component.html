@@ -1,3 +1,17 @@
+<!--Copyright 2018 Novo Nordisk Foundation Center for Biosustainability, DTU.-->
+
+<!--Licensed under the Apache License, Version 2.0 (the "License");-->
+<!--you may not use this file except in compliance with the License.-->
+<!--You may obtain a copy of the License at-->
+
+<!--http://www.apache.org/licenses/LICENSE-2.0-->
+
+<!--Unless required by applicable law or agreed to in writing, software-->
+<!--distributed under the License is distributed on an "AS IS" BASIS,-->
+<!--WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.-->
+<!--See the License for the specific language governing permissions and-->
+<!--limitations under the License.-->
+
 <md-card>
   <md-subheader class="md-primary">{{ $ctrl.header}}</md-subheader>
   <md-card-content>
@@ -17,13 +31,20 @@
       </md-item-template>
     </md-autocomplete>
     <md-list>
-      <md-list-item ng-hide="$ctrl.items.length > 0">{{ $ctrl.missingItems }}</md-list-item>
-      <md-list-item ng-repeat="item in $ctrl.items">
-        <span class="md-caption">{{ $ctrl.itemDisplay({item: item}) }}</span>
+      <md-list-item ng-hide="$ctrl.item || $ctrl.items.length > 0">{{ $ctrl.missingItems }}</md-list-item>
+      <md-list-item ng-if="$ctrl.item">
+        <span class="md-caption">{{ $ctrl.itemDisplay($ctrl.item) }}</span>
+        <md-button class="md-icon-button md-secondary" ng-click="$ctrl.onRemoveItem({item: $ctrl.item})">
+            <md-icon md-font-icon="close">close</md-icon>
+          </md-button>
+      </md-list-item>
+      <md-list-item ng-if="$ctrl.items" ng-repeat="item in $ctrl.items">
+        <span class="md-caption">{{ $ctrl.itemDisplay(item) }}</span>
         <md-button class="md-icon-button md-secondary" ng-click="$ctrl.onRemoveItem({item: item})">
           <md-icon md-font-icon="close">close</md-icon>
         </md-button>
       </md-list-item>
+
     </md-list>
   </md-card-content>
 </md-card>

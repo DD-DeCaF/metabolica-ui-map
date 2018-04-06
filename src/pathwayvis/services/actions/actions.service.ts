@@ -1,8 +1,21 @@
+// Copyright 2018 Novo Nordisk Foundation Center for Biosustainability, DTU.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import * as _ from 'lodash';
 
 import { Action, ReactionAction } from './base';
 import { SharedService } from '../shared.service';
-
 import * as types from '../../types';
 
 /**
@@ -43,7 +56,8 @@ export class ActionsService {
    * @return {types.Action} Action
    */
   public getAction(type: string): types.Action {
-    return _.first(actionsList.filter((action: types.Action) => action.type === type));
+    const actionSelected = actionsList.filter((action: types.Action) => action.type === type);
+    return actionSelected[0] || null;
   }
 
   /**
@@ -65,7 +79,7 @@ class Knockout extends ReactionAction implements Action {
 
 
   public canDisplay(context) {
-    const isRemoved = !_.includes(context.shared.removedReactions, context.element.bigg_id);
+    const isRemoved = !context.shared.removedReactions.includes(context.element.bigg_id);
     return context.type === 'map:reaction' && isRemoved;
   }
 }
@@ -78,11 +92,36 @@ class UndoKnockout extends Knockout {
 
   public canDisplay(context) {
     if (context.shared.removedReactions) {
-      const isRemoved = _.includes(context.shared.removedReactions, context.element.bigg_id);
+      const isRemoved = context.shared.removedReactions.includes(context.element.bigg_id);
       return context.type === 'map:reaction' && isRemoved;
     }
 
     return false;
+  }
+}
+
+@registerAction
+// tslint:disable-next-line
+class SetObjective extends ReactionAction implements Action {
+  public label = 'Set as objective';
+  public type: string = 'reaction:objective:do';
+  public shared: types.MapData;
+
+  public canDisplay(context) {
+    return context.type === 'map:reaction' &&
+    context.shared.objectiveReaction !== context.element.bigg_id;
+  }
+}
+
+@registerAction
+// tslint:disable-next-line
+class UndoSetObjective extends SetObjective {
+  public label = 'Undo set as objective';
+  public type: string = 'reaction:objective:undo';
+
+  public canDisplay({type, shared, element}) {
+    return type === 'map:reaction' &&
+      shared.objectiveReaction === element.bigg_id;
   }
 }
 

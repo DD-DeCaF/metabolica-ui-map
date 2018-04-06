@@ -1,6 +1,22 @@
+// Copyright 2018 Novo Nordisk Foundation Center for Biosustainability, DTU.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import * as angular from "angular";
+import * as Rx from 'rxjs/Rx';
 
 import { MapOptionService } from "../../../services/mapoption.service";
+import { SharedService } from '../../../services/shared.service';
 import { AddedReaction, BiggReaction } from "../../../types";
 
 const DecafBiggProxy = 'https://api-staging.dd-decaf.eu/bigg/';
@@ -10,22 +26,33 @@ class AddedReactionsController {
 
   private _$http: angular.IHttpService;
   private _mapOptions: MapOptionService;
+  private _shared: SharedService;
 
-  constructor($http: angular.IHttpService,
-    mapOptions: MapOptionService) {
-    this._$http = $http;
-    this._mapOptions = mapOptions;
+  constructor(
+    $http: angular.IHttpService,
+    mapOptions: MapOptionService,
+    $scope: angular.IScope,
+    shared: SharedService) {
+      this._$http = $http;
+      this._mapOptions = mapOptions;
+      this._shared = shared;
 
-    mapOptions.addedReactionsObservable.subscribe((reactions) => {
-      this.addedReactions = reactions;
-    });
+      const subscription = new Rx.Subscription();
+      subscription.add(mapOptions.addedReactionsObservable.subscribe((reactions) => {
+        this.addedReactions = reactions;
+      }));
+
+      $scope.$on('$destroy', () => {
+        subscription.unsubscribe();
+      });
   }
 
   public async selectedItemChange(item: BiggReaction) {
     if (!item) return;
 
-    const response = await this._$http.get(`${DecafBiggProxy}${item.model_bigg_id.toLowerCase()}/reactions/${item.bigg_id}`);
-    const responseData = (<any> response.data);
+    const url = `${DecafBiggProxy}${item.model_bigg_id.toLowerCase()}/reactions/${item.bigg_id}`;
+    const biggResponse = await this._shared.async(this._$http.get(url));
+    const responseData = (<any> biggResponse.data);
     let metanetx_id: string;
     try {
       metanetx_id = responseData.database_links['MetaNetX (MNX) Equation'][0].id;
@@ -43,7 +70,9 @@ class AddedReactionsController {
       metabolites,
       metanetx_id,
     };
-    this._mapOptions.addReaction(reaction).then(this.updateMapData.bind(this));
+    this._shared.async(this._mapOptions.addReaction(reaction).then((response) => {
+      this._mapOptions.updateMapData(response, this._mapOptions.getSelectedId());
+    }));
   }
 
   public querySearch(query: string) {
@@ -52,18 +81,13 @@ class AddedReactionsController {
   }
 
   public onReactionRemoveClick({bigg_id}) {
-    this._mapOptions.removeReaction(bigg_id).then(this.updateMapData.bind(this));
+    this._mapOptions.removeReaction(bigg_id).then((response) => {
+      this._mapOptions.updateMapData(response, this._mapOptions.getSelectedId());
+    });
   }
 
   public addedReactionDisplay(item) {
     return item.name || item.id;
-  }
-
-  private updateMapData(response) {
-    this._mapOptions.setCurrentGrowthRate(parseFloat(response['growth-rate']));
-    this._mapOptions.setReactionData(response.fluxes);
-    this._mapOptions.setDataModel(response.model);
-    this._mapOptions.setRemovedReactions(response['removed-reactions']);
   }
 }
 

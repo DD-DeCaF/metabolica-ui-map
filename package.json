@@ -3,7 +3,7 @@
   "version": "1.2.0",
   "main": "src/index.js",
   "dependencies": {
-    "@dd-decaf/escher": "1.6.31",
+    "@dd-decaf/escher": "1.6.34",
     "angular": "^1.6.2",
     "angular-fixed-table-header": "github:daniel-nagy/fixed-table-header",
     "angular-material-data-table": "^0.10.10",
@@ -13,7 +13,8 @@
     "jquery-ui": "^1.12.1",
     "lodash": "^4.16.4",
     "metabolica": "github:biosustain/metabolica-ui",
-    "rxjs": "^5.5.6"
+    "rxjs": "^5.5.6",
+    "tinier": "^0.5.1"
   },
   "scripts": {
     "build": "webpack",

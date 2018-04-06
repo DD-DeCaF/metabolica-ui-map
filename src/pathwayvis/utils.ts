@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import angular from 'angular';
-import { DevAppModule } from 'metabolica';
-import { PathwayVisModule } from './pathwayvis/pathwayvis.module';
-export { PathwayVisModule } from './pathwayvis/pathwayvis.module';
+export function _mapValues (object, callback) {
+    return Object.assign({},
+        ...Object.entries(object)
+          .map(([key, value]) => ({[key]: callback(value)})));
+}
 
-
-export const PathwayVisAppModule = angular.module('PathwayVisApp', [
-  DevAppModule.name,
-  PathwayVisModule.name
-]);
+export function _pickBy (object, callback) {
+    return Object.assign({},
+        ...Object.entries(object).filter(([key, value]) => (callback(value)))
+          .map(([key, value]) => ({[key]: value})));
+}

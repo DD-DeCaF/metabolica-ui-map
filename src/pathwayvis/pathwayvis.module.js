@@ -1,7 +1,21 @@
+// Copyright 2018 Novo Nordisk Foundation Center for Biosustainability, DTU.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import angular from 'angular';
 import { AppModule } from 'metabolica';
 import { APIService } from './services/api';
-import { WSService } from './services/ws';
+import { ConnectionsService } from './services/connections';
 import { ToastService } from './services/toastservice'
 import { MapOptionService } from './services/mapoption.service';
 import { MapService } from './services/map.service';
@@ -14,6 +28,7 @@ import { DataCardComponent } from './components/datacard/datacard.component';
 import { ActionsService } from './services/actions/actions.service';
 import MAP_ICON from '../../img/icons/map_icon.svg';
 import { DecafAPIProvider } from './providers/decafapi.provider';
+import { LoggerProvider } from './providers/log.provider';
 import { ModelAPIProvider } from './providers/modelapi.provider';
 import { ModelWSProvider } from './providers/modelws.provider';
 import { LegendComponent } from './components/legend/legend.component';
@@ -30,10 +45,11 @@ export const PathwayVisModule = angular.module('pathwayvis', [
   ReactionsPanelModule.name,
 ])
   .provider('decafAPI', DecafAPIProvider)
+  .provider('logger', LoggerProvider)
   .provider('modelAPI', ModelAPIProvider)
   .provider('modelWS', ModelWSProvider)
   .service('api', APIService)
-  .service('ws', WSService)
+  .service('connections', ConnectionsService)
   .service('actions', ActionsService)
   .service('toastService', ToastService)
   .service('mapService', MapService)

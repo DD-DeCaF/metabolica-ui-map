@@ -1,3 +1,17 @@
+// Copyright 2018 Novo Nordisk Foundation Center for Biosustainability, DTU.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import * as types from '../types';
 import * as angular from "angular";
 import * as Rx from 'rxjs/Rx';
@@ -7,21 +21,34 @@ import { ToastService } from "./toastservice";
 import { ActionsService } from "./actions/actions.service";
 import { MapDataObject } from "../models/MapDataObject";
 import { DataHandler } from "../models/DataHandler";
+import { SharedService } from '../services/shared.service';
+import { Logger } from '../providers/log.provider';
+
 // TODO @matyasfodor access these through types. (..)
 import { AddedReaction, Experiment, Method, ObjectType, Phase, Sample, Species, MapSettings } from "../types";
 import { ExperimentService } from "./experiment.service";
 
 export class MapOptionService {
   private experimentService: ExperimentService;
-  public shouldUpdateData: boolean;
-  public modelsIds: string[];
   private apiService: APIService;
   private dataHandler: DataHandler;
-  public shouldLoadMap: boolean;
+  private $q: angular.IQService;
+  private logger: Logger;
 
+  public componentCB: () => void = null;
+
+  public shouldUpdateData: boolean = false;
+  public shouldLoadMap: boolean = false;
+  public modelsIds: string[];
+
+  public loaded: angular.IPromise<void>;
   public selectedCardId: number;
 
-  public mapSettings: types.MapSettings;
+  public mapSettings: types.MapSettings = {
+    map_id: 'Central metabolism',
+    model_id: null,
+    map: <types.MetabolicMap> {},
+  };
 
   private speciesList: Species[] = [];
 
@@ -38,14 +65,23 @@ export class MapOptionService {
 
   public removedReactionsObservable: Rx.Observable<any>;
   private removedReactionsSubject: Rx.Subject<any>;
+
+  public objectiveReactionObservable: Rx.Observable<any>;
+  private objectiveReactionSubject: Rx.Subject<any>;
   // TODO rename services to lowercase
-  constructor(api: APIService, toastService: ToastService,
-    actions: ActionsService,
-    experimentService: ExperimentService) {
+  constructor(
+      api: APIService,
+      toastService: ToastService,
+      actions: ActionsService,
+      experimentService: ExperimentService,
+      $q: angular.IQService,
+      logger: Logger) {
     this.apiService = api;
     this.toastService = toastService;
     this.actions = actions;
     this.experimentService = experimentService;
+    this.$q = $q;
+    this.logger = logger;
 
     this.reactionsSubject = new Rx.Subject();
     this.reactionsObservable = this.reactionsSubject.asObservable();
@@ -55,34 +91,35 @@ export class MapOptionService {
 
     this.removedReactionsSubject = new Rx.Subject();
     this.removedReactionsObservable = this.removedReactionsSubject.asObservable();
-    this.init();
+
+    this.objectiveReactionSubject = new Rx.Subject();
+    this.objectiveReactionObservable = this.objectiveReactionSubject.asObservable();
+
+    this.dataHandler = new DataHandler();
+    this.loaded = this.init();
   }
 
-  public init(): void {
-    this.apiService.get('species/current').then((response: types.CallbackEmbeddedResponse<any>) => {
-      const species = response.data.response;
-      this.speciesList = Object.entries(species).map(([id, name]) => ({ id, name }));
-
-      // Set selected species
-      this.setModelsFromSpecies(this.selectedSpecies);
-    });
-    this.dataHandler = new DataHandler();
-    this.selectedCardId = this.dataHandler.addObject(ObjectType.Reference);
-
-    this.mapSettings = <types.MapSettings> {
+  public init(): angular.IPromise<void> {
+    this.mapSettings = {
+      map: <types.MetabolicMap> {},
       map_id: 'Central metabolism',
       model_id: null,
-      map: {},
     };
+    this.dataHandler = new DataHandler();
 
-    this.shouldLoadMap = false;
-    this.shouldUpdateData = false;
-
-    this.setExperimentsFromSpecies();
+    return this.$q.all([
+      this.apiService.get('species/current').then((response: types.CallbackEmbeddedResponse<any>) => {
+        this.speciesList = Object.entries(response.data.response)
+          .map(([id, name]) => (<Species> { id, name }));
+        // Set selected species
+        return this.setModelsFromSpecies(this.selectedSpecies);
+      }),
+      this.setExperimentsFromSpecies(),
+    ]).then(() => {/* */});
   }
 
-  private setExperimentsFromSpecies(speciesCode = this.selectedSpecies): void {
-    this.experimentService.setExperiments(speciesCode);
+  private setExperimentsFromSpecies(speciesCode = this.selectedSpecies): angular.IPromise<void> {
+    return this.experimentService.setExperiments(speciesCode);
   }
 
   public getSelectedSpecies(): string {
@@ -152,17 +189,26 @@ export class MapOptionService {
     return this.getDataObject().mapData.removedReactions;
   }
 
-  public setRemovedReactions(reactions: string[]) {
-    this.getDataObject().setRemovedReactions(reactions);
+  public setRemovedReactions(reactions: string[], id: number) {
+    this.getDataObject(id).setRemovedReactions(reactions);
     this.removedReactionsSubject.next(reactions);
+  }
+
+  public getObjectiveReaction(): string {
+    return this.getDataObject().mapData.objectiveReaction;
+  }
+
+  public setObjectiveReaction(reaction: string) {
+    this.getDataObject().setObjectiveReaction(reaction);
+    this.objectiveReactionSubject.next(reaction);
   }
 
   public getCurrentGrowthRate(): number {
     return this.getDataObject().mapData.map.growthRate;
   }
 
-  public setCurrentGrowthRate(growthRate: number) {
-    this.getDataObject().mapData.map.growthRate = growthRate;
+  public setCurrentGrowthRate(growthRate: number, id: number) {
+    this.getDataObject(id).mapData.map.growthRate = growthRate;
   }
 
   // @matyasfodor no check for undefined
@@ -199,15 +245,12 @@ export class MapOptionService {
     // Return value is not obvious.
     if (experimentId) {
       return this.apiService
-        .get('experiments/:experimentId/samples', { experimentId });
+        .get(`experiments/${experimentId}/samples`);
     }
   }
 
   public getPhases(sampleIds: number[]): angular.IPromise<Object> {
-    // Check should not happen here
-    if (sampleIds) {
-      return this.apiService.post('samples/phases', { sampleIds });
-    }
+    return this.apiService.post('samples/phases', { sampleIds });
   }
 
   public setModelsFromSample(sample: string): void {
@@ -219,20 +262,20 @@ export class MapOptionService {
       });
   }
 
-  public speciesChanged(species: string): void {
-    this.setModelsFromSpecies(species);
-    this.setExperimentsFromSpecies(species);
+  public speciesChanged(species: string): any {
+    return this.$q.all([
+      this.setModelsFromSpecies(species),
+      this.setExperimentsFromSpecies(species),
+    ]);
   }
 
-  public setModelsFromSpecies(species: string): void {
-    if (species) {
-      let url = 'model-options/' + species;
-      this.apiService.getModel(url, {}).then((response: angular.IHttpPromiseCallbackArg<any>) => {
+  public setModelsFromSpecies(species: string): angular.IPromise<void> {
+    return this.apiService.getModel(`model-options/${species}`)
+      .then((response: angular.IHttpPromiseCallbackArg<any>) => {
         this.modelsIds = response.data;
         this.shouldUpdateData = true;
         this.mapSettings.model_id = this.modelsIds[0];
-      });
-    }
+    });
   }
 
   public getModels(): string[] {
@@ -259,8 +302,10 @@ export class MapOptionService {
     return id === this.selectedCardId;
   }
 
-  public addRefMapObject(): void {
-    this.selectedCardId = this.dataHandler.addObject(ObjectType.Reference);
+  public addRefMapObject(): number {
+    const id = this.dataHandler.addObject(ObjectType.Reference);
+    this.selectedCardId = id;
+    return id;
   }
 
   public addExpMapObject(): void {
@@ -289,25 +334,56 @@ export class MapOptionService {
   public setSelectedId(id: number) {
     this.shouldLoadMap = false;
     this.selectedCardId = id;
+
+    const newMapData = this.getDataObject().mapData;
+    this.addedReactionsSubject.next(newMapData.addedReactions);
+    this.removedReactionsSubject.next(newMapData.removedReactions);
+    this.objectiveReactionSubject.next(newMapData.objectiveReaction);
+    this.reactionsSubject
+      .next(newMapData.model.reactions
+        .map((r) => ({id: r.id, name: r.name})));
   }
 
   public actionHandler(
     action,
-    {id = null, reaction = null, reactions = null}: {id?: string, reaction?: AddedReaction, reactions?: AddedReaction[]}): any {
+    {id = null, reactions = null}: {id?: string, reactions?: AddedReaction[]}): any {
     const shared = angular.copy(this.getMapData());
 
     // TODO write a nice, functional switch-case statement
     if (action.type === 'reaction:knockout:do') {
-      if (id) shared.removedReactions.push(id);
+      if (id) {
+        shared.removedReactions.push(id);
+        if (id === this.getObjectiveReaction()) {
+          this.setObjectiveReaction(null);
+        }
+      }
+      this.logger.log('event', 'knockout', {
+        event_category: 'PathwayMap',
+        event_label: id,
+      });
     } else if (action.type === 'reaction:knockout:undo') {
       let index = shared.removedReactions.indexOf(id);
       if (index > -1) {
         shared.removedReactions.splice(index, 1);
       }
     } else if (action.type === 'reaction:update') {
-      if (reaction) shared.addedReactions.push(reaction);
+      shared.addedReactions = [...shared.addedReactions, ...reactions];
+      this.logger.log('event', 'add reaction', {
+        event_category: 'PathwayMap',
+        event_label: id,
+      });
+    } else if (action.type === 'reaction:objective:do') {
+      if (id) {
+        shared.objectiveReaction = id;
+        this.logger.log('event', 'set objective reaction', {
+          event_category: 'PathwayMap',
+          event_label: id,
+        });
+      }
+    } else if (action.type === 'reaction:objective:undo') {
+      shared.objectiveReaction = null;
     }
-    return this.actions.callAction(action, { shared: shared });
+    return this.actions.callAction(action, { shared, cardId: this.getSelectedId()});
   }
 
   public dataUpdated(): void {
@@ -320,11 +396,6 @@ export class MapOptionService {
 
   public setMap(map: object): void {
     this.mapSettings.map.map = map;
-  }
-
-  public setModel(model: types.Model, id: number = this.selectedCardId) {
-    this.shouldUpdateData = true;
-    this.getDataObject(id).mapData.model = model;
   }
 
   public setModelId(modelId: string): void {
@@ -369,8 +440,12 @@ export class MapOptionService {
     this.addedReactionsSubject.next(reactions);
   }
 
-  public addReaction(addedReaction: AddedReaction): any {
-    return this.actionHandler(this.actions.getAction('reaction:update'), {reaction: addedReaction});
+  public addReactions(reactions: AddedReaction[]): any {
+    return this.actionHandler(this.actions.getAction('reaction:update'), {reactions});
+  }
+
+  public addReaction(reaction: AddedReaction): any {
+    return this.addReactions([reaction]);
   }
 
   public removeReaction(bigg_id: string): any {
@@ -387,5 +462,18 @@ export class MapOptionService {
 
   public getSharedPathway(): any {
     return this.getMapData().pathwayData;
+  }
+
+  public updateMapData(data, id: number) {
+    // Bug: If a ws computation is triggered
+    // and the user navigates to a different card
+    // then the changes will be present there.
+    this.setCurrentGrowthRate(parseFloat(data['growth-rate']), id);
+    this.setReactionData(data.fluxes, id);
+    this.setDataModel(data.model, null, id);
+    this.setRemovedReactions(data['removed-reactions'], id);
+    if (this.getSelectedId() === id) {
+      this.componentCB();
+    }
   }
 }

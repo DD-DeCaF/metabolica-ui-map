@@ -1,3 +1,17 @@
+// Copyright 2018 Novo Nordisk Foundation Center for Biosustainability, DTU.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import * as template from './cardcontroller.component.html';
 import { MapOptionService } from "../../services/mapoption.service";
 import { Species } from "../../types";
@@ -12,14 +26,24 @@ class CardControllerComponentCtrl {
 
   constructor(mapOptions: MapOptionService,
     $interval: angular.IIntervalService,
-    $mdSidenav: angular.material.ISidenavService,
+    $scope: angular.IScope,
+    $rootScope: angular.IRootScopeService,
   ) {
     this.mapOptions = mapOptions;
     this.$interval = $interval;
 
-    $mdSidenav('right').open();
-
     this.species = this.mapOptions.selectedSpecies;
+
+    $scope.$watch('this.mapOptions.selectedSpecies', (selectedSpecies: string) => {
+      if (selectedSpecies) {
+        this.species = selectedSpecies;
+      }
+    });
+
+    $rootScope.$on('sharing.species', (event, newSpecies) => {
+      this.species = newSpecies;
+      this.changeSpecies();
+    });
   }
 
   public speciesList(): Species[] {

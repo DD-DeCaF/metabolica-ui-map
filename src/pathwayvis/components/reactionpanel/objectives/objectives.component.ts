@@ -16,16 +16,11 @@ import * as angular from "angular";
 import * as Rx from 'rxjs/Rx';
 
 import { MapOptionService } from "../../../services/mapoption.service";
-import { AddedReaction, BiggReaction } from "../../../types";
 import { ActionsService } from "../../../services/actions/actions.service";
-import { access } from "fs";
 
-const DecafBiggProxy = 'https://api-staging.dd-decaf.eu/bigg/';
-
-class KnockoutsController {
+class ObjectivesController {
   public modelReactions = [];
-  public removedReactions = [];
-
+  public objectiveReaction: string = null;
   private _mapOptions: MapOptionService;
   private _actions: ActionsService;
 
@@ -41,22 +36,12 @@ class KnockoutsController {
         this.modelReactions = reactions;
       }));
 
-      subscription.add(mapOptions.removedReactionsObservable.subscribe((reactions) => {
-        this.removedReactions = reactions;
+      subscription.add(mapOptions.objectiveReactionObservable.subscribe((reaction) => {
+        this.objectiveReaction = reaction;
       }));
 
       $scope.$on('$destroy', () => {
         subscription.unsubscribe();
-      });
-  }
-
-  public removeReactionSelectedItem(item) {
-    if (!item) return;
-    const doKnockoutAction = this._actions.getAction('reaction:knockout:do');
-
-    this._mapOptions.actionHandler(doKnockoutAction, { id: item.id })
-      .then((response) => {
-        this._mapOptions.updateMapData(response, this._mapOptions.getSelectedId());
       });
   }
 
@@ -68,26 +53,39 @@ class KnockoutsController {
     });
   }
 
-  public onUndoClick(selectedReaction: string): void {
-    const undoKnockoutAction = this._actions.getAction('reaction:knockout:undo');
-    this._mapOptions.actionHandler(undoKnockoutAction, { id: selectedReaction })
+  public setAsObjectiveSelectedItem(item) {
+    if (!item) return;
+    const doObjectiveAction = this._actions.getAction('reaction:objective:do');
+    this._mapOptions.setObjectiveReaction(item.id);
+    this._mapOptions.actionHandler(doObjectiveAction, { id: item.id })
       .then((response) => {
         this._mapOptions.updateMapData(response, this._mapOptions.getSelectedId());
       });
   }
 
+  public onUndoClick(selectedReaction: string): void {
+    const undoObjectiveAction = this._actions.getAction('reaction:objective:undo');
+    this._mapOptions.setObjectiveReaction(null);
+    this.objectiveReaction = null;
+    this._mapOptions.actionHandler(undoObjectiveAction, { id: selectedReaction })
+      .then((response) => {
+        this._mapOptions.updateMapData(response, this._mapOptions.getSelectedId());
+      });
+  }
+
+
 }
 
-export const KnockoutsComponent = {
-  controller: KnockoutsController,
+export const ObjectivesComponent = {
+  controller: ObjectivesController,
   template: `
   <rp-panel-item
-    on-item-select="$ctrl.removeReactionSelectedItem(item)"
+    on-item-select="$ctrl.setAsObjectiveSelectedItem(item)"
     query-search="$ctrl.queryModelReactions(query)"
-    placeholder="'Enter the reaction you want to remove'"
-    missing-items="'No knocked out reactions'"
-    header="'Removed reactions:'"
-    items="$ctrl.removedReactions"
+    placeholder="'Enter the reaction to set as objective'"
+    missing-items="'Nothing as objective'"
+    header="'Objective:'"
+    item="$ctrl.objectiveReaction"
     on-remove-item="$ctrl.onUndoClick(item)">
     id-property="'id'">
   </rp-panel-item>`,

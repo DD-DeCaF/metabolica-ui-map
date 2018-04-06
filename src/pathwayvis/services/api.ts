@@ -1,11 +1,20 @@
-import * as _ from 'lodash';
+// Copyright 2018 Novo Nordisk Foundation Center for Biosustainability, DTU.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import { DecafAPIProvider } from '../providers/decafapi.provider';
 import { ModelAPIProvider } from '../providers/modelapi.provider';
 
-interface RequestDetails {
-  path: string;
-  params: Object;
-}
 
 export class APIService {
   private _http: angular.IHttpService;
@@ -38,53 +47,13 @@ export class APIService {
     return this._request('POST', path, data, parameters, this.model);
   }
 
-  public put(path: string, data: Object, parameters: Object = {}): angular.IPromise<Object> {
-    return this._request('PUT', path, data, parameters, this.api);
-  }
-
-  public patch(path: string, data: Object, parameters: Object = {}): angular.IPromise<Object> {
-    return this._request('PATCH', path, data, parameters, this.api);
-  }
-
-  public delete(path: string, data: Object, parameters: Object = {}): angular.IPromise<Object> {
-    return this._request('DELETE', path, data, parameters, this.api);
-  }
-
   private _request(method: string, path: string, data: Object, params: Object, api): angular.IHttpPromise<any> {
-
-    const reqDetails = this._handleParams(path, params);
-
     return this._http({
       method: method,
       data: data,
-      url: `${api}/${reqDetails.path}`,
-      params: reqDetails.params,
-    });
-  }
-
-  // @matyasfodor Impossible to understand this
-  // There's probably a library which does this
-  private _parseUrlParams(path: string): string[] {
-    return _.compact(_.map(path.split(/\W/), (param) => {
-      if (!(new RegExp('^\\d+$').test(param)) && param && (new RegExp('(^|[^\\\\]):' + param + '(\\W|$)').test(path))) {
-        return param;
-      }
-    }));
-  }
-
-  private _handleParams(path: string, params: Object): RequestDetails {
-    const urlParamKeys = _.intersection(_.keys(params), this._parseUrlParams(path));
-
-    _.each(urlParamKeys, (key) => {
-      path = path.replace(':' + key, params[key]);
-      // @matyasfodor This mutates the input
-      delete params[key];
-    });
-
-    return {
-      path: path,
+      url: `${api}/${path}`,
       params: params,
-    };
+    });
   }
-}
 
+}

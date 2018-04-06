@@ -12,13 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import angular from 'angular';
-import { DevAppModule } from 'metabolica';
-import { PathwayVisModule } from './pathwayvis/pathwayvis.module';
-export { PathwayVisModule } from './pathwayvis/pathwayvis.module';
+export interface Logger {
+  log: (...args: any[]) => any;
+}
 
+export class LoggerProvider {
+  public loggerFunction = (...args) => {
+    console.log('[gtag]', ...args);
+  }
 
-export const PathwayVisAppModule = angular.module('PathwayVisApp', [
-  DevAppModule.name,
-  PathwayVisModule.name
-]);
+  public $get(): Logger {
+    return {
+      log: this.loggerFunction,
+    };
+  }
+}
