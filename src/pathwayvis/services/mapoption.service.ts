@@ -372,6 +372,7 @@ export class MapOptionService {
     this.selectedCardId = id;
 
     const newMapData = this.getDataObject().mapData;
+    this.componentCB();
     this.addedReactionsSubject.next(newMapData.addedReactions);
     this.removedReactionsSubject.next(newMapData.removedReactions);
     this.objectiveReactionSubject.next(newMapData.objectiveReaction);
