@@ -262,7 +262,7 @@ class MapComponentCtrl {
     this.shared.async(this._api.getModel('map', {
       'model': model_id,
       'map': map_id,
-    }).then((response: angular.IHttpPromiseCallbackArg<types.Phase[]>) => {
+    }).then((response: angular.IHttpPromiseCallbackArg<types.MetabolicMap>) => {
       this._mapOptions.setMap(response.data);
     }, () => {
       this.toastService.showErrorToast('Oops! Sorry, there was a problem loading selected map.');
