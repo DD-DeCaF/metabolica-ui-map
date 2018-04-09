@@ -398,7 +398,6 @@ export class MapOptionService {
       shared.objectiveReaction = null;
     }
     if (action.type === 'reaction:bounds:do') {
-      console.log("SHARED", shared);
       if (id) {
         shared.bounds = bounds;
         shared.changedReactions.push({id: id, bounds: bounds});

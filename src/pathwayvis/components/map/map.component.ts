@@ -357,9 +357,6 @@ class MapComponentCtrl {
         } else if (data.bigg_id === this._mapOptions.getObjectiveReaction()) {
           this._mapOptions.setObjectiveReaction(null);
         }
-        if (action.type.startsWith('reaction:bounds')) {
-          this._mapOptions.setChangedReactions(action.type.endsWith('undo') ? null : data.changedReactions);
-        }
         this._getContext();
       }, (error) => {
         this.toastService.showErrorToast('Oops! Sorry, there was a problem.');
@@ -513,8 +510,8 @@ class MapComponentCtrl {
   public handleChangeBounds(args) {
     const bounds = [];
     const tooltipContainer = d3.select('div#tooltip-container');
-    bounds.push(tooltipContainer.select('#lowerbound').property("value"));
-    bounds.push(tooltipContainer.select('#upperbound').property("value"));
+    bounds.push(parseInt(tooltipContainer.select('#lowerbound').property("value")));
+    bounds.push(parseInt(tooltipContainer.select('#upperbound').property("value")));
     console.log('[change-bounds]', bounds);
     this.contextElement = Object.assign({}, this.contextElement, {
       bounds: bounds,

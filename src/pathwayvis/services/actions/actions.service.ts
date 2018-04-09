@@ -133,7 +133,6 @@ class ChangeBounds extends ReactionAction implements Action {
   public shared: types.MapData;
 
   public canDisplay(context) {
-    console.log("CONTEXT", context);
     const isRemoved = !context.shared.changedReactions.includes(context.element.bigg_id);
     return context.type === 'map:reaction' && isRemoved;
   }
@@ -146,7 +145,6 @@ class UndoChangeBounds extends ChangeBounds {
   public type: string = 'reaction:bounds:undo';
 
   public canDisplay(context) {
-    console.log("CONTEXT", context);
     if (context.shared.changedReactions) {
       const isRemoved = context.shared.changedReactions.includes(context.element.bigg_id);
       return context.type === 'map:reaction' && isRemoved;

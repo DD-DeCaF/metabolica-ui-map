@@ -51,9 +51,9 @@ export abstract class ReactionAction extends Action {
     if (this.shared.objectiveReaction) {
       data['objective'] = this.shared.objectiveReaction;
     }
-    console.log("CHANGED REACTIONS", this.shared.changedReactions);
     if (this.shared.bounds.length > 0) {
       data['bounds'] = this.shared.bounds;
+      data['changed-reactions'] = this.shared.changedReactions;
     }
 
     if (!this.shared.model.uid) {
