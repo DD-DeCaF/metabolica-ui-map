@@ -29,7 +29,6 @@ export class PathwayVisComponentController {
     private $scope: angular.IScope;
     private mapOptions: MapOptionService;
     private $q: angular.IQService;
-    private $timeout: angular.ITimeoutService;
     private shared: SharedService;
     private rootScope: angular.IRootScopeService;
 
@@ -40,7 +39,6 @@ export class PathwayVisComponentController {
                 $sharing,
                 mapOptions: MapOptionService,
                 $q: angular.IQService,
-                $timeout: angular.ITimeoutService,
                 shared: SharedService,
                 $rootScope: angular.IRootScopeService,
     ) {
@@ -49,7 +47,6 @@ export class PathwayVisComponentController {
         this.mapOptions = mapOptions;
         this.showInfo = false;
         this.$q = $q;
-        this.$timeout = $timeout;
         this.shared = shared;
         this.rootScope = $rootScope;
     }
