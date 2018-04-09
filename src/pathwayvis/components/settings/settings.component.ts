@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import * as Rx from 'rxjs';
 import * as types from '../../types';
 import * as template from './settings.component.html';
 import * as angular from "angular";
@@ -21,11 +22,15 @@ import { MapOptionService } from "../../services/mapoption.service";
 class SettingsComponentController {
   private $interval: angular.IIntervalService;
   private $mdSidenav: angular.material.ISidenavService;
+  private $scope: angular.IScope;
 
+  public hideSettingsObservable: Rx.Observable<boolean>;
   public mapOptions: MapOptionService;
   public animating: boolean = false;
 
-  constructor($mdSidenav: angular.material.ISidenavService,
+  constructor(
+    $scope: angular.IScope,
+    $mdSidenav: angular.material.ISidenavService,
     mapOptions: MapOptionService,
     $interval: angular.IIntervalService,
     $mdComponentRegistry,
@@ -33,9 +38,20 @@ class SettingsComponentController {
     this.mapOptions = mapOptions;
     this.$mdSidenav = $mdSidenav;
     this.$interval = $interval;
+    this.$scope = $scope;
 
     $mdComponentRegistry.when('right').then((sideNav) => {
       sideNav.open();
+    });
+  }
+
+  public $onInit() {
+    const hideSettingsSubscription = this.hideSettingsObservable.subscribe(() => {
+      this.$mdSidenav('right').close();
+    });
+
+    this.$scope.$on('$destroy', () => {
+      hideSettingsSubscription.unsubscribe();
     });
   }
 
@@ -53,8 +69,11 @@ class SettingsComponentController {
   }
 }
 
-export const SettingsComponent = {
+export const SettingsComponent: angular.IComponentOptions = {
   controller: SettingsComponentController,
   controllerAs: 'ctrl',
   template: template.toString(),
+  bindings: {
+    hideSettingsObservable: '<',
+  },
 };

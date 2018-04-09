@@ -15,8 +15,8 @@
 <div layout="column" flex>
   <div layout="row" layout-xs="column" class="visualisation-module" flex="100" id="map-panel">
     <md-content flex>
-      <pv-settings flex></pv-settings>
-      <pv-map></pv-map>
+      <pv-settings hide-settings-observable="$ctrl.hideSettingsObservable" flex></pv-settings>
+      <pv-map ng-click="$ctrl.mapClick()"></pv-map>
     </md-content>
   </div>
 </div>

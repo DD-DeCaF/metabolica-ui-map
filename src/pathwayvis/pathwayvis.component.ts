@@ -12,10 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import * as Rx from 'rxjs/Rx';
+import * as angular from "angular";
+
 import * as types from './types';
+
 import * as template from './views/pathwayvis.component.html';
 import './views/pathwayvis.component.scss';
-import * as angular from "angular";
+
 import {MapOptionService} from "./services/mapoption.service";
 import { SharedService } from './services/shared.service';
 
@@ -28,6 +32,9 @@ export class PathwayVisComponentController {
     private $timeout: angular.ITimeoutService;
     private shared: SharedService;
     private rootScope: angular.IRootScopeService;
+
+    private hideSettingsSubject = new Rx.Subject<boolean>();
+    public hideSettingsObservable = this.hideSettingsSubject.asObservable();
 
     constructor($scope: angular.IScope,
                 $sharing,
@@ -89,6 +96,10 @@ export class PathwayVisComponentController {
             });
           }));
         }
+    }
+
+    public mapClick() {
+      this.hideSettingsSubject.next(true);
     }
 }
 

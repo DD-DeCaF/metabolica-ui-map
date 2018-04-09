@@ -16,8 +16,11 @@ import * as escher from '@dd-decaf/escher';
 import * as d3 from 'd3';
 import { event as currentEvent } from 'd3';
 import * as Rx from 'rxjs/Rx';
+<<<<<<< HEAD
 import * as tinier from 'tinier';
 import * as angular from "angular";
+=======
+>>>>>>> feat: remove backdrop; add event listener to map component to hide sidenav
 
 import { APIService } from '../../services/api';
 import { ConnectionsService } from '../../services/connections';
