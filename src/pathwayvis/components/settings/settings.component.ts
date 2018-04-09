@@ -26,18 +26,15 @@ class SettingsComponentController {
 
   public hideSettingsObservable: Rx.Observable<boolean>;
   public mapOptions: MapOptionService;
-  public animating: boolean = false;
 
   constructor(
     $scope: angular.IScope,
     $mdSidenav: angular.material.ISidenavService,
     mapOptions: MapOptionService,
-    $interval: angular.IIntervalService,
     $mdComponentRegistry,
   ) {
     this.mapOptions = mapOptions;
     this.$mdSidenav = $mdSidenav;
-    this.$interval = $interval;
     this.$scope = $scope;
 
     $mdComponentRegistry.when('right').then((sideNav) => {
