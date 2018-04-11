@@ -147,7 +147,6 @@ class MapComponentCtrl {
       if (!changes) {
         return;
       }
-      this._loadModel();
       if (changes.added.reactions) {
         // TODO filter out adapter and DM reactions
         const reactions = changes.added.reactions.filter((reaction) => {
@@ -161,6 +160,17 @@ class MapComponentCtrl {
           }));
         this._mapOptions.setAddedReactions(reactions);
       }
+      if (changes.measured.reactions) {
+        // TODO filter out adapter and DM reactions
+        const reactions = changes.measured.reactions.filter((reaction) => {
+          return !['adapter', 'DM', 'EX_'].some((str) => {
+            return reaction.id.startsWith(str);
+          });
+        });
+        this._mapOptions.setChangedReactions(reactions);
+        this._setUpMapEventHandlers();
+      }
+      this._loadModel();
     });
 
     $scope.$watch('ctrl._mapOptions.getReactionData()', (reactionData) => {
@@ -508,10 +518,10 @@ class MapComponentCtrl {
   }
 
   public handleChangeBounds(args) {
-    const bounds = [];
+    const bounds = {lower: 0, upper: 0};
     const tooltipContainer = d3.select('div#tooltip-container');
-    bounds.push(parseInt(tooltipContainer.select('#lowerbound').property("value")));
-    bounds.push(parseInt(tooltipContainer.select('#upperbound').property("value")));
+    bounds.lower = parseInt(tooltipContainer.select('#lowerbound').property("value"));
+    bounds.upper = parseInt(tooltipContainer.select('#upperbound').property("value"));
     console.log('[change-bounds]', bounds);
     this.contextElement = Object.assign({}, this.contextElement, {
       bounds: bounds,
