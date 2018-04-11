@@ -474,14 +474,12 @@ class MapComponentCtrl {
    * Loads context menu with _getContext method when you over a reaction.
    */
   private _setUpMapEventHandlers(): void {
-    const reactions = this._mapOptions.getDataModel().reactions;
+    const {reactions} = this._mapOptions.getDataModel();
     d3.selectAll('.reaction, .reaction-label').on('mouseenter', (d) => {
-      const currentReaction = reactions.filter((reaction) => {
-        return d.bigg_id === reaction.id;
-      });
+      const currentReaction = reactions.find((reaction) => reaction.id === d.bigg_id);
       const tooltipContainer = d3.select('div#tooltip-container');
-      tooltipContainer.select('#upperbound').property("value", currentReaction[0].upper_bound);
-      tooltipContainer.select('#lowerbound').property("value", currentReaction[0].lower_bound);
+      tooltipContainer.select('#upperbound').property("value", currentReaction.upper_bound);
+      tooltipContainer.select('#lowerbound').property("value", currentReaction.lower_bound);
         this._getContext();
     });
   }
@@ -523,9 +521,7 @@ class MapComponentCtrl {
     bounds.lower = parseInt(tooltipContainer.select('#lowerbound').property("value"));
     bounds.upper = parseInt(tooltipContainer.select('#upperbound').property("value"));
     console.log('[change-bounds]', bounds);
-    this.contextElement = Object.assign({}, this.contextElement, {
-      bounds: bounds,
-    });
+    this.contextElement = {...this.contextElement, bounds};
     this.$scope.$apply(() =>
       this.processActionClick(this.contextActions[2], this.contextElement));
   }
