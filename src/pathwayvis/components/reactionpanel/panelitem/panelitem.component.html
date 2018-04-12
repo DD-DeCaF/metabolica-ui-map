@@ -13,7 +13,7 @@
 <!--limitations under the License.-->
 
 <md-card>
-  <md-subheader class="md-primary">{{ $ctrl.header}}</md-subheader>
+  <md-subheader class="md-primary">{{ $ctrl.header }} {{ $ctrl.bounds }}</md-subheader>
   <md-card-content>
     <md-autocomplete 
       md-no-cache="true" 
@@ -38,12 +38,23 @@
             <md-icon md-font-icon="close">close</md-icon>
           </md-button>
       </md-list-item>
-      <md-list-item ng-if="$ctrl.items" ng-repeat="item in $ctrl.items">
+      <md-list-item ng-if="$ctrl.items && !$ctrl.bounds" ng-repeat="item in $ctrl.items">
         <span class="md-caption">{{ $ctrl.itemDisplay(item) }}</span>
         <md-button class="md-icon-button md-secondary" ng-click="$ctrl.onRemoveItem({item: item})">
           <md-icon md-font-icon="close">close</md-icon>
         </md-button>
       </md-list-item>
+      <div ng-if="$ctrl.bounds" ng-repeat="item in $ctrl.items">
+        <span class="md-caption">{{ $ctrl.itemDisplay(item) }}</span>
+        <br>
+        <div>
+          <span class="md-caption">{{ item.lower_bound }}</span>
+          <span class="md-caption">{{ item.upper_bound }}</span>
+       </div>
+        <md-button class="md-icon-button md-secondary" ng-click="$ctrl.onRemoveItem({item: item})">
+          <md-icon md-font-icon="close">close</md-icon>
+        </md-button>
+      </div>
 
     </md-list>
   </md-card-content>

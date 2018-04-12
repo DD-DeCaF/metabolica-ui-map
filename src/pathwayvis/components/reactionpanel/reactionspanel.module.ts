@@ -19,6 +19,7 @@ import { KnockoutsComponent } from './knockouts/knockouts.component';
 import { PanelItemComponent } from './panelitem/panelitem.component';
 import { ReactionComponent } from './reaction.component';
 import { ObjectivesComponent } from './objectives/objectives.component';
+import { ChangeBoundsComponent } from './changBounds/changeBounds.component';
 
 export const ReactionsPanelModule = angular.module('ReactionsPanel', [
   'ngMaterial',
@@ -26,5 +27,6 @@ export const ReactionsPanelModule = angular.module('ReactionsPanel', [
   .component('rpAddedReactions', AddedReactionsComponent)
   .component('rpKnockouts', KnockoutsComponent)
   .component('rpObjectives', ObjectivesComponent)
+  .component('rpChangeBounds', ChangeBoundsComponent)
   .component('rpPanelItem', PanelItemComponent)
   .component('rpReactionPanel', ReactionComponent);

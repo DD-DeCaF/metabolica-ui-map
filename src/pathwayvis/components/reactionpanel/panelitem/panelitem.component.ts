@@ -24,6 +24,7 @@ class PanelItemCtrl {
   public header: string;
   public missingItems: string;
   public items;
+  public bounds;
   public onRemoveItem: (item: any) => void;
   public itemDisplay: (item: any) => string;
   public idProperty: string;
@@ -52,5 +53,6 @@ export const PanelItemComponent = {
     onRemoveItem: '&',
     itemDisplay: '&?',
     idProperty: '<',
+    bounds: '<?',
   },
 };
