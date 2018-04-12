@@ -133,8 +133,7 @@ class ChangeBounds extends ReactionAction implements Action {
   public shared: types.MapData;
 
   public canDisplay(context) {
-    const isRemoved = context.shared.changedReactions.find((reaction) => reaction.id === context.element.bigg_id);
-    return context.type === 'map:reaction' && !isRemoved;
+    return context.type === 'map:reaction';
   }
 }
 

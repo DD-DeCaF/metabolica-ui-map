@@ -415,8 +415,11 @@ export class MapOptionService {
       shared.objectiveReaction = null;
     }
     if (action.type === 'reaction:bounds:do') {
-      if (id) {
-        shared.changedReactions.push({id: id, bounds: bounds});
+      let index = shared.changedReactions.findIndex((reaction) => reaction.id === id);
+      if (index === -1) {
+        shared.changedReactions.push({id: id, lower_bound: bounds['lower'], upper_bound: bounds['upper']});
+      } else {
+        shared.changedReactions[index] = {id: id, lower_bound: bounds['lower'], upper_bound: bounds['upper']};
       }
     } else if (action.type === 'reaction:bounds:undo') {
       shared.changedReactions = shared.changedReactions.filter((reaction) => reaction.id !== id);

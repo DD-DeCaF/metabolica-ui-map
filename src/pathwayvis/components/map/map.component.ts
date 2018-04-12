@@ -161,13 +161,16 @@ class MapComponentCtrl {
         this._mapOptions.setAddedReactions(reactions);
       }
       if (changes.measured.reactions) {
+        const {reactions} = this._mapOptions.getDataModel();
         // TODO filter out adapter and DM reactions
-        const reactions = changes.measured.reactions.filter((reaction) => {
+        let measuredReactions = changes.measured.reactions.filter((reaction) => {
           return !['adapter', 'DM', 'EX_'].some((str) => {
             return reaction.id.startsWith(str);
           });
         });
-        this._mapOptions.setChangedReactions(reactions);
+        measuredReactions = reactions.filter((reaction) =>
+           measuredReactions.find((measuredReaction) => measuredReaction.id === reaction.id));
+        this._mapOptions.setChangedReactions(measuredReactions);
         this._setUpMapEventHandlers();
       }
       this._loadModel();
@@ -394,6 +397,7 @@ class MapComponentCtrl {
         knockout: (args) => { this.handleKnockout(args); },
         setAsObjective: (args) => { this.handleSetAsObjective(args); },
         changeBounds: (args) => { this.handleChangeBounds(args); },
+        resetBounds: (args) => { this.handleResetBounds(args); },
         newArgs: (args) => {
           const {biggId, ...restData} = args;
           this.contextElement = {
@@ -524,6 +528,11 @@ class MapComponentCtrl {
     this.contextElement = {...this.contextElement, bounds};
     this.$scope.$apply(() =>
       this.processActionClick(this.contextActions[2], this.contextElement));
+  }
+
+  public handleResetBounds(args) {
+    this.$scope.$apply(() =>
+      this.processActionClick(this.contextActions[3], this.contextElement));
   }
 }
 

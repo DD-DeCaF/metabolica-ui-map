@@ -164,7 +164,8 @@ export interface AddedReaction extends BiggReaction {
 
 export interface ChangedReaction {
   id: string;
-  bounds: number[];
+  lower_bound: number;
+  upper_bound: number;
 }
 
 export interface EmbeddedResponse<T> {
