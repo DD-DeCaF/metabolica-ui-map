@@ -128,18 +128,18 @@ export const Tooltip = (callbacks) =>
             tinier.createElement('div',
               // tooltip style
               { class: 'container-bounds-style' },
-              tinier.createElement('span', {}, 'Upper bound'),
-              tinier.createElement('input',
-                {
-                  class: 'input-style',
-                  id: 'upperbound',
-                  type: 'number',
-                }),
               tinier.createElement('span', {}, 'Lower bound'),
               tinier.createElement('input',
                 {
                   class: 'input-style',
                   id: 'lowerbound',
+                  type: 'number',
+                }),
+              tinier.createElement('span', {}, 'Upper bound'),
+              tinier.createElement('input',
+                {
+                  class: 'input-style',
+                  id: 'upperbound',
                   type: 'number',
                 }),
               tinier.createElement('br'),
