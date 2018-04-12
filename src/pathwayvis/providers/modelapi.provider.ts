@@ -13,7 +13,7 @@
 // limitations under the License.
 
 export class ModelAPIProvider {
-  private host = 'http://0.0.0.0:8000';
+  private host = 'https://api-staging.dd-decaf.eu';
 
   public $get() {
     return this.host;

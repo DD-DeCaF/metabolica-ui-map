@@ -147,6 +147,7 @@ class MapComponentCtrl {
       if (!changes) {
         return;
       }
+      this._loadModel();
       if (changes.added.reactions) {
         // TODO filter out adapter and DM reactions
         const reactions = changes.added.reactions.filter((reaction) => {
@@ -173,7 +174,6 @@ class MapComponentCtrl {
         this._mapOptions.setChangedReactions(measuredReactions);
         this._setUpMapEventHandlers();
       }
-      this._loadModel();
     });
 
     $scope.$watch('ctrl._mapOptions.getReactionData()', (reactionData) => {

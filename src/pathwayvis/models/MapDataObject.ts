@@ -39,10 +39,6 @@ export class MapDataObject implements MapObject {
     this.mapData.objectiveReaction = reaction;
   }
 
-  public setBounds(bounds: number[]): void {
-    this.mapData.bounds = bounds;
-  }
-
   public setChangedReactions(reactions: ChangedReaction[]): void {
     this.mapData.changedReactions = reactions;
   }

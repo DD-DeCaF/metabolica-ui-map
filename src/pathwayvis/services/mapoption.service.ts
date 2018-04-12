@@ -381,7 +381,7 @@ export class MapOptionService {
   public actionHandler(
     action,
     {id = null, reactions = null, changedReactions = null, bounds = null}: {id?: string,
-      reactions?: AddedReaction[], changedReactions?: ChangedReaction[], bounds?: number[]}): any {
+      reactions?: AddedReaction[], changedReactions?: ChangedReaction[], bounds?}): any {
     const shared = angular.copy(this.getMapData());
 
     // TODO write a nice, functional switch-case statement
@@ -416,11 +416,11 @@ export class MapOptionService {
     }
     if (action.type === 'reaction:bounds:do') {
       let index = shared.changedReactions.findIndex((reaction) => reaction.id === id);
-      if (index === -1) {
-        shared.changedReactions.push({id: id, lower_bound: bounds['lower'], upper_bound: bounds['upper']});
-      } else {
-        shared.changedReactions[index] = {id: id, lower_bound: bounds['lower'], upper_bound: bounds['upper']};
-      }
+      shared.changedReactions[index > -1 ? index : shared.changedReactions.length] = {
+        id: id,
+        lower_bound: bounds.lower,
+        upper_bound: bounds.upper,
+      };
     } else if (action.type === 'reaction:bounds:undo') {
       shared.changedReactions = shared.changedReactions.filter((reaction) => reaction.id !== id);
     }

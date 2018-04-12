@@ -145,9 +145,7 @@ class UndoChangeBounds extends ChangeBounds {
 
   public canDisplay(context) {
     if (context.shared.changedReactions) {
-
-      const isRemoved = context.shared.changedReactions.find((reaction) => reaction.id === context.element.bigg_id);
-      return context.type === 'map:reaction' && isRemoved;
+      return context.type === 'map:reaction';
     }
 
     return false;
