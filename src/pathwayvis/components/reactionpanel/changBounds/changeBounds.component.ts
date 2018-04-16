@@ -62,6 +62,7 @@ class ChangeBoundsController {
       item = reactions.find((r) => r.id === item.id);
       let changedReactions = this._mapOptions.getChangedReactions();
       let index = changedReactions.findIndex((reaction) => reaction.id === item.id);
+      this.clickedItem = item.id;
       changedReactions[index > -1 ? index : changedReactions.length] = {
         id: item.id,
         lower_bound: item.lower_bound,
