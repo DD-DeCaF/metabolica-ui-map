@@ -15,18 +15,14 @@
 <md-card>
   <md-subheader class="md-primary">{{ $ctrl.header }} {{ $ctrl.bounds }}</md-subheader>
   <md-card-content>
-    <md-autocomplete 
-      md-no-cache="true" 
-      md-search-text="$ctrl.searchText"
-      md-items="item in $ctrl.querySearch({query: $ctrl.searchText})"
-      md-selected-item-change="$ctrl.selectedItemChange(item)"
-      md-item-text="item.name"
-      md-min-length="1"
-      placeholder="{{$ctrl.placeholder}}"
-      ng-model-options="{debounce: 500}"
-      md-menu-class="autocomplete-custom-template">
+    <md-autocomplete md-no-cache="true" md-search-text="$ctrl.searchText" md-items="item in $ctrl.querySearch({query: $ctrl.searchText})"
+      md-selected-item-change="$ctrl.selectedItemChange(item)" md-item-text="item.name" md-min-length="1" placeholder="{{$ctrl.placeholder}}"
+      ng-model-options="{debounce: 500}" md-menu-class="autocomplete-custom-template">
       <md-item-template>
-        <span class="item-title"><b>Name:</b> <span md-highlight-text="$ctrl.searchText" md-highlight-flags="i">{{ item.name }}</span></span>
+        <span class="item-title">
+          <b>Name:</b>
+          <span md-highlight-text="$ctrl.searchText" md-highlight-flags="i">{{ item.name }}</span>
+        </span>
         <span class="item-metadata" md-highlight-text="$ctrl.searchText" md-highlight-flags="i">{{ item[$ctrl.idProperty] }}</span>
       </md-item-template>
     </md-autocomplete>
@@ -35,8 +31,8 @@
       <md-list-item ng-if="$ctrl.item">
         <span class="md-caption">{{ $ctrl.itemDisplay($ctrl.item) }}</span>
         <md-button class="md-icon-button md-secondary" ng-click="$ctrl.onRemoveItem({item: $ctrl.item})">
-            <md-icon md-font-icon="close">close</md-icon>
-          </md-button>
+          <md-icon md-font-icon="close">close</md-icon>
+        </md-button>
       </md-list-item>
       <md-list-item ng-if="$ctrl.items && !$ctrl.bounds" ng-repeat="item in $ctrl.items">
         <span class="md-caption">{{ $ctrl.itemDisplay(item) }}</span>
@@ -45,17 +41,46 @@
         </md-button>
       </md-list-item>
       <div ng-if="$ctrl.bounds" ng-repeat="item in $ctrl.items">
-        <span class="md-caption">{{ $ctrl.itemDisplay(item) }}</span>
         <br>
-        <div>
-          <span class="md-caption">{{ item.lower_bound }}</span>
-          <span class="md-caption">{{ item.upper_bound }}</span>
-       </div>
-        <md-button class="md-icon-button md-secondary" ng-click="$ctrl.onRemoveItem({item: item})">
-          <md-icon md-font-icon="close">close</md-icon>
-        </md-button>
+        <md-list-item ng-click="$ctrl.clickedItemFunction({item: item})">
+          <span style="float: left; font-size: 16px" class="md-caption">{{ item.lower_bound }}</span>
+          <span style="margin-left: 18px; margin-right: 18px;">
+            <= <span class="md-caption">{{ $ctrl.itemDisplay(item) }}</span>
+          <= </span>
+            <span style="float: right; font-size: 16px" class="md-caption">{{ item.upper_bound }}</span>
+            <md-button class="md-icon-button md-secondary" ng-click="$ctrl.onRemoveItem({item: item})" style="float: right">
+              <md-icon md-font-icon="close">close</md-icon>
+            </md-button>
+        </md-list-item>
+        <div style="border:1px solid black; height: 130px; padding: 2%; margin-top: 5%;" ng-show="$ctrl.clickedItem == item.id || ($first && !$ctrl.clickedItem) || $ctrl.items.length == 1">
+          <span class="md-caption" style="display: block; margin-left:5%; margin-top: 5%;">{{ $ctrl.itemDisplay(item) }}</span>
+          <md-list-item ng-if="item">
+            <input style="float: left; width: 70px" type="number" ng-init="$ctrl.lowerbound=item.lower_bound"  ng-model="$ctrl.lowerbound"/>
+            <span style="margin-left: 20px; margin-right: 20px;">
+              <>
+            </span>
+            <input style="float: right; width: 70px" type="number" ng-init="$ctrl.upperbound=item.upper_bound" ng-model="$ctrl.upperbound"/>
+          </md-list-item>
+          <md-list-item ng-if="item">
+            <md-button style="border-radius: 3px;
+            background-color: #eee;
+            border: 1px solid #ddd;
+            margin-top: 8px;
+            margin-right: 26px;
+            margin-left: 0;" ng-click="$ctrl.onApplyBounds({item: item, lower_bound: $ctrl.lowerbound, upper_bound: $ctrl.upperbound})"
+              style="float: right">
+              Apply
+            </md-button>
+            <md-button style="border-radius: 3px;
+            background-color: #eee;
+            border: 1px solid #ddd;
+            margin-top: 8px;
+            margin-right: 8px;" ng-click="$ctrl.onRemoveItem({item: item})" style="float: right">
+              Reset
+            </md-button>
+          </md-list-item>
+        </div>
       </div>
-
     </md-list>
   </md-card-content>
 </md-card>

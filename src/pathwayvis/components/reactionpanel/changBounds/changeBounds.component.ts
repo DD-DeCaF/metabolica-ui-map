@@ -19,6 +19,7 @@ import { MapOptionService } from "../../../services/mapoption.service";
 import { AddedReaction, BiggReaction, ChangedReaction } from "../../../types";
 import { ActionsService } from "../../../services/actions/actions.service";
 import { access } from "fs";
+import { SharedService } from '../../../services/shared.service';
 
 const DecafBiggProxy = 'https://api-staging.dd-decaf.eu/bigg/';
 
@@ -28,36 +29,46 @@ class ChangeBoundsController {
   public changeBounds = true;
   private _mapOptions: MapOptionService;
   private _actions: ActionsService;
+  private $scope: angular.IScope;
+  public clickedItem: string;
 
   constructor(
     mapOptions: MapOptionService,
     actions: ActionsService,
     $scope: angular.IScope) {
-      this._mapOptions = mapOptions;
-      this._actions = actions;
+    this._mapOptions = mapOptions;
+    this._actions = actions;
+    this.$scope = $scope;
 
-      const subscription = new Rx.Subscription();
-      subscription.add(mapOptions.reactionsObservable.subscribe((reactions) => {
-        this.modelReactions = reactions;
-      }));
+    const subscription = new Rx.Subscription();
+    subscription.add(mapOptions.reactionsObservable.subscribe((reactions) => {
+      this.modelReactions = reactions;
+    }));
 
-      subscription.add(mapOptions.changeReactionsObservable.subscribe((reactions) => {
-        this.changedReactions = reactions;
-      }));
+    subscription.add(mapOptions.changeReactionsObservable.subscribe((reactions) => {
+      this.changedReactions = reactions;
+    }));
 
-      $scope.$on('$destroy', () => {
-        subscription.unsubscribe();
-      });
+    $scope.$on('$destroy', () => {
+      subscription.unsubscribe();
+    });
   }
 
-  public changedBoundsSelectedItem(item) {
-    if (!item) return;
-    const changeBoundsAction = this._actions.getAction('reaction:bounds:do');
-
-    this._mapOptions.actionHandler(changeBoundsAction, { id: item.id })
-      .then((response) => {
-        this._mapOptions.updateMapData(response, this._mapOptions.getSelectedId());
-      });
+  public addToChangedItems(item) {
+    if (!item) {
+      return;
+    } else {
+      const { reactions } = this._mapOptions.getDataModel();
+      item = reactions.find((r) => r.id === item.id);
+      let changedReactions = this._mapOptions.getChangedReactions();
+      let index = changedReactions.findIndex((reaction) => reaction.id === item.id);
+      changedReactions[index > -1 ? index : changedReactions.length] = {
+        id: item.id,
+        lower_bound: item.lower_bound,
+        upper_bound: item.upper_bound,
+      };
+      this._mapOptions.setChangedReactions(changedReactions);
+    }
   }
 
   public queryModelReactions(query: string): any[] {
@@ -68,13 +79,29 @@ class ChangeBoundsController {
     });
   }
 
-  public onUndoClick(selectedReaction: string): void {
+  public onResetBounds(selectedReaction: string): void {
     const resetBounds = this._actions.getAction('reaction:bounds:undo');
     this._mapOptions.actionHandler(resetBounds, { id: selectedReaction['id'] })
       .then((response) => {
         this._mapOptions.updateMapData(response, this._mapOptions.getSelectedId());
       });
   }
+
+  public onApplyBounds(selectedReaction: string, lower_bound: number, upper_bound: number): void {
+    const changeBoundsAction = this._actions.getAction('reaction:bounds:do');
+    const bounds = { lower: 0, upper: 0 };
+    bounds.lower = lower_bound;
+    bounds.upper = upper_bound;
+    this._mapOptions.actionHandler(changeBoundsAction, { id: selectedReaction['id'], bounds })
+      .then((response) => {
+        this._mapOptions.updateMapData(response, this._mapOptions.getSelectedId());
+      });
+  }
+
+  public clickedItemFunction(item) {
+    this.clickedItem = item.id;
+  }
+
   public changedReactionDisplay(item) {
     return item.id;
   }
@@ -85,13 +112,16 @@ export const ChangeBoundsComponent = {
   controller: ChangeBoundsController,
   template: `
   <rp-panel-item
-    on-item-select="$ctrl.changedBoundsSelectedItem(item)"
+    on-item-select="$ctrl.addToChangedItems(item)"
     query-search="$ctrl.queryModelReactions(query)"
     placeholder="'Enter the reaction you want to change'"
     missing-items="'No changed reactions'"
     header="'Changed reactions:'"
     items="$ctrl.changedReactions"
-    on-remove-item="$ctrl.onUndoClick(item)"
+    on-remove-item="$ctrl.onResetBounds(item)"
+    on-apply-bounds="$ctrl.onApplyBounds(item, lower_bound, upper_bound)"
+    clicked-item-function="$ctrl.clickedItemFunction(item)"
+    clicked-item="$ctrl.clickedItem"
     item-display="$ctrl.changedReactionDisplay(item)"
     id-property="'id'"
     bounds="$ctrl.changeBounds">
