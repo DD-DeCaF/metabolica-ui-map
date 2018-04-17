@@ -15,39 +15,29 @@
 <div ng-repeat="item in $ctrl.items">
     <br>
     <md-list-item ng-click="$ctrl.clickedItemFunction({item: item})">
-      <span style="float: left; font-size: 14px" class="md-caption">{{ item.lower_bound }}</span>
-      <span style="margin-left: 18px; margin-right: 18px;">
-        <= <span class="md-caption">{{ $ctrl.changedReactionDisplay(item) }}</span>
-      <= </span>
-        <span style="float: right; font-size: 14px" class="md-caption">{{ item.upper_bound }}</span>
+      <span class="md-caption lower-bound-item">{{ item.lower_bound }}</span>
+      <span class="item-display">
+        	&#8804; <span class="md-caption">{{ $ctrl.changedReactionDisplay(item) }}</span>
+          &#8804; </span>
+        <span  class="md-caption">{{ item.upper_bound }}</span>
         <md-button class="md-icon-button md-secondary" ng-click="$ctrl.onResetBounds({item: item})" style="float: right">
           <md-icon md-font-icon="close">close</md-icon>
         </md-button>
     </md-list-item>
-    <div style="border:1px solid black; height: 130px; padding: 2%; margin-top: 5%; text-align: center" ng-show="$ctrl.clickedItem == item.id || ($first && !$ctrl.clickedItem) || $ctrl.items.length == 1">
+    <div class="box-bounds" ng-show="$ctrl.showFunction(item, $first)">
       <md-list-item ng-if="item">
-        <input style="float: left; width: 53px" type="number" ng-init="$ctrl.lowerbound=item.lower_bound"  ng-model="$ctrl.lowerbound"/>
-        <span style="margin-left: 5px; margin-right: 5px; font-size:10px; width: 80px; text-align: center">
-          <= <span>{{ $ctrl.changedReactionDisplay(item) }}</span>
-          <= 
+        <input class="input-lower" type="number" ng-model="$ctrl.lowerbound"/>
+        <span class="item-display-box">
+          	&#8804; <span>{{ $ctrl.changedReactionDisplay(item) }}</span>
+          	&#8804; 
         </span>
-        <input style="float: right; width: 53px" type="number" ng-init="$ctrl.upperbound=item.upper_bound" ng-model="$ctrl.upperbound"/>
+        <input class="input-upper" type="number" ng-model="$ctrl.upperbound"/>
       </md-list-item>
       <md-list-item ng-if="item">
-        <md-button style="border-radius: 3px;
-        background-color: #eee;
-        border: 1px solid #ddd;
-        margin-top: 8px;
-        margin-right: 26px;
-        margin-left: 0;" ng-click="$ctrl.onApplyBounds({item: item})"
-          style="float: right">
+        <md-button class="button-apply" ng-click="$ctrl.onApplyBounds({item: item})">
           Apply
         </md-button>
-        <md-button style="border-radius: 3px;
-        background-color: #eee;
-        border: 1px solid #ddd;
-        margin-top: 8px;
-        margin-right: 8px;" ng-click="$ctrl.onResetBounds({item: item})" style="float: right">
+        <md-button class="button-reset" ng-click="$ctrl.onResetBounds({item: item})">
           Reset
         </md-button>
       </md-list-item>
