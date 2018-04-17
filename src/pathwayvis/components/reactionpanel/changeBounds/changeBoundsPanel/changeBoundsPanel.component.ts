@@ -15,15 +15,16 @@
 import * as angular from "angular";
 import * as Rx from 'rxjs/Rx';
 
-import { MapOptionService } from "../../../services/mapoption.service";
-import { AddedReaction, BiggReaction, ChangedReaction } from "../../../types";
-import { ActionsService } from "../../../services/actions/actions.service";
+import { MapOptionService } from "../../../../services/mapoption.service";
+import { AddedReaction, BiggReaction, ChangedReaction } from "../../../../types";
+import { ActionsService } from "../../../../services/actions/actions.service";
 import { access } from "fs";
-import { SharedService } from '../../../services/shared.service';
+import { SharedService } from '../../../../services/shared.service';
+import * as template from "./changeBoundsPanel.component.html";
 
 const DecafBiggProxy = 'https://api-staging.dd-decaf.eu/bigg/';
 
-class ChangeBoundsController {
+class ChangeBoundsPanelController {
   public modelReactions = [];
   public changedReactions = [];
   public changeBounds = true;
@@ -31,6 +32,8 @@ class ChangeBoundsController {
   private _actions: ActionsService;
   private $scope: angular.IScope;
   public clickedItem: string;
+  public lowerbound: number;
+  public upperbound: number;
 
   constructor(
     mapOptions: MapOptionService,
@@ -60,8 +63,8 @@ class ChangeBoundsController {
     } else {
       const { reactions } = this._mapOptions.getDataModel();
       item = reactions.find((r) => r.id === item.id);
-      let changedReactions = this._mapOptions.getChangedReactions();
-      let index = changedReactions.findIndex((reaction) => reaction.id === item.id);
+      const changedReactions = this._mapOptions.getChangedReactions();
+      const index = changedReactions.findIndex((reaction) => reaction.id === item.id);
       this.clickedItem = item.id;
       changedReactions[index > -1 ? index : changedReactions.length] = {
         id: item.id,
@@ -80,27 +83,29 @@ class ChangeBoundsController {
     });
   }
 
-  public onResetBounds(selectedReaction: string): void {
+  public onResetBounds(selectedReaction): void {
     const resetBounds = this._actions.getAction('reaction:bounds:undo');
-    this._mapOptions.actionHandler(resetBounds, { id: selectedReaction['id'] })
+    this._mapOptions.actionHandler(resetBounds, { id: selectedReaction.item.id })
       .then((response) => {
         this._mapOptions.updateMapData(response, this._mapOptions.getSelectedId());
       });
   }
 
-  public onApplyBounds(selectedReaction: string, lower_bound: number, upper_bound: number): void {
+  public onApplyBounds(selectedReaction): void {
     const changeBoundsAction = this._actions.getAction('reaction:bounds:do');
+    console.log("SELECTED", selectedReaction);
     const bounds = { lower: 0, upper: 0 };
-    bounds.lower = lower_bound;
-    bounds.upper = upper_bound;
-    this._mapOptions.actionHandler(changeBoundsAction, { id: selectedReaction['id'], bounds })
+    bounds.lower = this.lowerbound;
+    bounds.upper = this.upperbound;
+    console.log("APPLY ", { id: selectedReaction.item.id, bounds });
+    this._mapOptions.actionHandler(changeBoundsAction, { id: selectedReaction.item.id, bounds })
       .then((response) => {
         this._mapOptions.updateMapData(response, this._mapOptions.getSelectedId());
       });
   }
 
   public clickedItemFunction(item) {
-    this.clickedItem = item.id;
+    this.clickedItem = item.item.id;
   }
 
   public changedReactionDisplay(item) {
@@ -109,22 +114,10 @@ class ChangeBoundsController {
 
 }
 
-export const ChangeBoundsComponent = {
-  controller: ChangeBoundsController,
-  template: `
-  <rp-panel-item
-    on-item-select="$ctrl.addToChangedItems(item)"
-    query-search="$ctrl.queryModelReactions(query)"
-    placeholder="'Enter the reaction you want to change'"
-    missing-items="'No changed reactions'"
-    header="'Changed reactions:'"
-    items="$ctrl.changedReactions"
-    on-remove-item="$ctrl.onResetBounds(item)"
-    on-apply-bounds="$ctrl.onApplyBounds(item, lower_bound, upper_bound)"
-    clicked-item-function="$ctrl.clickedItemFunction(item)"
-    clicked-item="$ctrl.clickedItem"
-    item-display="$ctrl.changedReactionDisplay(item)"
-    id-property="'id'"
-    bounds="$ctrl.changeBounds">
-  </rp-panel-item>`,
+export const ChangeBoundsPanelComponent = {
+  controller: ChangeBoundsPanelController,
+  template: template.toString(),
+  bindings: {
+    items: '<?',
+  },
 };

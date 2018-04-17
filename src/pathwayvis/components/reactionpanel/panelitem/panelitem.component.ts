@@ -25,12 +25,7 @@ class PanelItemCtrl {
   public missingItems: string;
   public items;
   public bounds;
-  public lowerbound: number;
-  public upperbound: number;
-  public clickedItem: string;
   public onRemoveItem: (item: any) => void;
-  public onApplyBounds: (item: any, lowerbound: any, upperbound: any) => void;
-  public clickedItemFunction: (item: any) => void;
   public itemDisplay: (item: any) => string;
   public idProperty: string;
   public selectedItemChange(item) {
@@ -56,9 +51,6 @@ export const PanelItemComponent = {
     items: '<?',
     item: '<?',
     onRemoveItem: '&',
-    onApplyBounds: '&?',
-    clickedItemFunction: '&?',
-    clickedItem: '<?',
     itemDisplay: '&?',
     idProperty: '<',
     bounds: '<?',
