@@ -57,32 +57,6 @@ class ChangeBoundsPanelController {
     });
   }
 
-  public addToChangedItems(item) {
-    if (!item) {
-      return;
-    } else {
-      const { reactions } = this._mapOptions.getDataModel();
-      item = reactions.find((r) => r.id === item.id);
-      const changedReactions = this._mapOptions.getChangedReactions();
-      const index = changedReactions.findIndex((reaction) => reaction.id === item.id);
-      this.clickedItem = item.id;
-      changedReactions[index > -1 ? index : changedReactions.length] = {
-        id: item.id,
-        lower_bound: item.lower_bound,
-        upper_bound: item.upper_bound,
-      };
-      this._mapOptions.setChangedReactions(changedReactions);
-    }
-  }
-
-  public queryModelReactions(query: string): any[] {
-    query = query.toLowerCase();
-    return this.modelReactions.filter((reaction) => {
-      return reaction.name.toLowerCase().includes(query)
-        || reaction.id.toLowerCase().includes(query);
-    });
-  }
-
   public onResetBounds(selectedReaction): void {
     const resetBounds = this._actions.getAction('reaction:bounds:undo');
     this._mapOptions.actionHandler(resetBounds, { id: selectedReaction.item.id })
@@ -93,11 +67,9 @@ class ChangeBoundsPanelController {
 
   public onApplyBounds(selectedReaction): void {
     const changeBoundsAction = this._actions.getAction('reaction:bounds:do');
-    console.log("SELECTED", selectedReaction);
     const bounds = { lower: 0, upper: 0 };
     bounds.lower = this.lowerbound;
     bounds.upper = this.upperbound;
-    console.log("APPLY ", { id: selectedReaction.item.id, bounds });
     this._mapOptions.actionHandler(changeBoundsAction, { id: selectedReaction.item.id, bounds })
       .then((response) => {
         this._mapOptions.updateMapData(response, this._mapOptions.getSelectedId());

@@ -20,7 +20,6 @@ import { AddedReaction, BiggReaction, ChangedReaction } from "../../../types";
 import { ActionsService } from "../../../services/actions/actions.service";
 import { access } from "fs";
 import { SharedService } from '../../../services/shared.service';
-import * as template from "./changeBounds.html";
 
 const DecafBiggProxy = 'https://api-staging.dd-decaf.eu/bigg/';
 
