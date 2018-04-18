@@ -17,7 +17,6 @@ import * as d3 from 'd3';
 import { event as currentEvent } from 'd3';
 import * as Rx from 'rxjs/Rx';
 import * as tinier from 'tinier';
-import * as angular from "angular";
 
 import { APIService } from '../../services/api';
 import { ConnectionsService } from '../../services/connections';
@@ -160,19 +159,6 @@ class MapComponentCtrl {
             metabolites: reaction.metabolites,
           }));
         this._mapOptions.setAddedReactions(reactions);
-      }
-      if (changes.measured.reactions) {
-        const {reactions} = this._mapOptions.getDataModel();
-        // TODO filter out adapter and DM reactions
-        let measuredReactions = changes.measured.reactions.filter((reaction) => {
-          return !['adapter', 'DM', 'EX_'].some((str) => {
-            return reaction.id.startsWith(str);
-          });
-        });
-        measuredReactions = reactions.filter((reaction) =>
-           measuredReactions.find((measuredReaction) => measuredReaction.id === reaction.id));
-        this._mapOptions.setChangedReactions(measuredReactions);
-        this._setUpMapEventHandlers();
       }
     });
 
@@ -363,12 +349,15 @@ class MapComponentCtrl {
     if (action.type === 'reaction:link') {
       this.$window.open(`http://bigg.ucsd.edu/universal/reactions/${data.bigg_id}`);
     } else {
-      this.shared.async(this._mapOptions.actionHandler(action, { id: data.bigg_id, bounds: data.bounds }).then((response) => {
+      this.shared.async(this._mapOptions.actionHandler(action, { id: data.bigg_id }).then((response) => {
         this._mapOptions.updateMapData(response, this._mapOptions.getSelectedId());
         if (action.type.startsWith('reaction:objective')) {
           this._mapOptions.setObjectiveReaction(action.type.endsWith('undo') ? null : data.bigg_id);
         } else if (data.bigg_id === this._mapOptions.getObjectiveReaction()) {
           this._mapOptions.setObjectiveReaction(null);
+        }
+        if (action.type.startsWith('reaction:bounds')) {
+          this._mapOptions.setBounds(action.type.endsWith('undo') ? null : data.bounds);
         }
         this._getContext();
       }, (error) => {
@@ -397,7 +386,6 @@ class MapComponentCtrl {
         knockout: (args) => { this.handleKnockout(args); },
         setAsObjective: (args) => { this.handleSetAsObjective(args); },
         changeBounds: (args) => { this.handleChangeBounds(args); },
-        resetBounds: (args) => { this.handleResetBounds(args); },
         newArgs: (args) => {
           const {biggId, ...restData} = args;
           this.contextElement = {
@@ -478,12 +466,14 @@ class MapComponentCtrl {
    * Loads context menu with _getContext method when you over a reaction.
    */
   private _setUpMapEventHandlers(): void {
-    const {reactions} = this._mapOptions.getDataModel();
+    const reactions = this._mapOptions.getDataModel().reactions;
     d3.selectAll('.reaction, .reaction-label').on('mouseenter', (d) => {
-      const currentReaction = reactions.find((reaction) => reaction.id === d.bigg_id);
+      const currentReaction = reactions.filter((reaction) => {
+        return d.bigg_id === reaction.id;
+      });
       const tooltipContainer = d3.select('div#tooltip-container');
-      tooltipContainer.select('#upperbound').property("value", currentReaction.upper_bound);
-      tooltipContainer.select('#lowerbound').property("value", currentReaction.lower_bound);
+      tooltipContainer.select('#upperbound').property("value", currentReaction[0].upper_bound);
+      tooltipContainer.select('#lowerbound').property("value", currentReaction[0].lower_bound);
         this._getContext();
     });
   }
@@ -500,7 +490,6 @@ class MapComponentCtrl {
     });
     tooltipContainer.select('#knockoutbutton').text(this.contextActions[0].label);
     tooltipContainer.select('#objectivebutton').text(this.contextActions[1].label);
-    tooltipContainer.select('#boundbutton').text(this.contextActions[2].label);
   }
 
   public showLegend(): boolean {
@@ -520,19 +509,16 @@ class MapComponentCtrl {
   }
 
   public handleChangeBounds(args) {
-    const bounds = {lower: 0, upper: 0};
+    const bounds = [];
     const tooltipContainer = d3.select('div#tooltip-container');
-    bounds.lower = parseInt(tooltipContainer.select('#lowerbound').property("value"));
-    bounds.upper = parseInt(tooltipContainer.select('#upperbound').property("value"));
+    bounds.push(tooltipContainer.select('#lowerbound').property("value"));
+    bounds.push(tooltipContainer.select('#upperbound').property("value"));
     console.log('[change-bounds]', bounds);
-    this.contextElement = {...this.contextElement, bounds};
+    this.contextElement = Object.assign({}, this.contextElement, {
+      bounds: bounds,
+    });
     this.$scope.$apply(() =>
       this.processActionClick(this.contextActions[2], this.contextElement));
-  }
-
-  public handleResetBounds(args) {
-    this.$scope.$apply(() =>
-      this.processActionClick(this.contextActions[3], this.contextElement));
   }
 }
 

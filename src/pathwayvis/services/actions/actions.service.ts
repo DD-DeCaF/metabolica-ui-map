@@ -133,7 +133,8 @@ class ChangeBounds extends ReactionAction implements Action {
   public shared: types.MapData;
 
   public canDisplay(context) {
-    return context.type === 'map:reaction';
+    const isRemoved = !context.shared.changedReactions.includes(context.element.bigg_id);
+    return context.type === 'map:reaction' && isRemoved;
   }
 }
 
@@ -145,7 +146,8 @@ class UndoChangeBounds extends ChangeBounds {
 
   public canDisplay(context) {
     if (context.shared.changedReactions) {
-      return context.type === 'map:reaction';
+      const isRemoved = context.shared.changedReactions.includes(context.element.bigg_id);
+      return context.type === 'map:reaction' && isRemoved;
     }
 
     return false;
@@ -156,16 +158,6 @@ class UndoChangeBounds extends ChangeBounds {
 // tslint:disable-next-line
 class UpdateReaction extends ReactionAction implements Action {
   public type: string = 'reaction:update';
-
-  public canDisplay(context) {
-    return false;
-  }
-}
-
-@registerAction
-// tslint:disable-next-line
-class UpdateChangedReactions extends ReactionAction implements Action {
-  public type: string = 'reaction:updateChangedReactions';
 
   public canDisplay(context) {
     return false;

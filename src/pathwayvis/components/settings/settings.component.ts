@@ -33,6 +33,10 @@ class SettingsComponentController {
     this.mapOptions = mapOptions;
     this.$mdSidenav = $mdSidenav;
     this.$interval = $interval;
+<<<<<<< HEAD
+=======
+    this.$scope = $scope;
+>>>>>>> parent of 6b60240... refactor: remove unused variables
 
     $mdComponentRegistry.when('right').then((sideNav) => {
       sideNav.open();

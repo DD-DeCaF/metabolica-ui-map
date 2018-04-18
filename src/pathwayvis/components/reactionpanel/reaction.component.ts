@@ -18,7 +18,6 @@ export const ReactionComponent = {
     <rp-added-reactions></rp-added-reactions>
     <rp-knockouts></rp-knockouts>
     <rp-objectives></rp-objectives>
-    <rp-change-bounds></rp-change-bounds>
   </md-content>
   `,
 };

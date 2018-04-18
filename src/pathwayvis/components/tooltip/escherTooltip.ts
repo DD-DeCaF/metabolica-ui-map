@@ -72,7 +72,6 @@ export const Tooltip = (callbacks) =>
       knockout: callbacks.knockout,
       setAsObjective: callbacks.setAsObjective,
       changeBounds: callbacks.changeBounds,
-      resetBounds: callbacks.resetBounds,
     },
     render: function (args) {
       let decomp = decompartmentalizeCheck(args.state.biggId, args.state.type);
@@ -126,39 +125,31 @@ export const Tooltip = (callbacks) =>
               'Set as objective'),
             tinier.createElement('br'),
             tinier.createElement('div',
-              // tooltip style
-              { class: 'container-bounds-style' },
-              tinier.createElement('span', {}, 'Lower bound'),
-              tinier.createElement('input',
-                {
-                  class: 'input-style',
-                  id: 'lowerbound',
-                  type: 'number',
-                }),
-              tinier.createElement('span', {}, 'Upper bound'),
-              tinier.createElement('input',
-                {
-                  class: 'input-style',
-                  id: 'upperbound',
-                  type: 'number',
-                }),
-              tinier.createElement('br'),
-              tinier.createElement('button',
-                {
-                  class: 'button-bound-style',
-                  id: 'boundbutton',
-                  onClick: args.methods.changeBounds,
-                  data: JSON.stringify(args.state),
-                },
-                'Change bounds'),
-              tinier.createElement('button',
-                {
-                  class: 'button-bound-style',
-                  id: 'resetBoundsbutton',
-                  onClick: args.methods.resetBounds,
-                  data: JSON.stringify(args.state),
-                },
-                'Reset bounds'),
+            // tooltip style
+            { class: 'container-bounds-style' },
+            tinier.createElement('span', {}, 'Upper bound'),
+            tinier.createElement('input',
+              {
+                class: 'input-style',
+                id: 'upperbound',
+                type: 'number',
+              }),
+            tinier.createElement('span', {}, 'Lower bound'),
+            tinier.createElement('input',
+              {
+                class: 'input-style',
+                id: 'lowerbound',
+                type: 'number',
+              }),
+            tinier.createElement('br'),
+            tinier.createElement('button',
+              {
+                class: 'button-bound-style',
+                id: 'boundbutton',
+                onClick: args.methods.changeBounds,
+                data: JSON.stringify(args.state),
+              },
+              'Change bounds'),
             ),
             // type label
             tinier.createElement('div',

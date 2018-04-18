@@ -36,7 +36,6 @@ import { SettingsComponent } from './components/settings/settings.component';
 import { InfoComponent } from './components/info/info.component';
 import { CardControllerComponent } from './components/datacardcontroller/cardcontroller.component'
 import { ReactionsPanelModule } from './components/reactionpanel/reactionspanel.module';
-import { PanelItemComponentModule } from './components/reactionpanel/panelitem/panelitem.module';
 
 export const PathwayVisModule = angular.module('pathwayvis', [
   require('angular-material-data-table'),
@@ -44,7 +43,6 @@ export const PathwayVisModule = angular.module('pathwayvis', [
   'ui.router',
   AppModule.name,
   ReactionsPanelModule.name,
-  PanelItemComponentModule.name,
 ])
   .provider('decafAPI', DecafAPIProvider)
   .provider('logger', LoggerProvider)
