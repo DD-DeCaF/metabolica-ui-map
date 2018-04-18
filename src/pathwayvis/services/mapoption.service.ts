@@ -383,7 +383,7 @@ export class MapOptionService {
 
   public actionHandler(
     action,
-    {id = null, reactions = null, changedReactions = null, bounds = null}: {id?: string,
+    {id = null, reactions = [], changedReactions = null, bounds = null}: {id?: string,
       reactions?: AddedReaction[], changedReactions?: ChangedReaction[], bounds?}): any {
     const shared = angular.copy(this.getMapData());
 
@@ -511,21 +511,13 @@ export class MapOptionService {
     return this.actionHandler(this.actions.getAction('reaction:update'), {});
   }
 
-  public setSharedPathway(item): void {
-    this.getMapData().pathwayData = item;
-  }
-
-  public getSharedPathway(): any {
-    return this.getMapData().pathwayData;
-  }
-
-  public updateMapData(data, id: number) {
+  public updateMapData(data, id: number, modelId: string = null) {
     // Bug: If a ws computation is triggered
     // and the user navigates to a different card
     // then the changes will be present there.
     this.setCurrentGrowthRate(parseFloat(data['growth-rate']), id);
     this.setReactionData(data.fluxes, id);
-    this.setDataModel(data.model, null, id);
+    this.setDataModel(data.model, modelId, id);
     this.setRemovedReactions(data['removed-reactions'], id);
     if (this.getSelectedId() === id) {
       this.componentCB();

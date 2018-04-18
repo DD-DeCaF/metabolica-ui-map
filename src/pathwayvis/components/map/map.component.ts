@@ -50,7 +50,6 @@ class MapComponentCtrl {
   private toastService: ToastService;
   private _q: any;
   private $window: angular.IWindowService;
-  private pathwayAdded = false;
   private subscription: Rx.Subscription = new Rx.Subscription();
 
   constructor($scope: angular.IScope,
@@ -120,10 +119,6 @@ class MapComponentCtrl {
       if (modelId) {
         this._loadModel();
       }
-    });
-
-    $scope.$watch('ctrl._mapOptions.getSelectedId()', () => {
-      this.mapChanged();
     });
 
     $scope.$watch('ctrl._mapOptions.getRemovedReactions()', () => {
@@ -228,24 +223,7 @@ class MapComponentCtrl {
     this._builder.set_reaction_fva_data(noOpacity);
   }
 
-  /**
-   * addPathway
-   * this method adds the pathway shared form the pathway predictor
-   */
-  private addPathway(item, model) {
-    const modelId = (<any> item.param.model_id);
-    this._mapOptions.getMapData().model = Object.assign({}, model, {
-      id: modelId,
-      uid: modelId,
-      metabolites: [...model.metabolites, ...item.model.metabolites],
-      reactions: [...model.reactions, ...item.model.reactions],
-    });
-    this._builder.load_model(this._mapOptions.getMapData().model);
-
-    const reactions = item.model.reactions.map(({ id, metabolites }) => ({ id, metabolites }));
-    this._builder.add_pathway(reactions);
-  }
-
+  // This might need to be deleted.
   private mapChanged(): void {
     let mapObject = this._mapOptions.getDataObject();
     if (mapObject.isComplete()) {
@@ -311,18 +289,19 @@ class MapComponentCtrl {
       const infoPromise = this._api.post('samples/info', {
         sampleIds,
         phaseId,
+      }).then((infoResponse: any) => {
+        this._mapOptions.setMapInfo(infoResponse.data.response[phaseId.toString()], id);
       });
 
       this.resetKnockouts = true;
-      this.shared.async(this._q.all([modelPromise, infoPromise])
-        .then(([modelResponse, infoResponse]: any) => {
+      this.shared.async(modelPromise
+        .then((modelResponse: any) => {
           const phase = modelResponse.data.response[phaseId.toString()];
-          // TODO use mapOptions.loadData
-          this._mapOptions.setDataModel(phase.model, phase.modelId, id);
-          this._mapOptions.setReactionData(phase.fluxes, id);
-          this._mapOptions.setMapInfo(infoResponse.data.response[phaseId.toString()], id);
-          this._mapOptions.setMethod(selectedItem.method);
           this._mapOptions.setCurrentGrowthRate(parseFloat(phase['growthRate']), id);
+          this._mapOptions.setReactionData(phase.fluxes, id);
+          this._mapOptions.setDataModel(phase.model, phase.modelId, id);
+          // this._mapOptions.setRemovedReactions(phase['removed-reactions'], id);
+          this._mapOptions.setMethod(selectedItem.method);
           this._loaded();
         }, (error) => {
           this.toastService.showErrorToast('Oops! Sorry, there was a problem with fetching the data.');
@@ -333,7 +312,7 @@ class MapComponentCtrl {
       const url = `models/${settings.model_id}`;
       const modelPromise = this._api.postModel(url, {
         message: {
-          'to-return': ['fluxes', 'model', 'growth-rate'],
+          'to-return': ['fluxes', 'model', 'growth-rate', 'removed-reactions'],
           'simulation-method': this._mapOptions.getDataObject(id).selected.method.id,
           'map': settings.map_id,
           'reactions-knockout': this._mapOptions.getRemovedReactions(),
@@ -345,9 +324,7 @@ class MapComponentCtrl {
       });
       this.shared.async(modelPromise.then(({ data }: any) => {
         // TODO use mapOptions.loadData
-        this._mapOptions.setDataModel(data.model, data.model.id, id);
-        this._mapOptions.setReactionData(data.fluxes, id);
-        this._mapOptions.setCurrentGrowthRate(parseFloat(data['growth-rate']), id);
+        this._mapOptions.updateMapData(data, id, data.model.id);
         this._loaded();
       }), 'Reference');
       this._api.getWildTypeInfo(settings.model_id).then(({ data: mapInfo }: any) => {
@@ -424,27 +401,20 @@ class MapComponentCtrl {
    * Loads model to the map
    */
   private _loadModel(): void {
-    const sharedPathway = this._mapOptions.getSharedPathway();
-    if (!this.pathwayAdded && sharedPathway) {
-      // Adds the model as well
-      this.addPathway(sharedPathway, this._mapOptions.getDataModel());
-      this.pathwayAdded = true;
-    } else {
-      d3.selectAll('#reactions > .reaction').style('filter', null);
-      const model = this._mapOptions.getDataModel();
-      this._builder.load_model(model);
-      if (model.notes.changes) {
-        const reactionsToHighlight = model.notes.changes
-        .measured.reactions.map((reaction) => reaction.id);
-        reactionsToHighlight.forEach((reactionId) => {
-          this._builder.map.bigg_index
-            .getAll(reactionId)
-            .forEach(({ reaction_id }) => {
-              d3.select(`#r${reaction_id}`)
-                .style("filter", "url(#escher-glow-filter)");
-            });
-        });
-      }
+    d3.selectAll('#reactions > .reaction').style('filter', null);
+    const model = this._mapOptions.getDataModel();
+    this._builder.load_model(model);
+    if (model.notes.changes) {
+      const reactionsToHighlight = model.notes.changes
+      .measured.reactions.map((reaction) => reaction.id);
+      reactionsToHighlight.forEach((reactionId) => {
+        this._builder.map.bigg_index
+          .getAll(reactionId)
+          .forEach(({ reaction_id }) => {
+            d3.select(`#r${reaction_id}`)
+              .style("filter", "url(#escher-glow-filter)");
+          });
+      });
     }
   }
 
