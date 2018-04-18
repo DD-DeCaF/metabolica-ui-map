@@ -89,15 +89,16 @@ class ChangeBoundsPanelController {
     return item.id;
   }
 
-  public showFunction(item, first) {
+  public showItem(item, first) {
     return this.clickedItem === item.id || (first && !this.clickedItem) || this.items.length === 1;
   }
 
   public updateElementSelected() {
-    if (this.changedReactions.length === 1) {
-      this.clickedItem = this.changedReactions[0].id;
-      this.lowerbound = this.changedReactions[0].lower_bound;
-      this.upperbound = this.changedReactions[0].upper_bound;
+    const [firstChangedReaction] = this.changedReactions;
+    if (firstChangedReaction) {
+      this.clickedItem = firstChangedReaction.id;
+      this.lowerbound = firstChangedReaction.lower_bound;
+      this.upperbound = firstChangedReaction.upper_bound;
     }
   }
 }
