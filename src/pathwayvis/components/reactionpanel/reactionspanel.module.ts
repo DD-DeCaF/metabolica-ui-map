@@ -19,7 +19,7 @@ import { KnockoutsComponent } from './knockouts/knockouts.component';
 import { PanelItemComponent } from './panelitem/panelitem.component';
 import { ReactionComponent } from './reaction.component';
 import { ObjectivesComponent } from './objectives/objectives.component';
-import { ChangeBoundsComponent } from './changBounds/changeBounds.component';
+import { ChangeBoundsComponent } from './changeBounds/changeBounds.component';
 
 export const ReactionsPanelModule = angular.module('ReactionsPanel', [
   'ngMaterial',
