@@ -13,7 +13,7 @@
 // limitations under the License.
 
 export class ModelWSProvider {
-  private host = 'ws://0.0.0.0:8000';
+  private host = 'ws://api-staging.dd-decaf.eu';
   private prefix = '/wsmodels';
 
   public $get() {
