@@ -127,8 +127,45 @@ class UndoSetObjective extends SetObjective {
 
 @registerAction
 // tslint:disable-next-line
+class ChangeBounds extends ReactionAction implements Action {
+  public label = 'Change bounds';
+  public type: string = 'reaction:bounds:do';
+  public shared: types.MapData;
+
+  public canDisplay(context) {
+    return context.type === 'map:reaction';
+  }
+}
+
+@registerAction
+// tslint:disable-next-line
+class UndoChangeBounds extends ChangeBounds {
+  public label = 'Undo change bounds';
+  public type: string = 'reaction:bounds:undo';
+
+  public canDisplay(context) {
+    if (context.shared.changedReactions) {
+      return context.type === 'map:reaction';
+    }
+
+    return false;
+  }
+}
+
+@registerAction
+// tslint:disable-next-line
 class UpdateReaction extends ReactionAction implements Action {
   public type: string = 'reaction:update';
+
+  public canDisplay(context) {
+    return false;
+  }
+}
+
+@registerAction
+// tslint:disable-next-line
+class UpdateChangedReactions extends ReactionAction implements Action {
+  public type: string = 'reaction:updateChangedReactions';
 
   public canDisplay(context) {
     return false;

@@ -83,6 +83,19 @@ pv-map {
         color: #111;
         box-shadow: 4px 6px 20px 0px rgba(0, 0, 0, 0.4);
       }
+      .container-style-reaction {
+        min-width: 400px;
+        min-height: 160px;
+        border-radius: 2px;
+        border: 1px solid #b58787;
+        padding: 7px;
+        background-color: #fff;
+        text-align: left;
+        font-size: 16px;
+        font-family: sans-serif;
+        color: #111;
+        box-shadow: 4px 6px 20px 0px rgba(0, 0, 0, 0.4);
+      }
     .id-style {
         font-size: 18px;
         font-weight: bold;
@@ -118,6 +131,29 @@ pv-map {
         text-align: right;
         padding: 0px 5px;
       }
+      .container-bounds-style {
+        min-width: 270px;
+        min-height: 0px;
+        padding: 7px;
+      }
+      .input-style {
+        border-radius: 3px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        margin-top: 8px;
+        width: 60px;
+        margin-right: 8px;
+        margin-left: 8px;
+        padding-left: 2px;
+      }
+      .button-bound-style {
+        border-radius: 3px;
+        background-color: #eee;
+        border: 1px solid #ddd;
+        margin-top: 12px;
+        margin-bottom: 8px;
+        margin-right: 8px;
+      }  
 
       
 }

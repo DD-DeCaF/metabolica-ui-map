@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { MapData, SelectedItems, MapObject, ObjectType, AddedReaction } from "../types";
+import { MapData, SelectedItems, MapObject, ObjectType, AddedReaction, ChangedReaction } from "../types";
 
 export class MapDataObject implements MapObject {
   public id: number;
@@ -37,6 +37,10 @@ export class MapDataObject implements MapObject {
 
   public setObjectiveReaction(reaction: string): void {
     this.mapData.objectiveReaction = reaction;
+  }
+
+  public setChangedReactions(reactions: ChangedReaction[]): void {
+    this.mapData.changedReactions = reactions;
   }
 
   public isComplete(): boolean {

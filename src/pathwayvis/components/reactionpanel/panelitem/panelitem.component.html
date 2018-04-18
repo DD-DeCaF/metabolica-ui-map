@@ -13,20 +13,23 @@
 <!--limitations under the License.-->
 
 <md-card>
-  <md-subheader class="md-primary">{{ $ctrl.header}}</md-subheader>
+  <md-subheader class="md-primary">{{ $ctrl.header }}</md-subheader>
   <md-card-content>
     <md-autocomplete 
       md-no-cache="true" 
-      md-search-text="$ctrl.searchText"
+      md-search-text="$ctrl.searchText" 
       md-items="item in $ctrl.querySearch({query: $ctrl.searchText})"
-      md-selected-item-change="$ctrl.selectedItemChange(item)"
-      md-item-text="item.name"
-      md-min-length="1"
+      md-selected-item-change="$ctrl.selectedItemChange(item)" 
+      md-item-text="item.name" 
+      md-min-length="1" 
       placeholder="{{$ctrl.placeholder}}"
-      ng-model-options="{debounce: 500}"
+      ng-model-options="{debounce: 500}" 
       md-menu-class="autocomplete-custom-template">
       <md-item-template>
-        <span class="item-title"><b>Name:</b> <span md-highlight-text="$ctrl.searchText" md-highlight-flags="i">{{ item.name }}</span></span>
+        <span class="item-title">
+          <b>Name:</b>
+          <span md-highlight-text="$ctrl.searchText" md-highlight-flags="i">{{ item.name }}</span>
+        </span>
         <span class="item-metadata" md-highlight-text="$ctrl.searchText" md-highlight-flags="i">{{ item[$ctrl.idProperty] }}</span>
       </md-item-template>
     </md-autocomplete>
@@ -35,16 +38,19 @@
       <md-list-item ng-if="$ctrl.item">
         <span class="md-caption">{{ $ctrl.itemDisplay($ctrl.item) }}</span>
         <md-button class="md-icon-button md-secondary" ng-click="$ctrl.onRemoveItem({item: $ctrl.item})">
-            <md-icon md-font-icon="close">close</md-icon>
-          </md-button>
+          <md-icon md-font-icon="close">close</md-icon>
+        </md-button>
       </md-list-item>
-      <md-list-item ng-if="$ctrl.items" ng-repeat="item in $ctrl.items">
+      <md-list-item ng-if="$ctrl.items && !$ctrl.bounds" ng-repeat="item in $ctrl.items">
         <span class="md-caption">{{ $ctrl.itemDisplay(item) }}</span>
         <md-button class="md-icon-button md-secondary" ng-click="$ctrl.onRemoveItem({item: item})">
           <md-icon md-font-icon="close">close</md-icon>
         </md-button>
       </md-list-item>
-
+      <div ng-if="$ctrl.bounds">
+        <change-bounds-panel-component items="$ctrl.items"></change-bounds-panel-component>
+        </div>
+      </div>
     </md-list>
   </md-card-content>
 </md-card>

@@ -37,8 +37,9 @@ export abstract class ReactionAction extends Action {
     $timeout: angular.ITimeoutService,
   ): any {
     const data = {
-      'to-return': ['fluxes', 'growth-rate', 'removed-reactions', 'added-reactions', 'model'],
+      'to-return': ['fluxes', 'growth-rate', 'removed-reactions', 'added-reactions', 'measured-reactions', 'model'],
       'simulation-method': this.shared.method,
+      'measured-reactions': this.shared.changedReactions,
       'reactions-knockout': this.shared.removedReactions,
       'reactions-add': this.shared.addedReactions.map((r) => ({
           id: r.bigg_id,
@@ -51,7 +52,6 @@ export abstract class ReactionAction extends Action {
     if (this.shared.objectiveReaction) {
       data['objective'] = this.shared.objectiveReaction;
     }
-
     if (!this.shared.model.uid) {
       throw new Error('Model uid is required');
     }

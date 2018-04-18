@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export class ModelWSProvider {
-  private host = 'ws://api-staging.dd-decaf.eu';
-  private prefix = '/wsmodels';
+import * as angular from 'angular';
 
-  public $get() {
-    return `${this.host}${this.prefix}`;
-  }
-}
+import { PanelItemComponent } from '../panelitem/panelitem.component';
+import { ChangeBoundsPanelComponent } from '../changeBounds/changeBoundsPanel/changeBoundsPanel.component';
+
+export const PanelItemComponentModule = angular.module('PanelItemComponent', [
+  'ngMaterial',
+])
+  .component('changeBoundsPanelComponent', ChangeBoundsPanelComponent);

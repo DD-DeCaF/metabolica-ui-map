@@ -25,7 +25,7 @@ import { SharedService } from '../services/shared.service';
 import { Logger } from '../providers/log.provider';
 
 // TODO @matyasfodor access these through types. (..)
-import { AddedReaction, Experiment, Method, ObjectType, Phase, Sample, Species, MapSettings } from "../types";
+import { AddedReaction, ChangedReaction, Experiment, Method, ObjectType, Phase, Sample, Species, MapSettings } from "../types";
 import { ExperimentService } from "./experiment.service";
 
 export class MapOptionService {
@@ -68,6 +68,12 @@ export class MapOptionService {
 
   public objectiveReactionObservable: Rx.Observable<any>;
   private objectiveReactionSubject: Rx.Subject<any>;
+
+  public changeReactionsObservable: Rx.Observable<any>;
+  private changeReactionsSubject: Rx.Subject<any>;
+
+  public setBoundsObservable: Rx.Observable<any>;
+  private setBoundsReactionSubject: Rx.Subject<any>;
   // TODO rename services to lowercase
   constructor(
       api: APIService,
@@ -94,6 +100,12 @@ export class MapOptionService {
 
     this.objectiveReactionSubject = new Rx.Subject();
     this.objectiveReactionObservable = this.objectiveReactionSubject.asObservable();
+
+    this.changeReactionsSubject = new Rx.Subject();
+    this.changeReactionsObservable = this.changeReactionsSubject.asObservable();
+
+    this.setBoundsReactionSubject = new Rx.Subject();
+    this.setBoundsObservable = this.setBoundsReactionSubject.asObservable();
 
     this.dataHandler = new DataHandler();
     this.loaded = this.init();
@@ -201,6 +213,31 @@ export class MapOptionService {
   public setObjectiveReaction(reaction: string) {
     this.getDataObject().setObjectiveReaction(reaction);
     this.objectiveReactionSubject.next(reaction);
+  }
+
+  public getChangedReactions(): ChangedReaction[] {
+    return this.getDataObject().mapData.changedReactions;
+  }
+
+  public setChangedReactions(reactions: ChangedReaction[]): void {
+    this.getDataObject().mapData.changedReactions = reactions;
+    this.changeReactionsSubject.next(reactions);
+  }
+
+  public addChangedReactions(changedReactions: ChangedReaction[]): any {
+    return this.actionHandler(this.actions.getAction('reaction:updateChangedReactions'), {changedReactions});
+  }
+
+  public addChangedReaction(reaction: ChangedReaction): any {
+    return this.addChangedReactions([reaction]);
+  }
+
+  public removeChangedReaction(bigg_id: string): any {
+    const mapData = this.getMapData();
+    const index = mapData.changedReactions.findIndex((r) => r.id === bigg_id);
+    mapData.changedReactions.splice(index, 1);
+    // TODO add reaction here?
+    return this.actionHandler(this.actions.getAction('reaction:update'), {});
   }
 
   public getCurrentGrowthRate(): number {
@@ -346,7 +383,8 @@ export class MapOptionService {
 
   public actionHandler(
     action,
-    {id = null, reactions = null}: {id?: string, reactions?: AddedReaction[]}): any {
+    {id = null, reactions = null, changedReactions = null, bounds = null}: {id?: string,
+      reactions?: AddedReaction[], changedReactions?: ChangedReaction[], bounds?}): any {
     const shared = angular.copy(this.getMapData());
 
     // TODO write a nice, functional switch-case statement
@@ -382,6 +420,23 @@ export class MapOptionService {
       }
     } else if (action.type === 'reaction:objective:undo') {
       shared.objectiveReaction = null;
+    }
+    if (action.type === 'reaction:bounds:do') {
+      let index = shared.changedReactions.findIndex((reaction) => reaction.id === id);
+      shared.changedReactions[index > -1 ? index : shared.changedReactions.length] = {
+        id: id,
+        lower_bound: bounds.lower,
+        upper_bound: bounds.upper,
+      };
+    } else if (action.type === 'reaction:bounds:undo') {
+      shared.changedReactions = shared.changedReactions.filter((reaction) => reaction.id !== id);
+    }
+    if (action.type === 'reaction:updateChangedReactions') {
+      shared.changedReactions = [...shared.changedReactions, ...changedReactions];
+      this.logger.log('event', 'changed reaction', {
+        event_category: 'PathwayMap',
+        event_label: id,
+      });
     }
     return this.actions.callAction(action, { shared, cardId: this.getSelectedId()});
   }
