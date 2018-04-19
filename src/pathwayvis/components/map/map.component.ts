@@ -449,12 +449,13 @@ class MapComponentCtrl {
    */
   private _setUpMapEventHandlers(): void {
     const {reactions} = this._mapOptions.getDataModel();
+ 
     d3.selectAll('.reaction, .reaction-label').on('mouseenter', (d) => {
-      const currentReaction = reactions.find((reaction) => reaction.id === d.bigg_id);
+      const currentReaction = reactions.find((reaction) => (reaction.id === d.bigg_id || reaction.name === d.name));
       const tooltipContainer = d3.select('div#tooltip-container');
       tooltipContainer.select('#upperbound').property("value", currentReaction.upper_bound);
       tooltipContainer.select('#lowerbound').property("value", currentReaction.lower_bound);
-        this._getContext();
+      this._getContext();
     });
   }
 
