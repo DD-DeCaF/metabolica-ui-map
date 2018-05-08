@@ -187,7 +187,7 @@ class MapComponentCtrl {
         }
         this._removeOpacity();
 
-        this._builder.set_reaction_data(reactionData);
+        this.setReactionData(reactionData);
       }
     }, true);
 
@@ -433,13 +433,12 @@ class MapComponentCtrl {
     if (selected.method.id === 'fva' || selected.method.id === 'pfba-fva') {
       const fvaData = utils._pickBy(reactionData, (d) => Math.abs((d.upper_bound + d.lower_bound) / 2) > 1e-7);
       reactionData = utils._mapValues(fvaData, (d) => (d.upper_bound + d.lower_bound) / 2);
-      this._builder.set_reaction_data(reactionData);
+      this.setReactionData(reactionData);
       this._builder.set_reaction_fva_data(fvaData);
-
     } else {
       // Remove zero values
       reactionData = utils._pickBy(reactionData, (value: number) => Math.abs(value) > 1e-7);
-      this._builder.set_reaction_data(reactionData);
+      this.setReactionData(reactionData);
     }
     this._setUpMapEventHandlers();
   }
@@ -449,13 +448,25 @@ class MapComponentCtrl {
    */
   private _setUpMapEventHandlers(): void {
     const {reactions} = this._mapOptions.getDataModel();
- 
     d3.selectAll('.reaction, .reaction-label').on('mouseenter', (d) => {
       const currentReaction = reactions.find((reaction) => (reaction.id === d.bigg_id || reaction.name === d.name));
       const tooltipContainer = d3.select('div#tooltip-container');
       tooltipContainer.select('#upperbound').property("value", currentReaction.upper_bound);
       tooltipContainer.select('#lowerbound').property("value", currentReaction.lower_bound);
       this._getContext();
+    });
+  }
+
+  private setReactionData(reactionData) {
+    const reactions = (<any> d3.selectAll('#reactions > .reaction')).nodes();
+    reactions.
+    this._builder.set_reaction_data(reactionData);
+    reactions.forEach((reaction: any) => {
+      d3.select(reaction)
+        .attr('stroke-dasharray',
+              reaction.__data__.data === null
+                ? '30, 30'
+                : null);
     });
   }
 
