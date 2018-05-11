@@ -459,14 +459,18 @@ class MapComponentCtrl {
 
   private setReactionData(reactionData) {
     const reactions = (<any> d3.selectAll('#reactions > .reaction')).nodes();
-    reactions.
     this._builder.set_reaction_data(reactionData);
     reactions.forEach((reaction: any) => {
-      d3.select(reaction)
-        .attr('stroke-dasharray',
-              reaction.__data__.data === null
-                ? '30, 30'
-                : null);
+      let opacity = null;
+      let dasharray = null;
+      if (reaction.__data__.data === null) {
+        opacity = '0.55';
+        dasharray = '23, 23';
+      }
+      d3.select(reaction).selectAll('.segment')
+        .attr('stroke-dasharray', dasharray);
+      d3.select(reaction).selectAll('path')
+        .style('opacity', opacity);
     });
   }
 
