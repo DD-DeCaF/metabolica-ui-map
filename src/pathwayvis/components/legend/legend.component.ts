@@ -24,28 +24,28 @@ const warningColor = '#FEEFB3';
 
 class LegendComponentCtrl {
     private _mapOptions: MapOptionService;
-    private background: string;
+    public background: string = defaultColor;
+    public expanded: boolean = true;
 
     constructor($scope: angular.IScope,
                 mapOptions: MapOptionService) {
         this._mapOptions = mapOptions;
-        this.background = defaultColor;
     }
 
-    private getPredictedGrowth(): string {
-      let rate = this._mapOptions.getCurrentGrowthRate();
-      if (Math.abs(rate) > 1e-05) {
-          this.background = defaultColor;
-          return rate.toPrecision(3);
-      }
-      this.background = warningColor;
-      return '0';
+    public toggle() {
+        this.expanded = !this.expanded;
+    }
+
+    public getPredictedGrowth(): string {
+      const rate = this._mapOptions.getCurrentGrowthRate();
+      const isRateMeaningful = Math.abs(rate) > 1e-05;
+      this.background = isRateMeaningful ? defaultColor : warningColor;
+      return isRateMeaningful ? rate.toPrecision(3) : '0';
     }
 }
 
 
 export const LegendComponent: angular.IComponentOptions = {
   controller: LegendComponentCtrl,
-  controllerAs: 'ctrl',
   template: template.toString(),
 };

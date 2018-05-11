@@ -12,42 +12,52 @@
 <!--See the License for the specific language governing permissions and-->
 <!--limitations under the License.-->
 
-<div class="legend" md-whiteframe="4" layout="column">
-  <div ng-style="{'background-color': ctrl.background}">
-    <md-tooltip md-direction="right">The simulated growth rate for the current model</md-tooltip>
-    <div class="growth">
-		Growth rate: {{ ctrl.getPredictedGrowth() }} <i>h<sup>-1</sup></i>
+<div class="legend" ng-class="$ctrl.expanded ? 'legend-expanded' : 'legend-shrinked'" md-whiteframe="4" layout="column">
+  <md-toolbar class="pv-legend-toolbar">
+    <div class="md-toolbar-tools">
+      <h5 flex md-truncate>Legend</h2>
+      <md-button ng-click="$ctrl.toggle()" class="md-icon-button">
+        <md-icon md-font-icon="minimize" ng-show="$ctrl.expanded">minimize</md-icon>
+        <md-icon md-font-icon="maximize" ng-show="!$ctrl.expanded">maximize</md-icon>
+      </md-button>
     </div>
-  </div>
-  <md-divider flex></md-divider>
-  <md-list>
-    <md-list-item>
-      <div layout="column" style="width: 100%">
-        <span class="md-body-1">Flux</span>
-        <div class="grad"></div>
-        <div layout="row">
-          <span class="md-caption">min</span>
-          <span class="md-caption right-span">max</span>
+  </md-toolbar>
+  <div ng-show="$ctrl.expanded">
+    <div ng-style="{'background-color': $ctrl.background}">
+      <md-tooltip md-direction="right">The simulated growth rate for the current model</md-tooltip>
+      <span class="growth">
+      Growth rate: {{ $ctrl.getPredictedGrowth() }} <i>h<sup>-1</sup></i>
+      </span>
+    </div>
+    <md-divider flex></md-divider>
+    <md-list>
+      <md-list-item>
+        <div layout="column" style="width: 100%">
+          <span class="md-body-1">Flux</span>
+          <div class="grad"></div>
+          <div layout="row">
+            <span class="md-caption">min</span>
+            <span class="md-caption right-span">max</span>
+          </div>
         </div>
-      </div>
-    </md-list-item>
-    <md-list-item>
-      <div layout="row">
-        <div class="color empty"></div>
-        <span class="md-caption legend-text" layout-align="center center">
-          No flux
-        </span>
-      </div>
-    </md-list-item>
-    <md-list-item>
-      <div layout="row">
-        <div class="color error"></div>
-        <span class="md-caption legend-text" layout-align="center center">
-          Not in the model
-        </span>
-      </div>
-    </md-list-item>
-    <md-list-item>
+      </md-list-item>
+      <md-list-item>
+        <div layout="row">
+          <img src="../../../../img/icons/no_flux_legend.svg" alt="" class="color">
+          <span class="md-caption legend-text" layout-align="center center">
+            No flux
+          </span>
+        </div>
+      </md-list-item>
+      <md-list-item>
+        <div layout="row">
+          <div class="color error"></div>
+          <span class="md-caption legend-text" layout-align="center center">
+            Not in the model
+          </span>
+        </div>
+      </md-list-item>
+      <md-list-item>
         <div layout="row">
           <div class="color glow"></div>
           <span class="md-caption legend-text" layout-align="center center">
@@ -55,5 +65,5 @@
           </span>
         </div>
       </md-list-item>
-  </md-list>
+  </div>
 </div>

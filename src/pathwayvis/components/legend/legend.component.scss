@@ -13,19 +13,34 @@
 // limitations under the License.
 
 pv-legend {
+    .pv-legend-toolbar {
+        min-height: 40px;
+        .md-toolbar-tools {
+            height: 40px;
+        }
+    }
+
     .growth {
         padding: 10px;
     }
 
     .legend {
-        margin-left: 2em;
-        margin-bottom: 3em;
+        margin-left: 20px;
+        margin-bottom: 20px;
         position: absolute;
         z-index: 10;
         background: white;
         bottom: 0;
+    }
+
+    .legend-expanded {
         min-width: 175px;
     }
+
+    .legend-shrinked {
+        min-width: 130px;
+    }
+
     .grad {
         background: linear-gradient(90deg, #A841D0, #868BB2, #6DBFB0, #54B151);
         height: 2em;
@@ -40,10 +55,6 @@ pv-legend {
         width: 20px;
         height: 20px;
         margin-right: 5px;
-        border: 1px solid rgba(0, 0, 0, .2);
-    }
-    .empty {
-        background: #CBCBCB;
     }
     .error {
         background: red;
