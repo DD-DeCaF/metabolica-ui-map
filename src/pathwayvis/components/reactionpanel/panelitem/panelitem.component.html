@@ -35,12 +35,9 @@
     </md-autocomplete>
     <md-list>
       <md-list-item ng-hide="$ctrl.item || $ctrl.items.length > 0">{{ $ctrl.missingItems }}</md-list-item>
-      <md-list-item ng-if="$ctrl.item">
-        <span class="md-caption">{{ $ctrl.itemDisplay($ctrl.item) }}</span>
-        <md-button class="md-icon-button md-secondary" ng-click="$ctrl.onRemoveItem({item: $ctrl.item})">
-          <md-icon md-font-icon="close">close</md-icon>
-        </md-button>
-      </md-list-item>
+      <div ng-if="$ctrl.item">
+        <objective-component item="$ctrl.item"></objective-component>
+      </div>
       <md-list-item ng-if="$ctrl.items && !$ctrl.bounds" ng-repeat="item in $ctrl.items">
         <span class="md-caption">{{ $ctrl.itemDisplay(item) }}</span>
         <md-button class="md-icon-button md-secondary" ng-click="$ctrl.onRemoveItem({item: item})">
@@ -49,7 +46,7 @@
       </md-list-item>
       <div ng-if="$ctrl.bounds">
         <change-bounds-panel-component items="$ctrl.items"></change-bounds-panel-component>
-        </div>
+      </div>
       </div>
     </md-list>
   </md-card-content>

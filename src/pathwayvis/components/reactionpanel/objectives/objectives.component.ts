@@ -62,18 +62,6 @@ class ObjectivesController {
         this._mapOptions.updateMapData(response, this._mapOptions.getSelectedId());
       });
   }
-
-  public onUndoClick(selectedReaction: string): void {
-    const undoObjectiveAction = this._actions.getAction('reaction:objective:undo');
-    this._mapOptions.setObjectiveReaction(null);
-    this.objectiveReaction = null;
-    this._mapOptions.actionHandler(undoObjectiveAction, { id: selectedReaction })
-      .then((response) => {
-        this._mapOptions.updateMapData(response, this._mapOptions.getSelectedId());
-      });
-  }
-
-
 }
 
 export const ObjectivesComponent = {

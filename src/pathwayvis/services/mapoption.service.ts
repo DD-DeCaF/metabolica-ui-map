@@ -70,6 +70,9 @@ export class MapOptionService {
   public objectiveReactionObservable: Rx.Observable<any>;
   private objectiveReactionSubject: Rx.Subject<any>;
 
+  public objectiveDirectionObservable: Rx.Observable<any>;
+  private objectiveDirectionSubject: Rx.Subject<any>;
+
   public changeReactionsObservable: Rx.Observable<any>;
   private changeReactionsSubject: Rx.Subject<any>;
 
@@ -101,6 +104,9 @@ export class MapOptionService {
 
     this.objectiveReactionSubject = new Rx.Subject();
     this.objectiveReactionObservable = this.objectiveReactionSubject.asObservable();
+
+    this.objectiveDirectionSubject = new Rx.Subject();
+    this.objectiveDirectionObservable = this.objectiveDirectionSubject.asObservable();
 
     this.changeReactionsSubject = new Rx.Subject();
     this.changeReactionsObservable = this.changeReactionsSubject.asObservable();
@@ -212,6 +218,15 @@ export class MapOptionService {
   public setObjectiveReaction(reaction: string) {
     this.getDataObject().setObjectiveReaction(reaction);
     this.objectiveReactionSubject.next(reaction);
+  }
+
+  public getObjectiveDirection(): string {
+    return this.getDataObject().mapData.objectiveDirection;
+  }
+
+  public setObjectiveDirection(direction: string) {
+    this.getDataObject().setObjectiveDirection(direction);
+    this.objectiveDirectionSubject.next(direction);
   }
 
   public getChangedReactions(): ChangedReaction[] {
@@ -386,7 +401,6 @@ export class MapOptionService {
     {id = null, reactions = null, changedReactions = null, bounds = null}: {id?: string,
       reactions?: AddedReaction[], changedReactions?: ChangedReaction[], bounds?}): any {
     const shared = angular.copy(this.getMapData());
-
     // TODO write a nice, functional switch-case statement
     if (action.type === 'reaction:knockout:do') {
       if (id) {
@@ -413,6 +427,7 @@ export class MapOptionService {
     } else if (action.type === 'reaction:objective:do') {
       if (id) {
         shared.objectiveReaction = id;
+        shared.objectiveDirection = 'max';
         this.logger.log('event', 'set objective reaction', {
           event_category: 'PathwayMap',
           event_label: id,
@@ -438,6 +453,7 @@ export class MapOptionService {
         event_label: id,
       });
     }
+    shared.objectiveDirection = action.type === 'reaction:minimize:do' ? 'min' : 'max';
     return this.actions.callAction(action, { shared, cardId: this.getSelectedId()});
   }
 

@@ -136,7 +136,7 @@ class MapComponentCtrl {
     this.subscription.add(this._mapOptions.addedReactionsObservable
       .subscribe((reactions) => {
         this._drawAddedReactions(reactions);
-    }));
+      }));
 
     $scope.$watch('ctrl._mapOptions.getDataModel().uid', (modelUid: string) => {
       if (!modelUid) return;
@@ -162,7 +162,7 @@ class MapComponentCtrl {
         this._mapOptions.setAddedReactions(reactions);
       }
       if (changes.measured.reactions) {
-        const {reactions} = this._mapOptions.getDataModel();
+        const { reactions } = this._mapOptions.getDataModel();
         // TODO filter out adapter and DM reactions
         let measuredReactions = changes.measured.reactions.filter((reaction) => {
           return !['adapter', 'DM', 'EX_'].some((str) => {
@@ -170,7 +170,7 @@ class MapComponentCtrl {
           });
         });
         measuredReactions = reactions.filter((reaction) =>
-           measuredReactions.find((measuredReaction) => measuredReaction.id === reaction.id));
+          measuredReactions.find((measuredReaction) => measuredReaction.id === reaction.id));
         this._mapOptions.setChangedReactions(measuredReactions);
         this._setUpMapEventHandlers();
       }
@@ -233,7 +233,7 @@ class MapComponentCtrl {
    * this method adds the pathway shared form the pathway predictor
    */
   private addPathway(item, model) {
-    const modelId = (<any> item.param.model_id);
+    const modelId = (<any>item.param.model_id);
     this._mapOptions.getMapData().model = Object.assign({}, model, {
       id: modelId,
       uid: modelId,
@@ -360,16 +360,19 @@ class MapComponentCtrl {
    * Callback function for clicked action button in context menu
    */
   public processActionClick(action, data) {
-    if (action.type === 'reaction:link') {
+    const [target, actionType, direction] = action.type.split(':');
+    if (actionType === 'link') {
       this.$window.open(`http://bigg.ucsd.edu/universal/reactions/${data.bigg_id}`);
     } else {
       this.shared.async(this._mapOptions.actionHandler(action, { id: data.bigg_id, bounds: data.bounds }).then((response) => {
         this._mapOptions.updateMapData(response, this._mapOptions.getSelectedId());
-        if (action.type.startsWith('reaction:objective')) {
-          this._mapOptions.setObjectiveReaction(action.type.endsWith('undo') ? null : data.bigg_id);
-        } else if (data.bigg_id === this._mapOptions.getObjectiveReaction()) {
+        if (actionType === 'objective') {
+          this._mapOptions.setObjectiveReaction(direction === 'undo' ? null : data.bigg_id);
+        } else if (data.bigg_id === this._mapOptions.getObjectiveReaction() && !['maximize', 'minimize'].includes(actionType)) {
           this._mapOptions.setObjectiveReaction(null);
         }
+        this._mapOptions.setObjectiveDirection(actionType === 'minimize' ? 'min'
+          : 'max');
         this._getContext();
       }, (error) => {
         this.toastService.showErrorToast('Oops! Sorry, there was a problem.');
@@ -398,8 +401,9 @@ class MapComponentCtrl {
         setAsObjective: (args) => { this.handleSetAsObjective(args); },
         changeBounds: (args) => { this.handleChangeBounds(args); },
         resetBounds: (args) => { this.handleResetBounds(args); },
+        objectiveDirection: (args) => { this.handleObjectiveDirection(args); },
         newArgs: (args) => {
-          const {biggId, ...restData} = args;
+          const { biggId, ...restData } = args;
           this.contextElement = {
             ...restData,
             bigg_id: biggId,
@@ -435,7 +439,7 @@ class MapComponentCtrl {
       this._builder.load_model(model);
       if (model.notes.changes) {
         const reactionsToHighlight = model.notes.changes
-        .measured.reactions.map((reaction) => reaction.id);
+          .measured.reactions.map((reaction) => reaction.id);
         reactionsToHighlight.forEach((reactionId) => {
           this._builder.map.bigg_index
             .getAll(reactionId)
@@ -478,8 +482,8 @@ class MapComponentCtrl {
    * Loads context menu with _getContext method when you over a reaction.
    */
   private _setUpMapEventHandlers(): void {
-    const {reactions} = this._mapOptions.getDataModel();
- 
+    const { reactions } = this._mapOptions.getDataModel();
+
     d3.selectAll('.reaction, .reaction-label').on('mouseenter', (d) => {
       const currentReaction = reactions.find((reaction) => (reaction.id === d.bigg_id || reaction.name === d.name));
       const tooltipContainer = d3.select('div#tooltip-container');
@@ -489,9 +493,9 @@ class MapComponentCtrl {
     });
   }
 
- /**
-  * Get context menu and fetches list of actions for selected map element
-  */
+  /**
+   * Get context menu and fetches list of actions for selected map element
+   */
   private _getContext(): void {
     const tooltipContainer = d3.select('div#tooltip-container');
     this.contextActions = this.actions.getList({
@@ -502,6 +506,19 @@ class MapComponentCtrl {
     tooltipContainer.select('#knockoutbutton').text(this.contextActions[0].label);
     tooltipContainer.select('#objectivebutton').text(this.contextActions[1].label);
     tooltipContainer.select('#boundbutton').text(this.contextActions[2].label);
+    if (this.contextActions[1].type === 'reaction:objective:undo') {
+      tooltipContainer.selectAll('.objective-direction').style("display", "inline-block");
+      this.checkCheckbox();
+    } else {
+      tooltipContainer.selectAll('.objective-direction').style("display", "none");
+    }
+  }
+
+  public checkCheckbox() {
+    const tooltipContainer = d3.select('div#tooltip-container');
+    tooltipContainer
+      .select('#objectivedirectioncheckbox')
+      .property('checked', this.contextActions[4].type !== 'reaction:maximize:do');
   }
 
   public showLegend(): boolean {
@@ -520,13 +537,20 @@ class MapComponentCtrl {
       this.processActionClick(this.contextActions[1], this.contextElement));
   }
 
+  public handleObjectiveDirection(args) {
+    this.checkCheckbox();
+    this.$scope.$apply(() =>
+      this.processActionClick(this.contextActions[4], this.contextElement));
+  }
+
+
   public handleChangeBounds(args) {
-    const bounds = {lower: 0, upper: 0};
+    const bounds = { lower: 0, upper: 0 };
     const tooltipContainer = d3.select('div#tooltip-container');
     bounds.lower = parseInt(tooltipContainer.select('#lowerbound').property("value"));
     bounds.upper = parseInt(tooltipContainer.select('#upperbound').property("value"));
     console.log('[change-bounds]', bounds);
-    this.contextElement = {...this.contextElement, bounds};
+    this.contextElement = { ...this.contextElement, bounds };
     this.$scope.$apply(() =>
       this.processActionClick(this.contextActions[2], this.contextElement));
   }
