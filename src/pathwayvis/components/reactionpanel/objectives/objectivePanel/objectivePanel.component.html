@@ -19,7 +19,9 @@
         ng-model="$ctrl.objectiveDirection" 
         ng-true-value="'max'" 
         ng-false-value="'min'" 
-        ng-change="$ctrl.changeDirection($ctrl.objectiveDirection)">
+        ng-change="$ctrl.changeDirection($ctrl.objectiveDirection)"
+        aria-label="Switch objective direction">
+       
     </md-switch>
     <span class="md-caption">Max</span>
     <md-button class="md-icon-button md-secondary" ng-click="$ctrl.onUndoClick({item: $ctrl.item})">
