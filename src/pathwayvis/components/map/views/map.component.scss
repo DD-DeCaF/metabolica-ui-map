@@ -14,6 +14,7 @@
 
 // Import pathway map styling
 @import 'escher_builder.scss';
+
 pv-map {
     .container {
         margin: 0;
@@ -120,6 +121,14 @@ pv-map {
         margin-top: 8px;
         margin-right: 8px;
       }  
+    .button-minimize-style {
+        border-radius: 3px;
+        background-color: #eee;
+        border: 1px solid #ddd;
+        margin-top: 8px;
+        margin-right: 8px;
+        display: none;
+      }    
     .type-label-style{
         position: absolute;
         top: 4px;
@@ -154,6 +163,49 @@ pv-map {
         margin-bottom: 8px;
         margin-right: 8px;
       }  
-
+      input[type=checkbox]{
+        height: 0;
+        width: 0;
+        visibility: hidden;
+    }
+    
+    label {
+        cursor: pointer;
+        text-indent: -9999px;
+        width: 34px;
+        height: 14px;
+        top: 2px;
+        background: rgb(158,158,158);
+        display: inline-block;
+        border-radius: 100px;
+        position: relative;
+    }
+    
+    label:after {
+        content: '';
+        position: absolute;
+        top: -4px;
+        left: 0px;
+        width: 20px;
+        height: 20px;
+        background: #fff;
+        box-shadow: 0 1px 3px 0 rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 2px 1px -1px rgba(0,0,0,.12);
+        border-radius: 20px;
+        transition: 0.3s;
+    }
+    
+    input:checked + label {
+        background: rgba(96,125,139,0.5);
+    }
+    
+    input:checked + label:after {
+        left: calc(100%);
+        transform: translateX(-100%);
+        background: rgb(96,125,139);
+    }
+    .span-margin-left {
+        margin-left: 10px;
+    }
+    
       
 }

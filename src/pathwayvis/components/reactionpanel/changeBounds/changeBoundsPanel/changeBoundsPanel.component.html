@@ -15,11 +15,11 @@
 <div ng-repeat="item in $ctrl.items">
     <br>
     <md-list-item ng-click="$ctrl.clickedItemFunction({item: item})">
-      <span class="md-caption lower-bound-item">{{ item.lower_bound }}</span>
+      <span class="md-caption lower-bound-item">{{ item.lower_bound | number }}</span>
       <span class="item-display">
         	&#8804; <span class="md-caption">{{ $ctrl.changedReactionDisplay(item) }}</span>
           &#8804; </span>
-        <span  class="md-caption">{{ item.upper_bound }}</span>
+        <span  class="md-caption">{{ item.upper_bound | number }}</span>
         <md-button class="md-icon-button md-secondary" ng-click="$ctrl.onResetBounds({item: item})" style="float: right">
           <md-icon md-font-icon="close">close</md-icon>
         </md-button>

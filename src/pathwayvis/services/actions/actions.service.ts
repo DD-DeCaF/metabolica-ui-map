@@ -109,7 +109,7 @@ class SetObjective extends ReactionAction implements Action {
 
   public canDisplay(context) {
     return context.type === 'map:reaction' &&
-    context.shared.objectiveReaction !== context.element.bigg_id;
+      context.shared.objectiveReaction !== context.element.bigg_id;
   }
 }
 
@@ -119,7 +119,7 @@ class UndoSetObjective extends SetObjective {
   public label = 'Undo set as objective';
   public type: string = 'reaction:objective:undo';
 
-  public canDisplay({type, shared, element}) {
+  public canDisplay({ type, shared, element }) {
     return type === 'map:reaction' &&
       shared.objectiveReaction === element.bigg_id;
   }
@@ -171,3 +171,30 @@ class UpdateChangedReactions extends ReactionAction implements Action {
     return false;
   }
 }
+
+@registerAction
+// tslint:disable-next-line
+class Minimize extends ReactionAction implements Action {
+  public label = 'Minimize';
+  public type: string = 'reaction:minimize:do';
+  public shared: types.MapData;
+
+  public canDisplay({ type, shared }) {
+    return type === 'map:reaction' &&
+      shared.objectiveDirection === 'max';
+  }
+}
+
+@registerAction
+// tslint:disable-next-line
+class Maximize extends ReactionAction implements Action {
+  public label = 'Maximize';
+  public type: string = 'reaction:maximize:do';
+  public shared: types.MapData;
+
+  public canDisplay({ type, shared }) {
+    return type === 'map:reaction' &&
+      shared.objectiveDirection === 'min';
+  }
+}
+

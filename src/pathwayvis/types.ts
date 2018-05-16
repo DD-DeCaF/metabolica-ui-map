@@ -74,6 +74,7 @@ export interface MapData {
   removedReactions?: string[];
   addedReactions?: AddedReaction[];
   objectiveReaction?: string;
+  objectiveDirection?: string;
   bounds?: number[];
   changedReactions: ChangedReaction[];
   info?: MapInfo;

@@ -39,6 +39,10 @@ export class MapDataObject implements MapObject {
     this.mapData.objectiveReaction = reaction;
   }
 
+  public setObjectiveDirection(direction: string): void {
+    this.mapData.objectiveDirection = direction;
+  }
+
   public setChangedReactions(reactions: ChangedReaction[]): void {
     this.mapData.changedReactions = reactions;
   }

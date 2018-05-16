@@ -45,6 +45,7 @@ export class DataHandler {
       removedReactions: [],
       addedReactions: [],
       objectiveReaction: null,
+      objectiveDirection: 'max',
       bounds: [],
       changedReactions: [],
     };

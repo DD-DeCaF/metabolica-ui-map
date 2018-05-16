@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 /* tslint:disable */
+
 import * as tinier from 'tinier';
 import * as _ from 'underscore';
 
@@ -73,6 +74,7 @@ export const Tooltip = (callbacks) =>
       setAsObjective: callbacks.setAsObjective,
       changeBounds: callbacks.changeBounds,
       resetBounds: callbacks.resetBounds,
+      objectiveDirection: callbacks.objectiveDirection,
     },
     render: function (args) {
       let decomp = decompartmentalizeCheck(args.state.biggId, args.state.type);
@@ -124,6 +126,19 @@ export const Tooltip = (callbacks) =>
                 data: JSON.stringify(args.state),
               },
               'Set as objective'),
+            tinier.createElement('span', { class: 'objective-direction' }, 'Min'),
+
+            tinier.createElement('input', {
+              type: 'checkbox',
+              id: 'objectivedirectioncheckbox',
+            }),
+            tinier.createElement('label', {
+              for: 'switch',
+              id: 'objectivedirection',
+              class: 'objective-direction',
+              onClick: args.methods.objectiveDirection
+            }),
+            tinier.createElement('span', { class: 'objective-direction span-margin-left' }, 'Max'),
             tinier.createElement('br'),
             tinier.createElement('div',
               // tooltip style

@@ -47,10 +47,12 @@ export abstract class ReactionAction extends Action {
         })),
       // 'objective': this.shared.objectiveReaction,
     };
-
     // this one is needed, because the backend cannot handle null as objective atm.
     if (this.shared.objectiveReaction) {
       data['objective'] = this.shared.objectiveReaction;
+    }
+    if (this.shared.objectiveDirection) {
+      data['objective-direction'] = this.shared.objectiveDirection;
     }
     if (!this.shared.model.uid) {
       throw new Error('Model uid is required');
