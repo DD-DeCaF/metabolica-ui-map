@@ -68,12 +68,6 @@ export class MapOptionService {
 
   public objectiveReactionObservable: Rx.Observable<any>;
   private objectiveReactionSubject: Rx.Subject<any>;
-
-  public changeBoundsObservable: Rx.Observable<any>;
-  private changeBoundsReactionSubject: Rx.Subject<any>;
-
-  public setBoundsObservable: Rx.Observable<any>;
-  private setBoundsReactionSubject: Rx.Subject<any>;
   // TODO rename services to lowercase
   constructor(
       api: APIService,
@@ -100,9 +94,6 @@ export class MapOptionService {
 
     this.objectiveReactionSubject = new Rx.Subject();
     this.objectiveReactionObservable = this.objectiveReactionSubject.asObservable();
-
-    this.changeBoundsReactionSubject = new Rx.Subject();
-    this.changeBoundsObservable = this.changeBoundsReactionSubject.asObservable();
 
     this.dataHandler = new DataHandler();
     this.loaded = this.init();
@@ -210,24 +201,6 @@ export class MapOptionService {
   public setObjectiveReaction(reaction: string) {
     this.getDataObject().setObjectiveReaction(reaction);
     this.objectiveReactionSubject.next(reaction);
-  }
-
-  public getBounds(): number[] {
-    return this.getDataObject().mapData.bounds;
-  }
-
-  public setBounds(bounds: number[]) {
-    this.getDataObject().setBounds(bounds);
-    this.setBoundsReactionSubject.next(bounds);
-  }
-
-  public setChangedReactions(reactions: string[], id) {
-    this.getDataObject().setChangedReactions(reactions);
-    this.changeBoundsReactionSubject.next(reactions);
-  }
-
-  public getChangedReactions(): string[] {
-    return this.getDataObject().mapData.changedReactions;
   }
 
   public getCurrentGrowthRate(): number {
@@ -410,16 +383,6 @@ export class MapOptionService {
     } else if (action.type === 'reaction:objective:undo') {
       shared.objectiveReaction = null;
     }
-    if (action.type === 'reaction:bounds:do') {
-      if (id) {
-        shared.changedReactions.push(id);
-      }
-    } else if (action.type === 'reaction:bounds:undo') {
-      let index = shared.changedReactions.indexOf(id);
-      if (index > -1) {
-        shared.changedReactions.splice(index, 1);
-      }
-    }
     return this.actions.callAction(action, { shared, cardId: this.getSelectedId()});
   }
 
@@ -508,7 +471,6 @@ export class MapOptionService {
     this.setCurrentGrowthRate(parseFloat(data['growth-rate']), id);
     this.setReactionData(data.fluxes, id);
     this.setDataModel(data.model, null, id);
-    this.setChangedReactions(data['changed/reactions'], id);
     this.setRemovedReactions(data['removed-reactions'], id);
     if (this.getSelectedId() === id) {
       this.componentCB();
