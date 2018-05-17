@@ -14,7 +14,7 @@
 
 export class ModelAPIProvider {
   private host = 'https://api-staging.dd-decaf.eu';
-  private prefix = '/model';
+  private prefix = '';
 
   public $get() {
     return `${this.host}${this.prefix}`;

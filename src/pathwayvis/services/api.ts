@@ -43,11 +43,11 @@ export class APIService {
   }
 
   public getModel(path: string, parameters: Object = {}): angular.IPromise<Object> {
-    return this._request('GET', path, undefined, parameters, this.modelAPI);
+    return this._request('GET', `model/${path}`, undefined, parameters, this.modelAPI);
   }
 
   public getWildTypeInfo(modelId: string, parameters: Object = {}): angular.IHttpPromise<Object> {
-    return this._request('GET', `v1/model-info/${modelId}`, undefined, parameters, this.modelAPI, {cache: true});
+    return this._request('GET', `model/v1/model-info/${modelId}`, undefined, parameters, this.modelAPI, {cache: true});
   }
 
   public postModel(path: string, data: Object, parameters: Object = {}): angular.IPromise<Object> {

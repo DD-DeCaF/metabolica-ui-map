@@ -125,7 +125,7 @@ export class MapOptionService {
     this.dataHandler = new DataHandler();
 
     this.loaded = this.$q.all([
-      this.apiService.get('species/current').then((response: types.CallbackEmbeddedResponse<any>) => {
+      this.apiService.get('iloop-to-model/species/current').then((response: types.CallbackEmbeddedResponse<any>) => {
         this.speciesList = Object.entries(response.data.response)
           .map(([id, name]) => (<Species> { id, name }));
         // Set selected species
@@ -296,12 +296,12 @@ export class MapOptionService {
     // Return value is not obvious.
     if (experimentId) {
       return this.apiService
-        .get(`experiments/${experimentId}/samples`);
+        .get(`iloop-to-model/experiments/${experimentId}/samples`);
     }
   }
 
   public getPhases(sampleIds: number[]): angular.IPromise<Object> {
-    return this.apiService.post('samples/phases', { sampleIds });
+    return this.apiService.post('iloop-to-model/samples/phases', { sampleIds });
   }
 
   public setModelsFromSample(sample: string): void {
@@ -335,7 +335,7 @@ export class MapOptionService {
 
   public getModelOptions(sample: string): angular.IPromise<Object> {
     if (sample) {
-      return this.apiService.post('samples/model-options', {
+      return this.apiService.post('iloop-to-model/samples/model-options', {
         sampleIds: JSON.parse(sample),
       });
     }

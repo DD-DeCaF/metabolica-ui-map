@@ -26,7 +26,7 @@ export class ExperimentService {
   }
 
   public setExperiments(speciesCode: string = null) {
-    const url = speciesCode ? `experiments/${speciesCode}` : 'experiments';
+    const url = 'iloop-to-model/experiments' + (speciesCode ? `/${speciesCode}` : '');
     return this.api.get(url)
       .then((response: CallbackEmbeddedResponse<Experiment[]>) => {
         this.experiments = response.data.response;
