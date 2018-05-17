@@ -45,7 +45,7 @@
     <md-input-container ng-hide="ctrl.isRef()">
       <label>Sample</label>
       <md-select name="samples" ng-model="ctrl.selected.sample" ng-change="ctrl.changeSample()" ng-disabled="!ctrl.samples || ctrl.samples.length === 0" ng-model-options="{trackBy: '$value.id'}">
-        <md-option ng-repeat="sample in ctrl.samples" ng-value="sample">{{sample.name}}</md-option>
+        <md-option ng-repeat="sample in ctrl.samples" ng-value="sample" ng-selected="ctrl.samples.length == 1">{{sample.name}}</md-option>
       </md-select>
     </md-input-container>
 
@@ -53,7 +53,7 @@
     <md-input-container ng-hide="ctrl.isRef()">
       <label>Phase</label>
       <md-select name="phase" ng-model="ctrl.selected.phase" ng-change="ctrl.changePhase()" ng-disabled="!ctrl.phases || ctrl.phases.length === 0" ng-model-options="{trackBy: '$value.id'}">
-        <md-option ng-repeat="phase in ctrl.phases" ng-value="phase">{{phase.name}}</md-option>
+        <md-option ng-repeat="phase in ctrl.phases" ng-value="phase" ng-selected="ctrl.phases.length == 1">{{phase.name}}</md-option>
       </md-select>
     </md-input-container>
   </md-content>
