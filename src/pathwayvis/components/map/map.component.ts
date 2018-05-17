@@ -277,7 +277,7 @@ class MapComponentCtrl {
 
       if (sampleIds === null || phaseId === null) return;
 
-      const modelPromise = this._api.post('data-adjusted/model', {
+      const modelPromise = this._api.post('iloop-to-model/data-adjusted/model', {
         sampleIds,
         phaseId,
         method: selectedItem.method.id,
@@ -286,7 +286,7 @@ class MapComponentCtrl {
         modelId: settings.model_id,
       });
 
-      const infoPromise = this._api.post('samples/info', {
+      const infoPromise = this._api.post('iloop-to-model/samples/info', {
         sampleIds,
         phaseId,
       }).then((infoResponse: any) => {
@@ -309,7 +309,7 @@ class MapComponentCtrl {
     } else if (type === ObjectType.Reference) {
       if (!settings.model_id) return;
       const addedReactions = this._mapOptions.getAddedReactions();
-      const url = `models/${settings.model_id}`;
+      const url = `model/models/${settings.model_id}`;
       const modelPromise = this._api.postModel(url, {
         message: {
           'to-return': ['fluxes', 'model', 'growth-rate', 'removed-reactions'],
