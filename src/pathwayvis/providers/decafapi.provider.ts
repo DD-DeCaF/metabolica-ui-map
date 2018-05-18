@@ -14,7 +14,7 @@
 
 export class DecafAPIProvider {
   private host = 'https://api-staging.dd-decaf.eu';
-  private prefix = '/iloop-to-model';
+  private prefix = '';
 
   public $get() {
     return `${this.host}${this.prefix}`;
