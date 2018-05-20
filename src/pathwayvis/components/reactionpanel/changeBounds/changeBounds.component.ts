@@ -21,8 +21,6 @@ import { ActionsService } from "../../../services/actions/actions.service";
 import { access } from "fs";
 import { SharedService } from '../../../services/shared.service';
 
-const DecafBiggProxy = 'https://api-staging.dd-decaf.eu/bigg/';
-
 class ChangeBoundsController {
   public modelReactions = [];
   public changedReactions = [];

@@ -20,8 +20,6 @@ import { AddedReaction, BiggReaction } from "../../../types";
 import { ActionsService } from "../../../services/actions/actions.service";
 import { access } from "fs";
 
-const DecafBiggProxy = 'https://api-staging.dd-decaf.eu/bigg/';
-
 class KnockoutsController {
   public modelReactions = [];
   public removedReactions = [];

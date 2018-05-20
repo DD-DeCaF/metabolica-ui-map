@@ -19,23 +19,24 @@ import { MapOptionService } from "../../../services/mapoption.service";
 import { SharedService } from '../../../services/shared.service';
 import { AddedReaction, BiggReaction } from "../../../types";
 
-const DecafBiggProxy = 'https://api-staging.dd-decaf.eu/bigg/';
-
 class AddedReactionsController {
   public addedReactions = [];
 
   private _$http: angular.IHttpService;
   private _mapOptions: MapOptionService;
   private _shared: SharedService;
+  private _decafBiggProxy: string;
 
   constructor(
     $http: angular.IHttpService,
     mapOptions: MapOptionService,
     $scope: angular.IScope,
+    decafBiggProxy: string,
     shared: SharedService) {
       this._$http = $http;
       this._mapOptions = mapOptions;
       this._shared = shared;
+      this._decafBiggProxy = decafBiggProxy;
 
       const subscription = new Rx.Subscription();
       subscription.add(mapOptions.addedReactionsObservable.subscribe((reactions) => {
@@ -50,7 +51,7 @@ class AddedReactionsController {
   public async selectedItemChange(item: BiggReaction) {
     if (!item) return;
 
-    const url = `${DecafBiggProxy}${item.model_bigg_id.toLowerCase()}/reactions/${item.bigg_id}`;
+    const url = `${this._decafBiggProxy}/${item.model_bigg_id.toLowerCase()}/reactions/${item.bigg_id}`;
     const biggResponse = await this._shared.async(this._$http.get(url));
     const responseData = (<any> biggResponse.data);
     let metanetx_id: string;
@@ -76,7 +77,7 @@ class AddedReactionsController {
   }
 
   public querySearch(query: string) {
-    return this._$http.get(`${DecafBiggProxy}search?query=${query}&search_type=reactions`)
+    return this._$http.get(`${this._decafBiggProxy}/search?query=${query}&search_type=reactions`)
       .then((response: angular.IHttpResponse<any>) => response.data.results);
   }
 
