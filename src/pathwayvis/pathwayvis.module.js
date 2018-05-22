@@ -28,6 +28,7 @@ import { DataCardComponent } from './components/datacard/datacard.component';
 import { ActionsService } from './services/actions/actions.service';
 import MAP_ICON from '../../img/icons/map_icon.svg';
 import { DecafAPIProvider } from './providers/decafapi.provider';
+import { DecafBiggProxyProvider } from './providers/decafBiggProxy.provider';
 import { LoggerProvider } from './providers/log.provider';
 import { ModelAPIProvider } from './providers/modelapi.provider';
 import { ModelWSProvider } from './providers/modelws.provider';
@@ -47,6 +48,7 @@ export const PathwayVisModule = angular.module('pathwayvis', [
   PanelItemComponentModule.name,
 ])
   .provider('decafAPI', DecafAPIProvider)
+  .provider('decafBiggProxy', DecafBiggProxyProvider)
   .provider('logger', LoggerProvider)
   .provider('modelAPI', ModelAPIProvider)
   .provider('modelWS', ModelWSProvider)

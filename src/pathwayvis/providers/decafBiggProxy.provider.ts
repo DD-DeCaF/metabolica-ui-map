@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export class DecafAPIProvider {
-  private host = 'https://api-staging.dd-decaf.eu';
-  private prefix = '';
+export class DecafBiggProxyProvider {
+  private host = 'https://api.dd-decaf.eu';
+  private prefix = '/bigg';
 
   public $get() {
     return `${this.host}${this.prefix}`;

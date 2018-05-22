@@ -23,8 +23,6 @@ import { SharedService } from '../../../../services/shared.service';
 import * as template from "./changeBoundsPanel.component.html";
 import "./changeBoundsPanel.component.scss";
 
-const DecafBiggProxy = 'https://api-staging.dd-decaf.eu/bigg/';
-
 class ChangeBoundsPanelController {
   public modelReactions = [];
   public changedReactions = [];
