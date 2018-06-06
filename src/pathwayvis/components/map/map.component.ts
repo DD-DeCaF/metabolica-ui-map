@@ -51,6 +51,8 @@ class MapComponentCtrl {
   private _q: any;
   private $window: angular.IWindowService;
   private subscription: Rx.Subscription = new Rx.Subscription();
+  private currentReaction: any;
+  private tooltipContainer: any;
 
   constructor($scope: angular.IScope,
     api: APIService,
@@ -454,10 +456,15 @@ class MapComponentCtrl {
     const { reactions } = this._mapOptions.getDataModel();
 
     d3.selectAll('.reaction, .reaction-label').on('mouseenter', (d) => {
-      const currentReaction = reactions.find((reaction) => (reaction.id === d.bigg_id || reaction.name === d.name));
-      const tooltipContainer = d3.select('div#tooltip-container');
-      tooltipContainer.select('#upperbound').property("value", currentReaction.upper_bound);
-      tooltipContainer.select('#lowerbound').property("value", currentReaction.lower_bound);
+      this.currentReaction = reactions.find((reaction) => (reaction.id === d.bigg_id || reaction.name === d.name));
+      this.tooltipContainer = d3.select('div#tooltip-container');
+      this.tooltipContainer.select('#upperbound').property("value", this.currentReaction.upper_bound);
+      this.tooltipContainer.select('#lowerbound').property("value", this.currentReaction.lower_bound);
+      this._getContext();
+    });
+    d3.selectAll('.segment, .arrowhead').on('mouseenter', (segment) => {
+      this.tooltipContainer.select('#upperbound').property("value", this.currentReaction.upper_bound);
+      this.tooltipContainer.select('#lowerbound').property("value", this.currentReaction.lower_bound);
       this._getContext();
     });
   }
@@ -483,26 +490,24 @@ class MapComponentCtrl {
   * Get context menu and fetches list of actions for selected map element
   */
   private _getContext(): void {
-    const tooltipContainer = d3.select('div#tooltip-container');
     this.contextActions = this.actions.getList({
       type: 'map:reaction',
       shared: this._mapOptions.getMapData(),
       element: this.contextElement,
     });
-    tooltipContainer.select('#knockoutbutton').text(this.contextActions[0].label);
-    tooltipContainer.select('#objectivebutton').text(this.contextActions[1].label);
-    tooltipContainer.select('#boundbutton').text(this.contextActions[2].label);
+    this.tooltipContainer.select('#knockoutbutton').text(this.contextActions[0].label);
+    this.tooltipContainer.select('#objectivebutton').text(this.contextActions[1].label);
+    this.tooltipContainer.select('#boundbutton').text(this.contextActions[2].label);
     if (this.contextActions[1].type === 'reaction:objective:undo') {
-      tooltipContainer.selectAll('.objective-direction').style("display", "inline-block");
+      this.tooltipContainer.selectAll('.objective-direction').style("display", "inline-block");
       this.checkCheckbox();
     } else {
-      tooltipContainer.selectAll('.objective-direction').style("display", "none");
+      this.tooltipContainer.selectAll('.objective-direction').style("display", "none");
     }
   }
 
   public checkCheckbox() {
-    const tooltipContainer = d3.select('div#tooltip-container');
-    tooltipContainer
+    this.tooltipContainer
       .select('#objectivedirectioncheckbox')
       .property('checked', this.contextActions[4].type !== 'reaction:maximize:do');
   }
@@ -532,9 +537,8 @@ class MapComponentCtrl {
 
   public handleChangeBounds(args) {
     const bounds = { lower: 0, upper: 0 };
-    const tooltipContainer = d3.select('div#tooltip-container');
-    bounds.lower = parseInt(tooltipContainer.select('#lowerbound').property("value"));
-    bounds.upper = parseInt(tooltipContainer.select('#upperbound').property("value"));
+    bounds.lower = parseInt(this.tooltipContainer.select('#lowerbound').property("value"));
+    bounds.upper = parseInt(this.tooltipContainer.select('#upperbound').property("value"));
     console.log('[change-bounds]', bounds);
     this.contextElement = { ...this.contextElement, bounds };
     this.$scope.$apply(() =>
