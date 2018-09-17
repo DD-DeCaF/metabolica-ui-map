@@ -162,7 +162,7 @@ class MapComponentCtrl {
         const { reactions } = this._mapOptions.getDataModel();
         // TODO filter out adapter and DM reactions
         let measuredReactions = changes.measured.reactions.filter((reaction) => {
-          return !['adapter', 'DM', 'EX_'].some((str) => {
+          return !['adapter', 'DM'].some((str) => {
             return reaction.id.startsWith(str);
           });
         });
