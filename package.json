@@ -1,6 +1,6 @@
 {
   "name": "metabolica-map",
-  "version": "1.2.3",
+  "version": "1.2.5",
   "main": "src/index.js",
   "dependencies": {
     "@dd-decaf/escher": "^1.6.38",
